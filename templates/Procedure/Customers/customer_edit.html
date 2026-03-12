@@ -1,0 +1,1622 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title-page %}Customer{% endblock %}
+{% block index %}{% endblock %}
+{% block Customers %}active{% endblock %}
+{% block CustomersList %}active{% endblock %}
+{% block container-fluid %}
+    <style>
+        .selectize-control, .validate_annual_report, .selectize, .single{
+            background-color: #FFFFFF;
+        }
+        .selectize-input{
+            width: 100%;
+            background-color: #FFFFFF;
+        }
+    </style>
+	<div class="row row-ext">
+		<div class="col-md-2">
+			<div class="row">
+				<div class="menu-horizontal">
+					<ul class="navbar-nav">
+						<li class="nav-item {% block customers %}active-mh{% endblock %}">
+							<a class="nav-link" href="/Procedure/customer_edit/{{customer_id}}">
+								<span class="fa fa-user"> </span>
+								<div class="nav-text">Customers</div>
+							</a>
+						</li>
+						{% if perms.Procedure.view_units %}
+						<li class="nav-item {% block units %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/units/{{customer_id}}">
+								<span class="fa fa-truck"> </span>
+								<div class="nav-text">Units</div>
+							</a>
+						</li>
+						{% endif %}
+						{% if perms.Procedure.view_invoices %}
+						<li class="nav-item {% block invoices %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/invoices/{{customer_id}}">
+								<span class="fa fa-file"> </span>
+								<div class="nav-text">Invoices</div>
+							</a>
+						</li>
+						{% endif %}
+						{% if perms.Procedure.view_millages %}
+						<li class="nav-item {% block FuelTaxes %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/fueltaxes/{{customer_id}}">
+								<span class="fa fa-pencil-square-o"></span>
+								<div class="nav-text">Fuel Taxes</div>
+							</a>
+						</li>
+						{% endif %}
+                        {% if perms.Procedure.list_drivers %}
+						<li class="nav-item {% block Drivers %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/drivers/{{customer_id}}">
+								<span class="fa fa-drivers-license-o"></span>
+								<div class="nav-text">Drivers</div>
+							</a>
+						</li>
+						{% endif %}
+                        {% if perms.Procedure.view_notes %}
+						<li class="nav-item {% block Notes %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/notes/{{customer_id}}">
+								<span class="fa fa-file-text-o"></span>
+								<div class="nav-text">Notes</div>
+							</a>
+						</li>
+						{% endif %}
+                        {% if perms.Procedure.view_projects %}
+						<li class="nav-item {% block Projects %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/projects/{{customer_id}}/0">
+								<span class="fa fa-book"></span>
+								<div class="nav-text">Projects</div>
+							</a>
+						</li>
+						{% endif %}
+						<li class="nav-item {% block Applications %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/applications/{{ customer_id }}">
+								<span class="fa fa-file-pdf"></span>
+								<div class="nav-text">Applications</div>
+							</a>
+						</li>
+                        <li class="nav-item {% block customers-files %}{% endblock %}">
+							<a class="nav-link" href="/Procedure/customer_files/{{ customer_id }}">
+								<span class="fa fa-folder-open-o"></span>
+								<div class="nav-text">Files</div>
+							</a>
+						</li>
+						<div class="nav-item" style="background:rgba(255,255,255,0.6); border-right: 3px rgba(244, 176, 51,1) solid;">
+                            <div class="card-body">
+                                <div class="text-body">
+                                    <span class="idcustomer" style="color: #e4405f; font-weight: bold;">{{ customer_id }}</span>-{{ customer.cusname }}
+                                </div>
+                                <div class="text-body">
+                                    <strong>Contact Name:</strong> <br>{{ customer.owner }} {{ customer.owner_surname }}
+                                </div>
+                                <div class="text-body">
+                                    <strong>Mobile Phone:</strong> <br>{% if customer.mobile1|length > 0 %} {{ customer.mobile1 }} {% else %} {{ customer.mobile2 }} {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% block cards %}{% endblock %}
+					</ul>
+				</div>
+			</div>
+		</div>
+		{% block row-right %}
+		<div class="col-md-10">
+			<div id="card-customers" class="card card-info">
+				<form id="editcustomer" role="form" method="post">
+					{% csrf_token %}
+					<div class="card-header">
+						<h3 class="card-title col">Edit Customers</h3>
+						<span class="col">Customer ID:{{customer_id}}</span>
+                        <span class="col" style="font-weight: bold">Due: {{ due | floatformat:2 | default:0.00}}</span>
+                        <span class="col"><a href="/Procedure/cover/{{ customer_id }}" style="text-decoration: none"><i class="bg-white fa fa-file-word-o"></i>&nbsp;<span class="text-bold text-white">Cover</span></a></span>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							{{ form.non_field_errors }}
+						</div>
+						<table class="table table-responsive table-sm table-bordered" style="background:rgba(222,222,222,0.6)">
+							<tr>
+								<td>
+									<div class="form-group">
+										{{ form.since.errors }}
+										{{ form.since.label_tag }}
+									</div>
+								</td>
+								<td width="140px">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.since.help_text }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												<!--<label for="{{ form.since.id_for_label }}">Email subject:</label>-->
+												{{ form.since }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										{{ form.anreport.errors }}
+										{{ form.anreport.label_tag }}
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.anreport.help_text }}
+											<div class="input-group">
+                                                <select name="anreport" id="id_anreport">
+                                                    <option>--Select--</option>
+                                                    {% for annual in annual_report_opt %}
+                                                        <option value="{{ annual.value }}" {% if annual.selected %} selected {% endif %}>{{ annual.value }}</option>
+                                                    {% endfor %}
+													<option value="INACTIVE">INACTIVE</option>
+                                                </select>
+                                            </div>
+										</div>
+									</div>
+								</td>
+								<td></td>
+								<td>
+									<h5>Permitting</h5>
+								</td>
+								<td>
+									<h5>Expiration Date</h5>
+								</td>
+								<td>
+									<h5>Registran Name</h5>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.cusname.errors }}
+									{{ form.cusname.label_tag }}
+								</td>
+								<td colspan="3">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.cusname }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.floridaid.errors }}
+									{{ form.floridaid.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.floridaid }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td width="130px">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.floridaexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.floridaexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="width:113px;">
+									{{ form.ssn.errors }}
+									{{ form.ssn.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.ssn }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td style="width:113px;">
+									{{ form.fein.errors }}
+									{{ form.fein.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.fein }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td style="width:113px;">
+									{{ form.mc.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											{{ form.mc.errors }}
+											<div class="input-group">
+												{{ form.mc }}
+											</div>
+											{{ form.boe.errors }}
+											<div class="input-group">
+												{{ form.boe }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.mcexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.mcexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.owner.errors }}
+									{{ form.owner.label_tag }}
+                                </td>
+                                <td colspan="3">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.owner }}
+											</div>
+										</div>
+									</div>
+                                </td>
+								<td>{{ form.dotid.label_tag }}</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											{{ form.dotid.errors }}
+											<div class="input-group">
+												{{ form.dotid }}
+											</div>
+											{{ form.dotpin.errors }}
+											<div class="input-group">
+												{{ form.dotpin }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.dotidexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<button class="btn btn-sm btn-info" type="button" onclick="update_dot();"><i class="fa fa-refresh"></i></button>
+												</div>
+												{{ form.dotidexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+                            <tr>
+                                <td>
+                                    {{ form.owner_surname.label_tag }}
+                                </td>
+                                <td colspan="3">
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.owner_surname }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+									{{ form.dot_biennal_update.errors }}
+									{{ form.dot_biennal_update.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.dot_biennal_update }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.dot_biennal_update_date.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i> </span>
+												</div>
+												{{ form.dot_biennal_update_date }}
+											</div>
+										</div>
+									</div>
+								</td>
+                            </tr>
+							<tr>
+								<td>
+									{{ form.opercomp.errors }}
+									{{ form.opercomp.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.opercomp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.corptype.errors }}
+									{{ form.corptype.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.corptype }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.dot_lease.errors }}
+									{{ form.dot_lease.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.dot_lease }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.corpno.errors }}
+									{{ form.corpno.label_tag }}
+                                    <br>
+                                    {{ form.irp_taxid.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.corpno }}
+											</div>
+										</div>
+									</div>
+                                    {{ form.irp_taxid }}
+								</td>
+								<td>
+									{{ form.statecorp.errors }}
+									{{ form.statecorp.label_tag }}
+                                    <br>
+                                    {{ form.irp_dot.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.statecorp }}
+											</div>
+										</div>
+									</div>
+                                    {{ form.irp_dot }}
+								</td>
+                                <td>
+                                    <label>Random Test:</label>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+                                                <label for="id_dotclient" class="form-check form-check-inline">
+													{{ form.dotclient }}
+													<span class="form-check-label">Yes Random</span>
+												</label>
+												<label for="id_test" class="form-check form-check-inline">
+													{{ form.test }}
+													<span class="form-check-label">Test</span>
+												</label>
+											</div>
+                                            <div class="input-group">
+                                                <label class="inline_label">Drivers:</label>
+                                                <select class="search-box SumoUnder" name="drivers[]" multiple="multiple" id="drivers" >
+                                                    {% for driver in  drivers %}
+                                                        <option value="{{ driver.iddriver }}" {% if driver.random_test %}selected{% endif %}>{{ driver.nombre }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button id="add_driver" class="btn btn-pill btn-sm btn-success" type="button" ><i class="fa fa-plus"></i></button>
+                                            </div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.bitexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<button class="btn btn-sm btn-info" type="button" onclick="certificate_email();">
+														<i class="fa fa-envelope"></i>
+													</button>
+												</div>
+												{{ form.bitexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.random_test_note.errors }}
+											<div class="input-group">
+												{{ form.random_test_note }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.contact1.errors }}
+									{{ form.contact1.label_tag }}
+								</td>
+								<td colspan="3">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.contact1 }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.irpid.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											{{ form.irpid.errors }}
+											<div class="input-group">
+												{{ form.irpid }}
+											</div>
+											{{ form.irppin.errors }}
+											<div class="input-group">
+												{{ form.irppin }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.irpexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.irpexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.contact2.errors }}
+									{{ form.contact2.label_tag }}
+								</td>
+								<td colspan="3">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.contact2 }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>{{ form.iftaid.label_tag }}</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											{{ form.iftaid.errors }}
+											<div class="input-group">
+												{{ form.iftaid }}
+											</div>
+											{{ form.iftastate.errors }}
+											<div class="input-group">
+												{{ form.iftastate }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.iftaexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.iftaexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.iftareg.errors }}
+											<div class="input-group">
+												{{ form.iftareg }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.email.errors }}
+									{{ form.email.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.email }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.language.errors }}
+									{{ form.language.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.language }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.cusnum.errors }}
+									{{ form.cusnum.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="inpu-group">
+												{{ form.cusnum }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.mobile1.errors }}
+									{{ form.mobile1.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.mobile1 }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.home.errors }}
+									{{ form.home.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.home }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.prepass.errors }}
+									{{ form.prepass.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											<div class="input-group">
+												{{ form.prepass }}
+											</div>
+                                            <div class="input-group">
+                                                {{ form.prepass_password }}
+                                            </div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.caexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.caexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.prepassreg.errors }}
+											<div class="input-group">
+												{{ form.prepassreg }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.mobile2.errors }}
+									{{ form.mobile2.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.mobile2 }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.fax.errors }}
+									{{ form.fax.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.fax }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+									{{ form.new_jersey.errors }}
+									{{ form.new_jersey.label_tag }}
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.new_jersey }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.new_jersey_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.new_jersey_exp }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.address.errors }}
+									{{ form.address.label_tag }}
+								</td>
+								<td colspan="3">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.address }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.kyuid.errors }}
+									{{ form.kyuid.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.kyuid }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.campcexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.campcexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.kyureg.errors }}
+											<div class="input-group">
+												{{ form.kyureg }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.city.errors }}
+									{{ form.city.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.city }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.state.errors }}
+									{{ form.state.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.state }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.mn.errors }}
+									{{ form.ct_user.errors }}
+									{{ form.mn.label_tag }}
+									{{ form.ct_user.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.mn }}
+											</div>
+										</div>
+									</div>
+									<div class="fieldWrapper doublefield">
+										<div class="input-group">
+											{{ form.ct_user }}
+										</div>
+										<div class="input-group">
+											{{ form.ct_password }}
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.mnexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.mnexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.mnreg.errors }}
+											<div class="input-group">
+												{{ form.mnreg }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.codepostal.errors }}
+									{{ form.codepostal.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.codepostal }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.county.errors }}
+									{{ form.county.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.county }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.nyid.errors }}
+									{{ form.nypin.errors }}
+									{{ form.nyid.label_tag }}
+                                    <div class="input-group">
+                                        {{ form.ny_tax_user.label_tag }}
+                                    </div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											<div class="input-group">
+												{{ form.nyid }}
+											</div>
+											<div class="input-group">
+												{{ form.nypin }}
+											</div>
+										</div>
+									</div>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper doublefield">
+                                            <div class="input-group">
+                                                {{ form.ny_tax_user }}
+                                            </div>
+                                            <div class="input-group">
+                                                {{ form.ny_tax_password }}
+                                            </div>
+                                        </div>
+                                    </div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.nyexp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.nyexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.nyreg.errors }}
+											<div class="input-group">
+												{{ form.nyreg }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.method.errors }}
+									{{ form.method.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.method }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.acct.errors }}
+									{{ form.acct.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.acct }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.state_permits.errors }}
+									{{ form.state_permits.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.state_permits }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.state_permits_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.state_permits_exp }}
+											</div>
+										</div>
+									</div>
+                                </td>
+								<td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.lic.errors }}
+									{{ form.lic.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.lic }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.statelic.errors }}
+									{{ form.statelic.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.statelic }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.city_license.errors }}
+									{{ form.city_license.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											<div class="input-group">
+												{{ form.city_license }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.city_license_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.city_license_exp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.medical_card_expiration_date.errors }}
+											<div class="input-group">
+                                                CDL Expiration
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.medical_card_expiration_date }}
+											</div>
+										</div>
+									</div>
+                                </td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.explic.errors }}
+									{{ form.explic.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.explic }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.insuexpire.errors }}
+									{{ form.insuexpire.label_tag }}
+								</td>
+								<td width="125">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.insuexpire }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.county_license.errors }}
+									{{ form.county_license.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper doublefield">
+											<div class="input-group">
+												{{ form.county_license }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.county_license_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.county_license_exp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.clientstatus.errors }}
+									{{ form.clientstatus.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.clientstatus }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												<label for="id_BOIR" class="form-check form-check-inline">
+													{{ form.BOIR }}
+													<span class="form-check-label">BOIR</span>
+												</label>
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												<label for="id_credithold" class="form-check form-check-inline">
+													{{ form.credithold }}
+													<span class="form-check-label">Credit Hold</span>
+												</label>
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+									{{ form.california.errors }}
+									{{ form.california.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.california }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.over_weight_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.over_weight_exp }}
+											</div>
+										</div>
+									</div>
+                                </td>
+                                <td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.referred.errors }}
+									{{ form.referred.label_tag }}
+								</td>
+								<td colspan="3">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.referred }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+									{{ form.mcreg.errors }}
+									{{ form.mcreg.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.mcreg }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.over_size_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.over_size_exp }}
+											</div>
+										</div>
+									</div>
+                                </td>
+                                <td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td>
+									{{ form.userid.errors }}
+									{{ form.userid.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.userid }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{{ form.passuserid.errors }}
+									{{ form.passuserid.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.passuserid }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+									{{ form.careg.errors }}
+									{{ form.careg.label_tag }}
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.careg }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.inner_bridge_exp.errors }}
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.inner_bridge_exp }}
+											</div>
+										</div>
+									</div>
+                                </td>
+                                <td>&nbsp;</td>
+							</tr>
+                            <tr>
+                                <td rowspan="4">
+									{{ form.clientpass.errors }}
+									{{ form.clientpass.label_tag }}
+								</td>
+								<td colspan="3" rowspan="4">
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.clientpass }}
+											</div>
+										</div>
+									</div>
+								</td>
+                                <td>{{ form.annual_inspection_truck.label_tag}}</td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.annual_inspection_truck }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.annual_inspection_truck_expiration.errors }}
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                    </span>
+                                                </div>
+                                                {{ form.annual_inspection_truck_expiration }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+							<tr>
+                                <td>{{ form.annual_inspection_trailer.label_tag }}</td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.annual_inspection_trailer }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.annual_inspection_trailer_expiration.errors }}
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                    </span>
+                                                </div>
+                                                {{ form.annual_inspection_trailer_expiration }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>{{ form.fmcsa_user.label_tag }}</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper doublefield">
+											<div class="input-group">
+												{{ form.fmcsa_user }}
+											</div>
+											<div class="input-group">
+												{{ form.fmcsa_password }}
+											</div>
+										</div>
+									</div>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td><label>Clearinghouse User|Password|Notes:</label></td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper doublefield">
+                                            <div class="input-group">
+                                                {{ form.dot_user_clearinghouse }}
+                                            </div>
+                                            <div class="input-group">
+                                                {{ form.dot_password_clearinghouse }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        {% if perms.Procedure.change_customers %}
+                                            <div class="btn-align">
+                                                <input id="btncustomer" type="button" class="btn btn-primary mb-6" value="Save">
+                                                <a href="/Procedure/customers" class="btn btn-warning mb-6"> Cancel</a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <div class="input-group">
+                                        {{ form.dot_note_clearinghouse }}
+                                        {{ form.fuel_taxes }}
+                                    </div>
+                                </td>
+							</tr>
+						</table>
+					</div>
+				</form>
+			</div>
+		</div>
+		{% endblock %}
+	</div>
+	<div class="modal modal-blur fade" id="modal-birthday" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">X</button>
+                <div class="modal-body text-center py-5" style="background-image: url('{% static 'site/img/confetti-17.gif' %}')">
+                    <img src="{% static 'site/img/cake.png' %}" height="80" width="80" class="mb-4"/>
+                    <h2>{{ customer.owner }}'s Birthday</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+	<div id="modal-load"></div>
+    {% if customer_notes %}
+        {% include 'Procedure/Customers/Notes/pop-up-notes.html' %}
+    {% endif %}
+    {% include 'Procedure/Customers/Fuel_Taxes/modal_fuel_taxes.html' %}
+{% endblock %}
+
+{% block script %}
+<script type="application/javascript">
+
+        var sumoselect = 0;
+        let userid_frm = {% if customer.userid == None %} "" {% else %} "{{ customer.userid }}" {% endif %} ;
+        let iftaid_frm = {% if customer.iftaid == None %} "" {% else %} "{{ customer.iftaid }}" {% endif %} ;
+        let fuel_taxes = {% if customer.fuel_taxes == None %}undefined{% else %}"{{ customer.fuel_taxes }}"{% endif %};
+        /*var notification = function(content, type){
+            $.notify({message: content,},{type: type,offset:{x:0,y:0}});
+		}*/
+        function validate_fuel_taxes(){
+            if((($('#id_userid').val() != userid_frm || $('#id_iftaid').val() != iftaid_frm) && (fuel_taxes == undefined || fuel_taxes == "False")) || (($('#id_userid').val() || $('#id_iftaid').val() ) && (fuel_taxes == undefined)) ){
+                $('#fuel-taxes').modal('show');
+                return false;
+            }
+            return true;
+        };
+
+        $('#id_codepostal').autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url:'/Procedure/get_state_zipcode/',
+                    data: {'zipcode':$('#id_codepostal').val()},
+                    datatype:'JSON',
+                    type:'GET'
+                }).done(function (data) {
+                    if(data.status){
+                        $('#id_state').val(data.postalcode.state.toUpperCase());
+                        $('#id_city').val(data.postalcode.city.toUpperCase());
+                        $('#id_county').val(data.postalcode.county.toUpperCase());
+                    }else{
+                        notification(data.error, 'error');
+                        $('#id_state').val('--');
+                        $('#id_city').val('');
+                        $('#id_county').val('');
+                    }
+                });
+            },
+            delay: 200,
+            minLength:5,
+            classes: {
+                "ui-autocomplete": "highlight"
+            }
+        });
+
+		$(document).ready(function(){
+			{% if birthday %}
+                $("#modal-birthday").modal("show");
+            {% endif %}
+		    $('#id_address').keyup(function () {
+               this.value = this.value.toUpperCase();
+            });
+			$('.datepicker').datepicker({
+                dateFormat: 'mm/dd/yy',
+                changeMonth:true,
+                changeYear:true,
+                showButtonPanel: true,
+                /*defaultDate:"09-24-2019"*/
+             });
+
+			$('#card-customers input[type=text]').addClass('form-control form-control-sm');
+			$('select').attr('class', 'form-control form-control-sm');
+			if($("#id_credithold").val() == 1){
+			    $("#id_credithold").prop("checked","true");
+				$("#editcustomer").css("background-color", "rgba(252,27,27,0.25)");
+			}else{
+			    $("#id_credithold").removeAttr("checked");
+			}
+            sumoselect = $('#drivers').SumoSelect({
+                csvDispCount: 3, search: true, searchText: "Click Here"
+            });
+			//Change status client
+            if($("#id_clientstatus_1").is(':checked')){
+                $("#editcustomer").css("background-color", "rgba(255,214,51,0.25)");
+            }
+            $('#id_anreport').selectize({
+                create: true,
+            });
+            $('#id_anreport-selectized').keypress(function (e){
+              var keycode = window.Event ? e.which : e.keyCode;
+              return (keycode >= 48 && keycode <= 57 || keycode == 47 || keycode == 110 || keycode ==78  || keycode == 65 || keycode == 97 || keycode==73 || keycode ==105);
+            });
+            save_customer=()=>{
+                let url='/Procedure/customer_edit/{{customer_id}}/';
+                sendForm(url, $("#editcustomer").serialize(), '{{ csrf_token }}')
+                .then(responseJson=>{
+                    HoldOn.close();
+                    const {message} = responseJson;
+                    notification(message.description, message.type);
+                    location.href = url;
+                }).catch(error=>{
+                    HoldOn.close();
+                    console.log(error);
+                })
+            }
+
+            $('#btncustomer').on('click',function(e){
+                e.preventDefault();
+                let customer_save = validate_fuel_taxes();
+                if(customer_save){
+                    save_customer();
+                }
+            });
+		});
+
+		$("#id_credithold").change(function () {
+			if($(this).prop("checked")){
+				$("#editcustomer").css("background-color", "rgba(252,27,27,0.25)");
+			}else{
+				$("#editcustomer").css("background-color", "rgba(252,27,27,0)");
+			}
+		});
+
+		$('input:radio[name="clientstatus"]').change(
+            function(){
+                if ($(this).is(':checked') && $(this).val() == 'Inactive') {
+                    $("#editcustomer").css("background-color", "rgba(255,214,51,0.25)");
+                } else {
+                    $("#editcustomer").css("background-color", "rgba(252,27,27,0)");
+                }
+            }
+        );
+
+		function update_dot() {
+            HoldOn.open({ message: "Please wait"});
+            sendForm('/Procedure/update_dot/', JSON.stringify({'customer_id': {{ customer_id }}}), '{{ csrf_token }}').then(
+                result => {
+                    HoldOn.close();
+                    ( {message, data} = result );
+                    $("#id_dotidexp").val(data.datedot);
+                    notification(message.description, message.type);
+                }
+            ).catch(error => {
+                HoldOn.close();
+            });
+        }
+
+		function certificate_email() {
+			$("#modal-load").load("/Procedure/certificate_random_test_email/{{ customer_id }}", function(){
+				$('#modal-show').modal("show");
+			});
+		}
+
+        $("#add_driver").click(function(e){
+            e.preventDefault();
+            $("#modal-load").load("/Procedure/add_driver/{{ customer_id }}", function(){
+                $("#modal-driver").modal("show");
+            });
+        });
+
+        $("#notes-modal").modal("show");
+	</script>
+{% endblock %}

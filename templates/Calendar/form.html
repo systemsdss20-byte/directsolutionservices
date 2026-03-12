@@ -1,0 +1,96 @@
+{% load static %}
+<div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Event</h5>
+                <button type="button" class="close closeBtn" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" id="frm-event-add">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Event Title:</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Description:</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="form-group ">
+                        <div class="row">
+                            <div class="col input-group p-1">
+                                <label for="message-text" class="col-form-label">Start Date:</label>
+                                {{ form.start_time }}
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col input-group p-1">
+                                <label for="message-text" class="col-form-label">End Date:</label>
+                                {{ form.end_time }}
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                       <i class="fa fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group input-group">
+                    </div>
+                    <div class="form-group mt-1">
+                        <label class="form-check-label" for="flexCheckDefault">Public:</label>
+                        {{ form.public }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger closeBtn" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var is_calendar = true;
+</script>
+<script type="text/javascript" src="{% static '/site/js/tasks_action.js' %}" type="text/javascript"></script>
+<script type="application/javascript">
+
+$('#frm-event-add').on('submit', function (e) {
+    e.preventDefault();
+    let data = {% if method == "PUT" %}JSON.stringify($(this).serializeJSON()); {% else %} $(this).serialize(); {% endif %}
+    sendForm('{{ url }}', data, '{{ csrf_token }}', '{{ method }}').then(
+        response=>{
+            const {data, message} = response;
+            notification(message.description, message.type);
+            {% if method == "PUT" %}
+                const event = calendar.getEventById(data.id);
+                event.remove();
+            {% endif %}
+            calendar.addEvent(data);
+            total_notifications();
+            $("#eventModal").modal("hide");
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+            $('#running-events').load('/calendar/running-events/');
+        }
+    ).catch(error=>{
+        notification(error, 'error');
+    });
+});
+$('.datetimepicker').datetimepicker(config);
+
+$(".closeBtn").on("click", function (e){
+    e.preventDefault();
+    $('#eventModal').modal('hide');
+    $('body').removeClass('modal-open');
+    $('.modal-backdrop').remove();
+})
+</script>

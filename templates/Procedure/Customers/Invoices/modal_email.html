@@ -1,0 +1,55 @@
+{% load static %}
+<div class="modal modal-blur fade" id="modal-email-send" tabindex="-1" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header text-white {% if validated_email %}bg-info{% else %}bg-danger{% endif %}">
+                 <h5 class="modal-title">Send invoice from email</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <!-- SVG icon code -->X
+                  </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-title text-center">
+                    {% if validated_email %}
+                    <form id="frm-send-email">
+                        {% csrf_token %}
+                        Send to {{ email }}
+                    </form>
+                    {% else %}
+                        This email (<strong>{{ email }}</strong>) is invalid.
+                    {% endif %}
+                </div>
+                <div class="text-center">
+                    {% if validated_email %}
+                        <img src="{% static 'site/img/email.png' %}" class="avatar avatar-lg avatar-rounded">
+                    {% else %}
+                        <img src="{% static 'site/img/danger.png' %}" class="avatar-md">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer {% if validated_email %}justify-content-between{% else %}justify-content-center{% endif %}">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                {% if validated_email %}
+                    <button type="button" class="btn btn-pill btn-success" onclick="send_invoice_email();">Confirm</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function send_invoice_email(){
+        HoldOn.open({ message: "Sending email..."});
+        sendForm('/Procedure/send_email_invoice/{{ invoice_id }}', JSON.stringify({email:'{{ email }}'}), '{{ csrf_token }}').then(
+            responseJson =>{
+                HoldOn.close();
+                const {message} = responseJson;
+                $('#modal-email-send').modal('hide');
+                notification(message.description, message.type);
+                //window.open('/Procedure/get_file/'+data.filename,'_blank');
+            }
+        ).catch(error=>{
+            console.log(error);
+        });
+    }
+
+</script>

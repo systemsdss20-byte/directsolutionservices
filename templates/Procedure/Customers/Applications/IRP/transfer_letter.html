@@ -1,0 +1,53 @@
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">IRP TRANSFER LETTER</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="hr-text-spaceless"></div>
+                    <div class="row">
+                        <div class="col-form-label">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="unit">Unit Form:</label>
+                                <select name="unit" id="unit" class="form-select form-select-sm">
+                                    <option>--Select--</option>
+                                    {% for unit in units %}
+                                    <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-form-label">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="unit_to">To:</label>
+                                <select name="unit_to" id="unit_to" class="form-select form-select-sm">
+                                    <option>--Select--</option>
+                                    {% for unit in units %}
+                                    <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    post_showPDF('/Procedure/irptransfers/{{ customer.idcustomer }}', '#frm');
+</script>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+        <title>Report Recive</title>
+        <style>
+            @page {
+                /*size: a4 portrait;*/
+                /*@frame header_frame {
+                    -pdf-frame-content: header_content;
+                    left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+                }*/
+                @frame content_frame {
+                    left: 50pt; width: 512pt; top: 10pt; height: 772pt;
+                }
+                @frame footer_frame {           /* Another static Frame */
+                    -pdf-frame-content: footer_content;
+                    left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+                }
+            }
+            #first-month thead th, #second-month thead th, #third-month thead th{
+                /*background:rgba(61, 181, 62, 0.6);
+                color:white;*/
+                font-size:14px;
+                font-weight:bold;
+                border: 1px solid rgba(61, 181, 62, 0.6);
+            }
+            .table{
+                text-align:center;
+            }
+            #first-table thead th, #second-table thead th, #third-table thead th{
+                /*background: rgb(44, 161, 251);
+                color:white;*/
+                font-size:14px;
+                font-weight:bold;
+                border: 1px solid rgba(44, 161, 251, 0.6);
+            }
+            #first-table , #second-table , #third-table{
+                width:40%;
+            }
+            table thead {
+                height: 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Content for Static Frame 'header_frame' -->
+        <div>
+            <h1 style="font-size:14px; font-weight:bold; text-align:center;">Millage</h1>
+            <h3 style="font-size:12px;">Customer: {{ customer }}</h3>
+            <h3 style="font-size:12px;">Unit: {{ unit }}</h3>
+            <h3 style="font-size:12px;">Year: {{ year }}</h3>
+            <h3 style="font-size:12px;">Create By: {{ createby }}</h3>
+        </div>
+        <!-- Content for Static Frame 'footer_frame' -->
+        <div id="footer_content">(c) - page <pdf:pagenumber>
+            of <pdf:pagecount>
+        </div>
+        <!-- HTML Content -->
+        <div>
+            {% if first_month|length > 0 %}
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table id="first-month" class="table">
+                                    <thead>
+                                            <tr>
+                                                <th colspan="5">
+                                                    {{first_title}}
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Zip Code</th>
+                                                <th>State</th>
+                                                <th>Gallons</th>
+                                                <th>Miles</th>
+                                            </tr>
+                                        </thead>
+                                    <tbody style="height: 30px;">
+                                            {% for first in first_month %}
+                                                <tr style="border: 1px solid rgba(61, 181, 62, 0.6);">
+                                                    <td>{{first.date | date:"m/d/Y"}}</td>
+                                                    <td>{{first.zip}}</td>
+                                                    <td>{{first.state}}</td>
+                                                    <td>{{first.gallons | floatformat:3}}</td>
+                                                    <td>{{first.miles | floatformat:3 }}</td>
+                                                </tr>
+                                            {% endfor%}
+                                        </tbody>
+                                </table>
+                            </td>
+                            <td style="padding-left: 10px">
+                                <table id="first-table" class="table table-summary">
+                                <thead>
+                                    <tr style="height: auto">
+                                        <th colspan="3" style="padding: 10px;">{{first_title}}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>State</th>
+                                        <th>Gallons</th>
+                                        <th>Miles</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="height: 30px;">
+                                    {% for summary in first_month_summary %}
+                                    <tr style="border: 1px solid rgb(44, 161, 251);">
+                                        <td>{{summary.state}}</td>
+                                        <td>{{summary.gallon | floatformat:3}}</td>
+                                        <td>{{summary.mile | floatformat:3}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if second_month|length > 0 %}
+                <table style="margin-top: 20px">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table id="second-month" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="5">
+                                                <div style="text-align: center;">{{second_title}}</div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Zip Code</th>
+                                            <th>State</th>
+                                            <th>Gallons</th>
+                                            <th>Miles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="height: 30px;">
+                                        {% for second in second_month %}
+                                            {% if second.gallons %}
+                                                <tr style="border: 1px solid rgba(61, 181, 62, 0.6); ">
+                                                    <td>{{second.date | date:"m/d/Y"}}</td>
+                                                    <td>{{second.zip}}</td>
+                                                    <td>{{second.state}}</td>
+                                                    <td>{{second.gallons | floatformat:3}}</td>
+                                                    <td>{{second.miles | floatformat:3}}</td>
+                                                </tr>
+                                            {%endif%}
+                                        {% endfor%}
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td style="padding-left: 10px">
+                                <table id="second-table" class="table table-summary">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3">
+                                            {{second_title}}
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th>State</th>
+                                        <th>Gallons</th>
+                                        <th>Miles</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="height: 30px;">
+                                    {% for summary in second_month_summary %}
+                                        {% if summary.gallon %}
+                                            <tr style="border: 1px solid rgb(44, 161, 251);">
+                                                <td>{{summary.state}}</td>
+                                                <td>{{summary.gallon | floatformat:3}}</td>
+                                                <td>{{summary.mile | floatformat:3}}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if third_month|length > 0 %}
+                <table style="margin-top: 20px">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table id="third-month" class="table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="5">
+                                            <div style="text-align: center;">{{third_title}}</div>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Zip Code</th>
+                                        <th>State</th>
+                                        <th>Gallons</th>
+                                        <th>Miles</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="height: 30px;">
+                                    {% for third in third_month %}
+                                        {% if third.gallons %}
+                                            <tr style="border: 1px solid rgba(61, 181, 62, 0.6)">
+                                                <td>{{third.date | date:"m/d/Y"}}</td>
+                                                <td>{{third.zip}}</td>
+                                                <td>{{third.state}}</td>
+                                                <td>{{third.gallons | floatformat:3}}</td>
+                                                <td>{{third.miles | floatformat:3}}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor%}
+                                </tbody>
+                            </table>
+                            </td>
+                            <td style="padding-left: 10px">
+                                <table id="third-table" class="table table-summary">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3">{{third_title}}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>State</th>
+                                        <th>Gallons</th>
+                                        <th>Miles</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="height: 30px;">
+                                    {% for summary in third_month_summary %}
+                                    <tr style="border: 1px solid rgb(44, 161, 251);">
+                                        <td>{{summary.state}}</td>
+                                        <td>{{summary.gallon | floatformat:3}}</td>
+                                        <td>{{summary.mile | floatformat:3}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </body>
+</html>

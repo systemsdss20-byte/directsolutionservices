@@ -1,0 +1,197 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %}Fuel Taxes{% endblock %}
+{% block customers %}{% endblock %}
+{% block FuelTaxes %}active-mh{% endblock %}
+{% block row-right %}
+<div class="col-md-10">
+    <div class="row">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row row-ext">
+                        <div class="col">
+                            <h5 class="card-title"> {{customer.cusname}} </h5>
+                        </div>
+                        <div class="col">
+                            FUEL TAXES DOCUMENTS
+                        </div>
+                        <div class="col-sm-2">
+                            <label for="fuel_taxes" class="form-check-label">FUEL TAXES</label>
+                            <input id="fuel_taxes" name="fuel_taxes" type="checkbox" class="form-colorinput" {% if customer.fuel_taxes %}checked{% endif %}>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="tbmillages" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th>ID</th>
+                                <th>Year</th>
+                                <th>Quarter</th>
+                                <th>IFTA Total Milles</th>
+                                <th>Kentucky</th>
+                                <th>New Mexico</th>
+                                <th>New York</th>
+                                {% if perms.Procedure.view_millages %}
+                                <th></th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for millage in millages %}
+                                <tr>
+                                    <td>
+                                        <input class="form-check-input" type="checkbox" name="idmillage" value="{{ millage.idmillage }}">
+                                    </td>
+                                    <td>{{millage.idmillage}}</td>
+                                    <td>{{millage.year}}</td>
+                                    {% if millage.qtr == 1 %}
+                                        <td>1St Quarter (Jan-Mar)</td>
+                                    {% elif millage.qtr == 2 %}
+                                        <td>2Nd Quarter (Apr-Jun)</td>
+                                    {% elif millage.qtr == 3 %}
+                                        <td>3Rd Quarter (Jul-Sep)</td>
+                                    {% else %}
+                                        <td>4Th Quarter (Oct-Dec)</td>
+                                    {% endif %}
+                                    <td>{{millage.total}}</td>
+                                    <td>{{millage.ky}}</td>
+                                    <td>{{millage.nm}}</td>
+                                    <td>{{millage.ny}}</td>
+                                    {% if perms.Procedure.view_millages %}
+                                    <td>
+                                        <button onclick="view_millage({{millage.idmillage}});" class="btn btn-sm btn-pill btn-success">
+                                            <li class="fa fa-eye"></li>&nbsp;View
+                                        </button>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card card-warning">
+              <div class="card-header">
+                <h3 class="card-title">Reports</h3>
+                <!-- /.card-tools -->
+              </div>
+              <!-- /.card-header -->
+              <div class="menu-reports">
+                  <nav>
+                      <ul class="navbar-nav">
+                          <li class="nav-item">
+                              <a class="nav-link" href="#" onclick="coverPDF({{customer_id}});">
+                                  <span class="fa fa-file-pdf-o"></span>
+                                  <div class="nav-text">Cover Page</div>
+                              </a>
+                          </li>
+                          <li class="nav-item">
+                              <a class="nav-link" href="#" onclick="showform_recives('/Procedure/showform_recives/{{customer_id}}')">
+                                  <span class="fa fa-file-pdf-o"></span>
+                                  <div class="nav-text">Receive Quarter</div>
+                              </a>
+                          </li>
+                          <li class="nav-item">
+                              <a class="nav-link" href="#" onclick="showform_recives('/Procedure/upload_receipts/{{customer_id}}')">
+                                  <span class="fa fa-file-pdf-o"></span>
+                                  <div class="nav-text">Upload Fuel Receipts</div>
+                              </a>
+                          </li>
+                          <li class="nav-item">
+                              <a class="nav-link" href="#" id="btnadd">
+                                  <span class="fa fa-file-pdf-o"></span>
+                                  <div class="nav-text">Add Quarter</div>
+                              </a>
+                          </li>
+                          <li class="nav-item">
+                              <a class="nav-link" href="#" onclick="scheduleb({{ customer_id }});">
+                                  <span class="fa fa-calendar"></span>
+                                  <div class="nav-text">Schedule B</div>
+                              </a>
+                              {% csrf_token %}
+                          </li>
+                      </ul>
+                  </nav>
+              </div>
+              <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+<script>
+    var refresh = false;
+    $("#tbmillages").DataTable({
+	   	"order": [[ 0, "desc" ]],
+        "orderCellsTop": true,
+	});
+	/*$("#btnadd").click(function(e){
+     	e.preventDefault();
+		$("#modal-load").load("/Procedure/add_fueltaxes/"+$(this).val(),function(){
+			$("#modal-millage").modal("show");
+		});
+    });*/
+	$("#btnadd").click(function(e){
+     	e.preventDefault();
+		$("#modal-load").load("/Procedure/add_fueltaxes/{{customer.idcustomer}}",function(){
+			$("#modal-millage").modal("show");
+		});
+	 });
+	 function view_millage(idmillage){
+		$("#modal-load").load("/Procedure/view_fueltaxes/"+idmillage,function(){
+			$("#modal-millage").modal("show");
+		});
+	 }
+	 function showform_recives(url){
+		$("#modal-load").load(url,function(){
+			$("#modal-recives").modal("show");
+		});
+	 }
+	 function coverPDF(customer_id){
+		$("#modal-load").load("/Procedure/ShowCoverPDF/"+customer_id,function(){
+			$("#modal-cover").modal("show");
+		});
+	 }
+	 function scheduleb(customer_id) {
+	     //e.preventDefault();
+        let checkmillage = "";
+        $('#tbmillages').find('input[type="checkbox"]:checked').each(function (index, element) {
+            var idmillage = $(this).val();
+            checkmillage = (index==0 ? idmillage : checkmillage+","+idmillage);
+        });
+        var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+        HoldOn.open({ message: "Please wait"});
+        jQuery.post('/Procedure/Scheduleb/', { customer_id: customer_id, csrfmiddlewaretoken:csrfmiddlewaretoken, idmillage:checkmillage},
+            function(data) {
+                HoldOn.close();
+                var pdfbase = 'data:application/pdf;headers=filename%3Dfiletest;base64,'+escape(data.toString());
+                var newtab = window.open('','_blank');
+                newtab.document.open();
+                newtab.document.write("<html>" +
+                    "<head><title>ScheduleB"+ customer_id +"</title></head>"+
+                    "<body>" +
+                        '<iframe style="border:1px solid #666CCC" download="recive{{ customer_id }}.pdf" src="'+pdfbase+'" frameborder="1" scrolling="auto" width="100%" height="100%"></iframe>'+
+                    "</body>" +
+                    "</html>");
+                newtab.document.close();
+        }).fail(function(data) {
+            notification(data.responseJSON.message, data.responseJSON.type);
+            HoldOn.close();
+        });
+     }
+     $('#fuel_taxes').on('change', function (){
+         const url = '/Procedure/do_fuel_taxes/'+ {{ customer.idcustomer }};
+         postData(url, {'fuel_taxes': $(this).is(':checked')}, '{{ csrf_token }}').then(
+             data => {
+                 notification(data.message,data.type);
+             }
+         )
+     });
+</script>
+{% endblock %}

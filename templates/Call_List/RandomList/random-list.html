@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static %}
+{% block style %}
+    <style>
+        .selectize-dropdown .option {
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+{% block title-page %}Random List{% endblock %}
+{% block index %}{% endblock %}
+{% block call-list %}active{% endblock %}
+{% block random-list %}active{% endblock %}
+{% block container-fluid %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <h2 class="page-title">Call List</h2>
+        </div>
+    </div>
+</div>
+<div class="row row-cards row-deck p-2">
+    <script type="text/javascript">
+        function load_modal(id) {
+            $('#load-modal').load("/CallLists/comments-random-test/"+id, function() {
+                $('#modal-comments').modal('show');
+            });
+        }
+        function onSubmitForm(status, last_status, detail_random_id) {
+            $.ajax({
+                url: "/CallLists/random-test/",
+                type: 'patch',
+                dataType: 'json',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: JSON.stringify({
+                    'status': status,
+                    'last_status': last_status,
+                    'detail_random_id': detail_random_id
+                }),
+                beforeSend: function() {
+                    HoldOn.open({ message: "Please wait"});
+                },
+                success: function(response) {
+                    HoldOn.close();
+                    const {data, message} = response;
+                    notification(message.description, message.type);
+                    if(data.new_color){
+                        const btn_detail_random = $(`#btn-save-${data.detail_random_id}`);
+                        btn_detail_random.removeClass(data.last_color);
+                        btn_detail_random.addClass(data.new_color);
+                    }
+                    //location.reload();
+                }
+            })
+        }
+
+        function saveStatus(element, last_status) {
+            const select_status = $(element).parent().find('.select-status');
+            const status = select_status.val();
+            const detail_random_id = $(element).val();
+            if (status != "negative"){
+                onSubmitForm(status, last_status, detail_random_id);
+            } else {
+                load_modal(detail_random_id);
+                onSubmitForm(status, last_status, detail_random_id);
+            }
+        }
+    </script>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Random List</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="form-group input-group">
+                            <label class="form-label"> Filter by Status</label>
+                            <select id="filter-status" class="form-control">
+                                <option value=""> -- All Status -- </option>
+                                <option value="completed">Completed</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="negative">Negative</option>
+                                <option value="paid">Paid</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="uncontacted">Uncontacted</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary input-group-append" id="btn-filter-status" type="button">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <button class="btn btn-success btn-md btn-outline ml-2" id="btn-export-excel" type="button">
+                                <i class="fa fa-file-excel"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mt-1">
+                        <div class="form-group input-group">
+                        </div>    
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col" id="table-random-list">
+                        {% include "Call_List/RandomList/table.html" %}
+                    </div>
+                </div>
+                {% csrf_token %}
+            </div>
+        </div>
+    </div>
+</div>
+<div id="load-modal"></div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            
+            $('.btn-note').click(function() {
+                const id = $(this).val();
+                load_modal(id);
+            });
+            $('.btn-test').click(function() {
+                const id = $(this).val();
+                $('#load-modal').load(
+                    "/CallLists/random-test-file/"+id,  
+                    function() {
+                        $('#modal-exam').modal('show');
+                    }
+                );
+            });
+            // Inicializar DataTable
+            let table = $('#RandomList').DataTable({
+                "info": false,
+            });
+            
+            // Filtro de estado
+            $('#btn-filter-status').on('click', function(){
+                let url = "/CallLists/random-list-filter/true/";
+                url += '?status='+$('#filter-status').val();
+                $('#table-random-list').load(
+                    url,
+                    function() {
+                        table.destroy();
+                        table = $('#RandomList').DataTable({"info": false,});
+                    }
+                );
+            });
+
+            // Exportar a Excel
+            $('#btn-export-excel').on('click', function(){
+                let url = "/CallLists/random-list-export/";
+                $.get(
+                    url,
+                    {
+                        'status': $('#filter-status').val(),
+                        'export': true
+                    },
+                    function(response) {
+                        if(response.filename){
+                            window.open('/Procedure/get_file/' + response.filename, '_blank');
+                        } else if(response.message){
+                            notification(response.message, response.type);
+                        }
+                    }
+                );
+            });
+        } );
+    
+    </script>
+{% endblock %}

@@ -1,0 +1,106 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Florida Quit Claim Deed</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <h3 class="card-title">Customer:</h3>
+                                </td>
+                                <td colspan="7">
+                                    <span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="input-group-text" for="executed_date">Executed Date</label>
+                                    <div class="input-group">
+                                        <input type="text" id="executed_date" name="executed_date" class="form-control form-control-sm">
+                                        <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="input-group-text" for="grantor">Grantor</span>
+                                    <div class="input-group">
+                                        <select class="form-select form-select-sm" name="status_grantor">
+                                            <option value="single">A single person</option>
+                                            <option value="married">A married person</option>
+                                            <option value="married_couple">A married couple person</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="input-group-text">Amount</span>
+                                    <div class="input-group">
+                                        <span class="input-group-prepend input-group-text"><i class="fa fa-dollar-sign"></i></span>
+                                        <input type="number" class="form-control form-control-sm" name="amount">
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="input-group-text">Parcel Number</span>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-sm" name="parcel">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <h1>Grantee</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="input-group-text">Name</span>
+                                    <div class="input-group">
+                                        <input type="text" name="grantee" class="form-control form-control-sm">
+                                    </div>
+                                </td>
+                                <td colspan="2">
+                                    <div class="input-group-text">Select One</div>
+                                    <div class="input-group">
+                                        <select class="form-select form-select-sm" name="select_grantee">
+                                            <option value="individually">Individually</option>
+                                            <option value="common">as tenants in common</option>
+                                            <option value="joint">as joint tenants with right of survivorship</option>
+                                            <option value="married_couple">as a married couple</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <label class="form-label col-form-label"> Mailing Address </label>
+                                    <input type="text" class="form-control form-control-sm" name="address_grantee">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#executed_date').datepicker();
+    post_showPDF('/Procedure/other_florida_quit_claim_deed/{{ customer.idcustomer }}', '#frm');
+</script>

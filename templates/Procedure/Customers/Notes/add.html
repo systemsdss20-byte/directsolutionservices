@@ -1,0 +1,127 @@
+<style>
+    .ui-datepicker {
+      z-index: 1700 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div id="modal-addNote" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form id="frmNote" role="form" method="post" class="form">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ customer.cusname}} NOTES</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                    <input id="id_fullname" name="fullname" class="form-control" type="text" value="{{ user.first_name }} {{ user.last_name }} " hidden>
+                    <input id="id_customer" name="idcustomer" type="number" value="{{ customer.idcustomer }}" hidden/>
+                    <input id="id_iduser" name="iduser" type="number" value="{{ user.id }}" hidden/>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+						{{ form.non_field_errors }}
+					</div>
+					<table class="table table-responsive table-bordered table-responsive-md" style="background:rgba(222,222,222,0.6)">
+						<tr>
+                            <td colspan="2">
+                                <div class="form-check">
+                                    <span class="form-check-label">{{ form.pin_up.label_tag }}</span>
+                                    {{ form.pin_up }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    Expiration Note
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="text" name="date_expiry" class="form-control form-control-sm datepicker" id="id_date_expiry">
+                                        <span class="input-group-text btn-warning">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td colspan="2">
+                                <div class="form-check">
+                                    <span class="form-check-label">{{ form.highlight.label_tag }}</span>
+                                    {{ form.highlight }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.note.errors }}
+                                        {{ form.note.label_tag }}
+                                        {{ form.note.help_text }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td colspan="3">
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.note }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Close</button>
+                    <input type="submit" id="btnadd_driver" type="submit" class="btn btn-pill btn-info" value="Save"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('.datepicker').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth:true,
+            changeYear:true,
+            showButtonPanel: true
+        });
+	    expiration_date();
+        $('#id_pin_up').on('change', function (e) {
+            e.preventDefault();
+            if($(this).is(':checked')){
+                $('#id_date_expiry').attr('disabled', 'disabled');
+                $('#id_date_expiry').removeAttr('required', 'required');
+                $('#id_date_expiry').val('');
+            } else {
+                $('#id_date_expiry').removeAttr('disabled', 'disabled');
+                $('#id_date_expiry').attr('required', 'required');
+                expiration_date();
+            }
+        });
+         function expiration_date(){
+             const d = new Date();
+             d.setDate(d.getDate() + 7);
+             $("#id_date_expiry").val(d.toLocaleDateString('en-us'));
+         }
+		$('#frmNote').on('submit', function (e) {
+            e.preventDefault();
+            $.post('/Procedure/add_notes/{{ customer.idcustomer }}', $(this).serialize(), function (response) {
+                notification(response.message.description, response.message.type);
+                var rowNode = tbnotes.row.add([
+                    response.note.idnote,
+                    response.note.fullname,
+                    response.note.date,
+                    response.note.note
+                ]).draw(false).node();
+                tbnotes.order([0, 'desc']).draw();
+                $(rowNode).css('color', 'red').animate({color: 'black'}, 2000);
+                $('#id_note').val("");
+                $("#modal-addNote").modal('hide');
+            });
+        });
+    });
+</script>

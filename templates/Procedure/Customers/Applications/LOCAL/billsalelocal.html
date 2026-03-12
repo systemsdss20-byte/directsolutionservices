@@ -1,0 +1,145 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">BILL OF SALE</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <table class="table table-responsive-sm">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <h3 class="card-title">Customer:</h3>
+                                </td>
+                                <td colspan="7">
+                                    <span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><label class="form-label col-form-label-sm" for="date_seller">Date of Saller:</label></td>
+                                <td colspan="2">
+                                    <div class="input-group">
+                                        <input type="text" name="date_seller" id="date_seller" class="form-control form-control-sm">
+                                        <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label class="form-label col-form-label" for="unit">Unit:</label>
+                                </td>
+                                <td colspan="2">
+                                    <select id="unit" name="unit" class="form-select item form-select-sm" required="true">
+                                        {% for unit in units %}
+                                            <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td colspan="8"><h3 class="text-center">Seller:</h3></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="type_seller">Type:</label></td>
+                                <td>
+                                    <select name="type_seller" id="type_seller" class="form-select form-select-sm">
+                                        <option value="0">--Select--</option>
+                                        <option value="1">Company</option>
+                                        <option value="2">Personal</option>
+                                        <option value="3">Other</option>
+                                    </select>
+                                </td>
+                                <td><label class="form-label col-form-label" for="name_seller">Name:</label></td>
+                                <td colspan="2"><input name="name_seller" id="name_seller" type="text" class="form-control form-control-sm"></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="address_seller">Address:</label></td>
+                                <td><input name="address_seller" id="address_seller" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="city_seller">City:</label></td>
+                                <td><input name="city_seller" id="city_seller" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="state_seller">State:</label></td>
+                                <td><input name="state_seller" id="state_seller" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="zipcode_seller">Zip Code:</label></td>
+                                <td><input name="zipcode_seller" id="zipcode_seller" type="text" class="form-control form-control-sm"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="8"><h3 class="text-center">Purchaser:</h3></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="type_purchaser">Type:</label></td>
+                                <td>
+                                    <select name="type_purchaser" id="type_purchaser" class="form-select form-select-sm">
+                                        <option value="0">--Select--</option>
+                                        <option value="1">Company</option>
+                                        <option value="2">Personal</option>
+                                        <option value="3">Other</option>
+                                    </select>
+                                </td>
+                                <td><label class="form-label col-form-label" for="name_purchaser">Name:</label></td>
+                                <td><input name="name_purchaser" id="name_purchaser" type="text" class="form-control form-control-sm"></td>
+                                <td colspan="4">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="address_purchaser">Address:</label></td>
+                                <td><input name="address_purchaser" id="address_purchaser" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="city_purchaser">City:</label></td>
+                                <td><input name="city_purchaser" id="city_purchaser" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="state_purchaser">State:</label></td>
+                                <td><input name="state_purchaser" id="state_purchaser" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="zipcode_purchaser">Zip Code:</label></td>
+                                <td><input name="zipcode_purchaser" id="zipcode_purchaser" type="text" class="form-control form-control-sm"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <input type="submit" id="showPDF" class="btn btn-pill btn-primary" value="View" />
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#date_seller').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true
+    });
+    $('#type_seller').on('change', function () {
+        fill_form($(this).val(), 'seller');
+    });
+    $('#type_purchaser').on('change', function () {
+        fill_form($(this).val(), 'purchaser');
+    });
+    post_showPDF('/Procedure/billsale/{{ customer.idcustomer }}', '#frm');
+
+    function fill_form(type, control) {
+        var url = '/Procedure/get_customertype/'+ {{ customer.idcustomer }};
+        if(type === '1' || type === '2'){
+            $.get(url,{'type': type},function (response) {
+                $('#name_'+control).val(type === '1' ? response.cusname : response.owner);
+                $('#address_'+control).val(response.address);
+                $('#city_'+control).val(response.city);
+                $('#state_'+control).val(response.state);
+                $('#zipcode_'+control).val(response.codepostal);
+            });
+        }else{
+            $('#name_'+control).val('');
+            $('#address_'+control).val('');
+            $('#city_'+control).val('');
+            $('#state_'+control).val('');
+            $('#zipcode_'+control).val('');
+        }
+    }
+</script>

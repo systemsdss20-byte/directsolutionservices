@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+    <title>DOT Update</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Estilos para el encabezado */
+        header {
+            background-color: #3498db; /* Azul */
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        /* Estilos para el menú de navegación */
+        nav {
+            margin-top: 10px;
+        }
+
+        /* Estilos para el contenido principal */
+        main {
+            display: flex; /* Usar Flexbox */
+            color: white;
+        }
+
+        /* Estilos para la barra lateral */
+        aside {
+            flex: 0 0 200px; /* Ancho fijo de 200px */
+            background-color: #f39c12; /* Amarillo */
+            padding: 10px;
+            color: white;
+        }
+
+        /* Estilos para los artículos */
+        article {
+            flex: 1; /* Ocupar espacio restante */
+            background-color: rgba(1, 58, 119, 0.85); /* Verde */
+            padding: 10px;
+            color: white;
+        }
+
+        /* Estilos para el pie de página */
+        footer {
+            background-color: #34495e; /* Gris oscuro */
+            padding: 10px;
+            color: white;
+            text-align: center;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Contenido del encabezado -->
+        <h1>DOT UPDATE</h1>
+        <nav>
+            <!-- Menú de navegación -->
+            <div class="list-buttons">
+                {% for data in data_list %}
+                    <button class="btn-update" data-customers="{{ data.customers }}" type="button">{{ data.value }}</button>
+                {% endfor %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Barra lateral -->
+        <aside>
+        </aside>
+
+        <!-- Contenido principal de la página -->
+        <article>
+            <!-- Sección 1 -->
+            <section id="info">
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <!-- Pie de página -->
+        <p>Derechos de autor © 2023 -Daniel Cuatin</p>
+    </footer>
+    <script type="text/javascript" src="{% static '/site/dist/js/jquery.slim.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/js/postajax.js' %}"></script>
+    <script type="application/javascript">
+        let info = $("#info");
+        async function update_dot(customers){
+            info.html('<h1>Processing...</h1>');
+            await sleep(6000);
+            const response = await fetch("/Procedure/updatedot/", {
+                method: 'POST',
+                body: JSON.stringify(customers),
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            });
+            const jsonResponse = await response.json();
+            if (response.ok){
+                return jsonResponse;
+            }
+        }
+
+        $('.btn-update').on('click', function (e) {
+            e.preventDefault();
+            let data = $(this).data().customers;
+            info.html('');
+            data.forEach((customer) =>{
+                update_dot({'customer':customer}).then(jsonResponse => {
+                    let item = jsonResponse.data;
+                    info.append(`${ item } </br>`);
+                });
+            });
+            $(this).attr('disabled', 'disabled');
+        });
+
+        async  function sleep(ms){
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

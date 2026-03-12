@@ -1,0 +1,291 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %}Applications{% endblock %}
+{% block customers %}{% endblock %}
+{% block Applications %}active-mh{% endblock %}
+{% block row-right %}
+    <div class="col-md-10">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">IFTA:</h3>
+                        <div class="card-options">
+                            <a class="btn btn-toolbar" href="#" data-card-widget="collapse">
+                                <i class="fa fa-chevron-circle-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/ifta_address_change_form/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Address Change Form</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/iftaapp/{{ customer_id }}');" ><i class="fa fa-arrow-circle-o-right"></i> New Application</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/iftalicenses/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> License Letter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/iftacancel/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Cancelation Letter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/iftaremplace/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Replacement Letter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="showPDF('/Procedure/ifta_texas/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> IFTA Texas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="showPDF('/Procedure/ifta_fuel_taxes/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Fuel Taxes Form</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">LOCAL:</h3>
+                        <div class="card-options">
+                            <a class="btn btn-toolbar" href="#" data-card-widget="collapse">
+                                <i class="fa fa-chevron-circle-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/application_transporter_license_plate/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Application for Transporter License Plate</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/poalocal/{{ customer_id }}');" ><i class="fa fa-arrow-circle-o-right"></i> Power of Attorney Local</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/billsale/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Bill of Sale Local</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/transfers/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Transfer Local</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/duplicate_title/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Duplicate Title</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/personal_lease_agreement/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Personal Lease Agreement</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/surrender_license_plate/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Surrender License Plate Form</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_vessel_title/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate of Vessel Title</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_mv_title/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate of Mobile Vehicle Title</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_mh_title/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate of Mobile Home Title</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/separate_odometer/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Separate Odometer Disclosure Statement and Acknowledgment</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/license_plate/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> License Plate Transfer Request</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">DOT:</h3>
+                        <div class="card-options">
+                            <a class="btn btn-toolbar" href="#" data-card-widget="collapse">
+                                <i class="fa fa-chevron-circle-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/mcs150/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Form MCS-150</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_random_test/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Certificate Random Pool</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_enrollment_alcohol_drug/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate Enrollment</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_alcohol/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate Alcohol</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/certificate_alcohol_drug/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate Alcohol & Drug</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/clearing_house_account/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Clearing House Account</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/labcorp/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> LABCORP Forms</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">IRP:</h3>
+                        <div class="card-options">
+                            <a class="btn btn-toolbar" href="#" data-card-widget="collapse">
+                                <i class="fa fa-chevron-circle-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/irpapp/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> New Application</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/irptransfers/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Transfer Letter</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/irpnonuse/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Non-Use Affidavit</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/irp_prepass/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> PrePass</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="showPDF('/Procedure/texasirp/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> IRP Form MCD 358 Texas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/mcd356texas/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> IRP Form MCD 356 Texas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/irp85100/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Form 85100</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">OTHER:</h3>
+                        <div class="card-options">
+                            <a class="btn btn-toolbar" href="#" data-card-widget="collapse">
+                                <i class="fa fa-chevron-circle-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_poa/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Power of Attorney Interstate</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_keeping/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Record Keeping</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="showPDF('/Procedure/other_efile/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> E-File Request</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_lease/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Lease Agreement</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/bill_sale_interstate/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Bill Of Sale Interstate</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/crttitle/{{ customer_id }}');"><i class="fa fa-arrow-circle-o-right"></i> Certificate Of Title</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_vin_verification/{{ customer_id}}');"><i class="fa fa-arrow-circle-o-right"></i> VIN Verification</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/small-corp/{{ customer_id}}');"><i class="fa fa-arrow-circle-o-right"></i> Small Corp F2553</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_general_affivadit/{{ customer_id}}');"><i class="fa fa-arrow-circle-o-right"></i> General Affidavit</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_annual_vehicle_inspection/{{ customer_id}}');"><i class="fa fa-arrow-circle-o-right"></i> Annual Vehicle Inspection</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_florida_quit_claim_deed/{{ customer_id}}');"><i class="fa fa-arrow-circle-o-right"></i> Florida Quit Claim Deed</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="small-box-footer" href="#" onclick="action_get('/Procedure/other_replacement_license_plate_validation_decal_parking_permit/{{ customer_id}}');"><i class="fa fa-arrow-circle-o-right"></i> Replacement License Plate, Validation Decal or Parking Permit</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">PERMITS:</h3>
+                        <div class="card-options">
+                            <a class="btn btn-toolbar" href="#" data-card-widget="collapse" >
+                                <i class="fa fa-chevron-circle-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="showPDF('/Procedure/permits_ny/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> New York Hut</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/permits_nj/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> New Jersey Registration</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/permits_nm/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> New Mexico Permit</a>
+                            </li>
+                            <li class="nav-item">
+                                 <a class="small-box-footer" href="#" onclick="action_get('/Procedure/overweight_oversize/{{ customer_id }}')"><i class="fa fa-arrow-circle-o-right"></i> Truck's Dimensions</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        function action_get(path){
+            $("#modal-load").load(path,function(){
+                $('#modal-show').modal("show");
+            });
+        }
+
+        function showPDF(url) {
+            $.get(url, function (data) {
+                window.open('/Procedure/get_file/'+data.filename,'_blank');
+            });
+        }
+
+        function post_showPDF(url, form){
+            $('#showPDF').on('click', function () {
+                post_function(url, form);
+            });
+        }
+
+        function post_function(url, form) {
+            var frm = $(form).serialize();
+            HoldOn.open({ message: "Please wait"});
+            $.post(url, frm, function (data) {
+                HoldOn.close();
+                window.open('/Procedure/get_file/'+data.filename,'_blank');
+            }).fail(function (response) {
+                HoldOn.close();
+                var message = response.responseJSON.message;
+                if(message){
+                    notification(message.description, 'error');
+                } else {
+                    notification('Error while making the PDF', 'error');
+                }
+            });
+        }
+    </script>
+{% endblock %}

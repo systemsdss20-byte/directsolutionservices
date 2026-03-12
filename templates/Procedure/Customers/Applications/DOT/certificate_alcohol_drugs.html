@@ -1,0 +1,63 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">CERTIFICATE OF ALCOHOL AND DRUGS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frmData" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <h3 class="card-title">Customer:</h3>
+                        </div>
+                        <div class="col">
+                            <span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}
+                        </div>
+                    </div>
+                    <div class="hr-text-spaceless"> </div>
+                    <div class="row">
+                        <div class="col input-group p-1">
+                            <label class="col-form-label">Date:</label>
+                            <input name="select_date" id="select_date" class="form-control form-control-sm datepicker" type="text" required>
+                            <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                        </div>
+                        <div class="col input-group p-1">
+                            <label class="col-form-label">Lote:</label>
+                            <span class="input-group-text">#</span>
+                            <input name="lote" class="form-control form-control-sm" type="number" required>
+                        </div>
+                        <div class="col input-group p-1">
+                            <label class="col-form-label">Result:</label>
+                            <select class="form-select" name="result" required>
+                                <option>--SELECT--</option>
+                                <option value="NEGATIVE">Negative</option>
+                                <option value="POSITIVE">Positive</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('.datepicker').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true
+    });
+    post_showPDF('/Procedure/certificate_alcohol_drug/{{ customer.idcustomer }}', '#frmData');
+</script>

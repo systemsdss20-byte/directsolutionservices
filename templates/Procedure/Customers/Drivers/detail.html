@@ -1,0 +1,18 @@
+<table class="table-primary tab table-bordered">
+    <tbody>
+        <tr>
+            <th>QUERIES</th>
+            <th>EMAIL</th>
+            <th>USE CLEARINGHOUSE</th>
+            <th>PASSWORD CLEARINGHOUSE</th>
+            <th>MEDICAL CARD EXPIRATION</th>
+        </tr>
+        <tr>
+            <td>{{ detail.queries | default:'' }}</td>
+            <td>{{ detail.email | default:'' }}</td>
+            <td>{{ detail.username_clearinghouse | default:'' }}</td>
+            <td>{{ detail.password_clearinghouse | default:'' }}</td>
+            <td>{{ detail.medical_card_expiration_date | default:'' }}</td>
+        </tr>
+    </tbody>
+</table>

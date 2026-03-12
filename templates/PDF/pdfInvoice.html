@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static '/assets/style.css' %}">
+{% endblock %}
+{% block index %} {% endblock %}
+{% block accounting %}active{% endblock %}
+{% block daily_chart %}active{% endblock %}
+{% block cards %}
+    <li class="nav-item">
+		<a class="nav-link" href="#" onclick="credit_card();">
+			<span class="fa fa-credit-card"> </span>
+			<div class="nav-text">Cards</div>
+		</a>
+    </li>
+{% endblock %}
+{% block container-fluid %}
+<div class="col-md-10">
+    <div class="card">
+        <div class="card-status bg-blue"></div>
+        <div class="card-header" style="background:rgba(255,255,255,1);">
+            {% if perms.Procedure.add_invoice_paid %}
+            <div class="col">
+                {% if invoice.status == "Unpaid" or invoice.status == "UnPaid" %}
+                    <input id="btnpaid" class="btn float-right" type="image" value="{{ invoice.idinvoice }}" src="{% static '/assets/img/paid.png'%}" style="wight:45px; height:43px;"/>
+                {% endif %}
+            </div>
+            {% endif %}
+            <div class="col">
+                <a id="print" href="/Procedure/get_invoice/{{ invoice.idinvoice }}" target="_blank" class="btn btn-outline-dark btn-default"><i class="fas fa-print">&nbsp;Print</i></a>
+                <button class="btn btn-md btn-outline-primary" onclick="validate_email('/Procedure/send_email_invoice/{{ invoice.idinvoice }}')"><li class="fa fa-envelope">&nbsp;Email</li></button>
+            </div>
+            <div class="col">
+                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-warning"> <li class="fa fa-reply"> </li>&nbsp;Back </a>
+                <input id="pdf-refresh" type="number" value="1" hidden readonly>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if message %}
+            <div class="alert alert-danger alert-dismissible alert-small">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  <div><i class="icon fas fa-ban"></i> Alert!  {{ message }}</div>
+            </div>
+            {% endif %}
+            <div id="DivIdToPrint" class="container">
+                <style>
+    .style1{
+       width: 1080px;
+    }
+
+    .textbox {
+                border-right: 1px solid #848484;
+                border-top: 1px solid #848484;
+                border-bottom: 1px solid #848484;
+                border-left: 4px solid #848484;
+                font-size: 12pt;
+                font-family: Arial;
+    }
+
+            .textbox
+        {
+            border-right: 1px solid #848484;
+                border-top: 1px solid #848484;
+                border-bottom: 1px solid #848484;
+                border-left: 4px solid #848484;
+            }
+
+            #tablamenu
+            {
+                width: 332px;
+            }
+
+            .style102
+            {
+                border: 1px solid #666666;
+                background-color: #CCCCCC;
+            }
+            .style103
+            {
+                font-family: Tahoma;
+                font-size: 10pt;
+                color: #333333;
+            }
+
+            .style82
+            {
+                text-align: right;
+            }
+
+            .style76
+            {
+                border-right: 1px solid #848484;
+                border-top: 1px solid #848484;
+                border-bottom: 1px solid #848484;
+                border-left: 4px solid #848484;
+                color: #FFFFFF;
+                }
+            .style104
+            {
+                width: 1080px;
+                text-align: left;
+            }
+            .style105
+            {
+                width: 100%;
+            }
+            .style106
+            {
+                height: 20px;
+            }
+            .style107
+            {
+                text-align: left;
+            }
+            .style143
+            {
+                float: right;
+            }
+
+            .style151
+            {
+                width: 34px;
+            }
+
+            .style140
+            {
+                color: #666666;
+            }
+
+            .style156
+            {
+                color: #333333;
+            }
+    .tbldetail thead{
+        color: white;
+        background-color: #333333;
+        font-weight: bold;
+    }
+    .tbldetail th{
+        padding: 10px;
+        display: table-cell;
+        vertical-align: inherit;
+        font-weight: bold;
+        text-align: center;
+    }
+    .tbldetail tr{
+        border-bottom: 1px solid #cccccc;
+    }
+     </style>
+         <table align="center" cellpadding="0" cellspacing="0" class="style105">
+                <tr>
+                    <td colspan="3" width="850px" style="text-align: center;">
+                        <label style="font-size: 18pt; color: #0000CC; font-family: Arial; font-weight: 700; " >
+                            DIRECT SOLUTION SERVICES
+                        </label>
+                    </td>
+                    <td colspan="5" rowspan="6">
+                        <img src="{% static '/assets/img/logo-01.png' %}" height="119px" width="187px" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" width="850px" style="text-align: center;">
+                         <label  style="font-family: Arial; font-size: 14pt;">
+                            Truck Permitting &amp; Tax Services
+                         </label>
+                    </td>
+                </tr>
+                <tr><td colspan="3"><hr /></td></tr>
+                <tr>
+                    <td colspan="3" style="text-align: center;" width="850px">
+                        <label style="color: #666666; font-family: Arial; font-size: 14pt; font-style: italic;">
+                            1248 Viscaya Pkwy, Cape Coral, FL 33990
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="style106" colspan="3" style="text-align: center;">
+                        <label style="color: #666666; font-family: Arial; font-size: 14pt; font-style: italic;">
+                            Off: 239-443-5846                            Fax: 800-920-4857
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align: center;">
+                        <label style="color: #666666; font-family: Arial; font-size: 14pt; font-style: italic;"  Width="850px">
+                            info@directsolutionservices.com
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="8">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="8"><hr /></td>
+                </tr>
+                <tr>
+                    <td class="style82" height="25px" width="80px" style="text-align: right;">
+                        <label style="font-style: italic; font-family: Arial; font-size: large;">
+                            Bill To:
+                        </label>
+                    </td>
+                    <td class="style107" width="500px">
+                        <label id="lblcustomno" style="font-family: Arial; font-size: large; font-weight: 700; font-style: italic">
+                            {{customer.idcustomer}} - {{customer.cusname}}
+                        </label>
+                        <label id="lblcustomer" style="font-family: Arial; font-size: large; font-weight: 700; font-style: italic"></label>
+                    </td>
+                    <td class="style82" colspan="3" style="text-align: right;">
+                        <label style="font-family: Arial; font-size: large; font-weight: 700; " >No:</label>
+                    </td>
+                    <td class="style107" colspan="2" style="text-align: center;" width="100px">
+                        <label id="lblno" style="font-family: Arial; font-size: large; font-weight: 700;"> {{invoice.idinvoice}} </label>
+                    </td>
+                    <td class="style107">
+                        <label id="space" Width="60px"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td class="style107" width="200px" height="23px">
+                        <lable id="lbladdress" style="font-family: Arial; font-size: medium; font-style: italic" Width="200px">
+                            {{ customer.address}}
+                        </lable>
+                    </td>
+                    <td colspan="4" style="text-align: right;">
+                        <label id="Label11" style="font-family: Arial; font-size: large; font-weight: 700;">
+                            Date:
+                        </label>
+                    </td>
+                    <td style="text-align: center;">
+                        <label id="lbldate" style="font-family: Arial; font-size: large; font-weight: 700; "> {{ invoice.invdate }} </label>
+                     </td>
+                     <td>&nbsp;</td>
+                </tr>
+                <tr>
+                     <td>&nbsp;</td>
+                     <td class="style107" height="25px">
+                        <label id="lbladdress2" style="font-family: Arial; font-size: medium; font-style: italic">
+                            {{customer.city}}, {{customer.state}} {{customer.codepostal | default:" "}}
+                        </label>
+                     </td>
+                     <td colspan="4" style="text-align: right;" width="120px">
+                        <label id="Label134" style="font-family: Arial; font-size: large; font-weight: 700; ">
+                            Date Paid:
+                        </label>
+                     </td>
+                     <td width="100px" height="23px" style="text-align: center;">
+                        <label id="lbldatep" style="font-family: Arial; font-size: large; font-weight: 700;">
+                            {{ Paid.datepaid }}
+                        </label>
+                     </td>
+                     <td>&nbsp;</td>
+                </tr>
+                <tr>
+                     <td>&nbsp;</td>
+                     <td class="style107" height="23px">
+                        <label id="lblmobile1" style="font-family: Arial; font-size: medium; font-style: italic"></label>
+                     </td>
+                     <td colspan="4">&nbsp;</td>
+                     <td>&nbsp;</td>
+                     <td>&nbsp;</td>
+                </tr>
+                <tr>
+                     <td colspan="8">&nbsp;</td>
+                </tr>
+                <tr>
+                     <td colspan="8">&nbsp;</td>
+                </tr>
+                <tr>
+                     <td colspan="8">
+                        <div style="overflow-y:auto; /*height:500px;*/ text-align: center; background-color: #FFFFFF; width: 100%;">
+                            <table width="100%" class="tbldetail">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Code:</th>
+                                        <th>Services:</th>
+                                        <th>Qty:</th>
+                                        <th>Rate:</th>
+                                        <th>Discount:</th>
+                                        <th>Amount:</th>
+                                        <th>Comments:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for detail in details %}
+                                        <tr>
+                                            <td></td>
+                                            <td>{{detail.code.idservice}}</td>
+                                            <td>{{detail.service}}</td>
+                                            <td>{{detail.quantity | floatformat:0}}</td>
+                                            <td>{{detail.rate | floatformat:2}}</td>
+                                            {% if detail.discountype == "%" %}
+                                                <td>{{detail.discount | default:""}} %</td>
+                                            {% elif detail.discountype == "$" %}
+                                                <td>{{detail.discount | default:""}} $</td>
+                                            {% else %}
+                                                <td>{{detail.discount | default:"0"}} </td>
+                                            {% endif %}
+                                            <td>{{detail.amount | floatformat:2 }}</td>
+                                            <td>{{detail.coments | default:""}}</td>
+                                        </tr>
+                                    {% endfor%}
+                                </tbody>
+                            </table>
+                        </div>
+                     </td>
+                </tr>
+                <tr>
+                     <td colspan="8"><hr /></td>
+                </tr>
+                <tr>
+                    <td colspan="8">
+                        <!-- table total -->
+                        <table align="right" cellpadding="0" cellspacing="0" class="style143">
+                            <tr>
+                                <td width="120px" style="text-align: right;">
+                                    <label id="Label139" style="font-family: Arial; color: #333333; font-size: 14pt">
+                                        Cash:
+                                    </label>
+                                </td>
+                                <td height="19px" width="30px" >
+                                    <label id="s1"></label>
+                                </td>
+                                <td width="80px" style="text-align: center;">
+                                    <label id="lblcash" style="font-family: Arial; font-size: 14pt; color: #333333">
+                                        {{ Paid.cash | floatformat:2 | default:'0.00'}}
+                                    </label>
+                                </td>
+                                <td class="style151">&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td width="120px" style="text-align: right;">
+                                    <label id="Label96" style="font-family: Arial; font-size: 14pt; font-weight: 700; color: #666666;">
+                                        Total:
+                                    </label>
+                                </td>
+                                <td width="20px">
+                                    <label id="Label130" ></label>
+                                </td>
+                                <td style="text-align: center;" width="150px">
+                                    <label id="lbltotal" style="font-family: Arial; font-weight: 700; font-size: 14pt; color: #666666;">
+                                        {{ invoice.amount | floatformat:2 | default:'0.00'}}
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td width="120px" style="text-align: right;">
+                                    <label id="Label140" style=" color: #333333; font-family: Arial; font-size: 14pt">
+                                        Credit Card:
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td width="80px" style="text-align: center;">
+                                    <label id="lblcard" style="font-family: Arial; font-size: 14pt; color: #333333">
+                                        {{ Paid.credit_card | floatformat:2 | default:'0.00' }}
+                                    </label>
+                                </td>
+                                <td class="style151">&nbsp;</td>
+                                <td width="200px">
+                                    <label id="Label133" hidden></label>
+                                </td>
+                                <td height="35px" width="150px" style="text-align: right;">
+                                    <label id="Label97" style="font-family: Arial; font-size: 14pt; font-weight: 700; color: #666666;">
+                                        Paid:
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td style="text-align: center;" width="150px">
+                                    <label id="lblpaid" style="font-family: Arial; font-weight: 700; font-size: 14pt; color: #666666;">
+                                        {{ Paid.total_paid | floatformat:2 | default:'0.00' }}
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;" width="120px">
+                                    <label id="Label141" style="font-family: Arial; font-size: 14pt; color: #333333">
+                                        Check:
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td width="80px" style="text-align: center;">
+                                    <label id="lblcheck" style="font-family: Arial; font-size: 14pt; color: #333333">
+                                        {{ Paid.check | floatformat:2 | default:'0.00' }}
+                                    </label>
+                                </td>
+                                <td class="style151">&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td style="text-align: right;" width="150px">
+                                    <label id="Label122" style="font-family: Arial; font-size: 14pt; font-weight: 700;">
+                                        Total Due:
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td style="text-align: center;" width="150px">
+                                    <label id="lbldeu" class="style140" style="font-family: Arial; font-size: 14pt; font-weight: 700;">
+                                        {{ invoice.deu | floatformat:2 | default:'0.00' }}
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;" width="120px">
+                                    <label id="Label141" style="font-family: Arial; font-size: 14pt; color: #333333">
+                                        Zelle:
+                                    </label>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td width="80px" style="text-align: center;">
+                                    <label id="lblzelle" style="font-family: Arial; font-size: 14pt; color: #333333">
+                                        {{ Paid.zelle | floatformat:2 | default:'0.00' }}
+                                    </label>
+                                </td>
+                                <td class="style151">&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td style="text-align: right;" width="150px">
+                                   &nbsp;
+                                </td>
+                                <td>&nbsp;</td>
+                                <td style="text-align: center;" width="150px">
+                                    &nbsp;
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table><!--End table total -->
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8"><hr /></td>
+                </tr>
+                <tr>
+                    <td class="style107" colspan="4">&nbsp;</td>
+                    <td colspan="4" rowspan="4" width="156px">
+                        {% if invoice.status == "Paid" %}
+                            <img id="imgpaid" height="100px" src="{% static '/assets/img/payment.png' %}" width="156px" />
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="style107" colspan="4">
+                       <label id="Label142" class="style156" Height="21px" Width="600px">
+                           Make all checks payable to: DIRECT SOLUTION SERVICES
+                       </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="style107" colspan="4">
+                       <label id="Label143" class="style156" Height="21px" Width="600px">
+                           If you have any questions concerning this invoice, Permit Department, 239-443-5846
+                       </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="text-align: center;">
+                       <label id="Label123" style="font-family: 'Baskerville Old Face'; font-size: xx-large; color: #999999; " Width="82%">
+                           THANK YOU FOR YOUR TRUST!!!
+                       </label>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-load"></div>
+<div id="elementH"></div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript" src="{% static '/site/plugins/jsPDF/html2canvas.min.js'%}"></script>
+<script type="text/javascript" src="{% static '/site/plugins/jsPDF/jspdf.min.js'%}"></script>
+<script type="text/javascript">
+$("#btnpaid").click(function(e){
+    e.preventDefault();
+	$("#modal-load").load("/Procedure/paid/"+$(this).val(),function(){
+        $("#modal-paid").modal("show");
+    });
+});
+function validate_email(url) {
+    $("#modal-load").load(url, function(){
+        $("#modal-email-send").modal("show");
+    });
+}
+</script>
+{% endblock %}

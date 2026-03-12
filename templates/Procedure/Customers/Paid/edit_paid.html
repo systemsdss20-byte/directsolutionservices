@@ -1,0 +1,162 @@
+<!-- /.modal -->
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+      <div class="modal fade" id="modal-paid" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+          <form id="formpaid" role="form" method="post">
+            {% csrf_token %}
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Payment Info</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <span id="msg" class="badge bg-danger">You have to add a comment more than 15 characters </span>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-6">
+                      <label class="col-form-label" for="paid">Paid</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                        </div>
+                        <input id="paid" class="form-control" type="number"  min="0" step="any" name="paid" value="{{ paid.paid | floatformat:2 }}" readonly required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-6">
+                      <label class="col-form-label" for="due">Due</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                        </div>
+                        <input id="due" class="form-control" type="number"  min="0" step="any" name="deu" readonly="True" value="{{paid.deu | floatformat:2}}">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-6">
+                      <label class="col-form-label" for="datepaid">Date Paid</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        </div>
+                        <input id="datepaid" class="form-control" data-toggle="datepicker" type="text" name="datepaid" value="{{ paid.datepaid | date:'m/d/Y' }}" readonly required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-6">
+                      <label class="col-form-label" for="typepaid">Type</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <select id="typepaid" class="form-control" name="typepaid" required>
+                            {% for choice in choices %}
+                                {% if paid.typepaid == choice %}
+                                    <option value="{{choice}}" selected>{{choice}}</option>
+                                {% else %}
+                                    <option value="{{choice}}">{{choice}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                  </div>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-6">
+                      <label class="col-form-label" for="approved">Approved By</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <select id="approved" class="form-control" name="iduser" required>
+                            {% for user in users %}
+                                {% if paid.iduser.id == user.id %}
+                                  <option value="{{user.id}}" selected>{{user.first_name}} {{user.last_name}}</option>
+                                {% else %}
+                                  <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                  </div>
+                  <div class="form-row align-items-center">
+                    <div class="col-sm-6">
+                      <label class="col-form-label" for="comment">Comment:</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <textarea id="comment" class="form-control" name="comment" required>{{paid.comment}}</textarea>
+                    </div>
+                    <input type="number" name="idinvoice" value="{{ paid.idinvoice_id }}" hidden>
+                  </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                  <button id="savefrm" type="submit" class="btn btn-primary" disabled>Save</button>
+                </div>
+              </div>
+            <!-- /.modal-content -->
+            </form>
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+<!-- /.modal -->
+<script type="text/javascript">
+var refresh = true;
+var due = parseFloat({{invoice.deu}});
+$("input[type=radio]").on("change",function(){
+    var fullpaid = parseFloat($(this).val());
+    if(fullpaid != 0){
+        $("#paid").val(due.toFixed(2));
+        $("#due").val(0.00);
+        $("#paid").prop('readonly', true);
+        $("#comment").removeAttr('required');
+        $("#msg").hide();
+        $("#savefrm").prop("disabled",false);
+    }else{
+        $("#paid").removeAttr('readonly');
+        $("#paid").prop('required', true);
+        $("#comment").prop('required', true);
+        $("#msg").show();
+        $("#savefrm").prop("disabled",true);
+        $("#paid").val(0);
+        $("#due").val(due.toFixed(2));
+    }
+});
+$("#comment").on("keyup change", function(){
+  if($(this).val().length > 4){
+    $("#msg").hide();
+    $("#savefrm").prop("disabled",false);
+  }else{
+    $("#msg").show();
+    $("#savefrm").prop("disabled",true);
+  }
+});
+$("#paid").on("keyup change", function(){
+    var topaid = parseFloat($(this).val());
+    var new_due = due - topaid;
+    $("#due").val(new_due.toFixed(2));
+});
+$(function() {
+   $('[data-toggle="datepicker"]').datepicker({
+      dateFormat: 'mm/dd/yy',
+      changeMonth:true,
+	  changeYear:true,
+	  showButtonPanel: true
+   });
+});
+$("#formpaid").submit(function(e){
+  e.preventDefault();
+  var formpaid = $(this).serialize();
+  var url = "/Procedure/edit_paid/{{paid.idpaid}}";
+  RequestPost(formpaid, url, refresh);
+});
+</script>

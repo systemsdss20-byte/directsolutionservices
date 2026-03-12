@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<!--
+* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
+* @version 1.0.0-alpha.4
+* @link https://github.com/tabler/tabler
+* Copyright 2018-2019 The Tabler Authors
+* Copyright 2018-2019 codecalm.net Paweł Kuna
+* Licensed under MIT (https://tabler.io/license)
+-->
+{% load static %}
+{% if user.is_authenticated %}
+<html lang="en-us">
+   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>{% block title-page %}Dashboard{% endblock %}</title>
+    <meta name="msapplication-TileColor" content="#206bc4"/>
+    <meta name="theme-color" content="#206bc4"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="HandheldFriendly" content="True"/>
+    <meta name="MobileOptimized" content="320"/>
+    <meta name="robots" content="noindex,nofollow,noarchive"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="icon" href="{% static 'site/favicon.ico' %}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{% static '/site/favicon.ico' %}" type="image/x-icon"/>
+    <!-- Tabler Core -->
+    <link type="text/css" href="{% static '/site/dist/css/tabler.min.css' %}" rel="stylesheet"/>
+
+    <link type="text/css" href="{% static '/site/css/comments-box.css' %}" rel="stylesheet"/>
+    <!-- Font Awesome Icons -->
+	<link type="text/css" rel="stylesheet" href="{% static '/site/plugins/fontawesome-free/css/all.min.css' %}">
+	<!-- Custom Style -->
+	<link type="text/css" rel="stylesheet" href="{% static '/site/css/style.css' %}">
+	<!-- Load -->
+	<!-- Ionicons -->
+	<link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<!-- DataTables -->
+	<link type="text/css" rel="stylesheet" href="{% static '/site/plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
+	<!-- Google Font: Source Sans Pro -->
+	<link type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+	<!-- SweetAlert2 -->
+	<link type="text/css" rel="stylesheet" href="{% static '/site/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
+    <!-- Toastr -->
+	<link type="text/css" rel="stylesheet" href="{% static '/site/plugins/toastr/toastr.min.css' %}">
+	<link type="text/css" rel="stylesheet" href="{% static '/site/css/notify.css' %}">
+    <!-- Datepicker -->
+    <link href="{% static '/site/plugins/jquery-ui/jquery-ui.min.css' %}" rel="stylesheet" type="text/css"/>
+    <!-- HoldOn -->
+    <link href="{% static '/site/plugins/HoldOn.js/HoldOn.min.css' %}" rel="stylesheet" type="text/css"/>
+    <!-- Chosen -->
+    <link href="{% static '/site/plugins/chosen/chosen.min.css' %}" rel="stylesheet" type="text/css"/>
+	  <link href="{% static '/site/dist/libs/selectize/dist/css/selectize.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static '/site/css/select-image.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'ajax_datatable/css/style.css' %}" rel="stylesheet" />
+    <link href="{% static '/site/plugins/jquery-sumoselect/sumoselect.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static '/site/plugins/uploader-master/dist/css/jquery.dm-uploader.min.css' %}" rel="stylesheet" />
+    <link href="{% static '/site/css/direct-chat.css' %}" rel="stylesheet" />
+    <!--<link href="{% static '/assets/Christmas/snow.css' %}" rel="stylesheet" />-->
+
+    {% block style %} {% endblock %}
+    <style>
+        .checkout {
+            color:rgba(255,100,20,1);
+            font-weight: bold;
+            padding: 0 8px;
+            text-decoration: none;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px white;
+            border-left: 1px solid rgba(255, 100, 20, 0.5);
+            border-right: 1px solid rgba(255, 100, 20, 0.5);
+        }
+        .checkin{
+            color:rgba(23, 162, 184,1);
+            font-weight: bold;
+            padding: 0 8px;
+            text-decoration: none;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px white;
+            border-left: solid 1px rgba(23, 162, 184, 0.5);
+            border-right: solid 1px rgba(23, 162, 184, 0.5);
+        }
+    </style>
+  </head>
+  <body class="antialiased">
+    <!--<div class="page" id="snow">
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄ </div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❄</div>
+    </div>-->
+    <div class="page">
+      <nav class="navbar navbar-expand-lg navbar-light navbar-primary" id="navbar-primary">
+        <div class="container">
+          <a href="/" class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal">
+            <img src="{% static 'site/img/dss.jpeg' %}" alt="Tabler" class="navbar-brand-logo navbar-brand-logo-large">
+            <img src="{% static 'site/img/logo-small.svg' %}" alt="Tabler" class="navbar-brand-logo navbar-brand-logo-small">
+          </a>
+          <div class="navbar-collapse collapse">
+            <h6 class="navbar-heading">Navigation</h6>
+            <ul class="navbar-nav">
+              <li class="nav-item {%block index %}active{% endblock %}">
+                <a class="nav-link" href="/Procedure/index" >
+                  <span class="nav-link-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  </span>
+                  <span class="nav-link-title">Home</span>
+                </a>
+              </li>
+              <li class="nav-item {%block file %}{% endblock %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-extra" data-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon">
+                      <i class="fa fa-file-text-o"></i>
+                  </span>
+                  <span class="nav-link-title">File</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-arrow">
+                  <li >
+                    <a class="dropdown-item {% block openlinks %}{% endblock %}" href="/Procedure/openlinks/" >
+                      Open Links
+                    </a>
+                  </li>
+                  <li >
+                    <a class="dropdown-item {% block file-explorer %}{% endblock %}" href="/Procedure/customer_files/0">
+                      File Explorer
+                    </a>
+                  </li>
+                  <li >
+                    <a class="dropdown-item" href="/calendar/" >
+                      Calendar
+                    </a>
+                  </li>
+                  <li >
+                    <a class="dropdown-item" href="#" >
+                      Help
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% block Customers %} {%endblock%}">
+                <a class="nav-link dropdown-toggle" href="#navbar-extra" data-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon">
+                      <i class="fa fa-address-book-o"></i>
+                  </span>
+                  <span class="nav-link-title">Customers</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-arrow">
+                  {% if perms.Procedure.list_customers %}
+                  <li >
+                    <a class="dropdown-item {% block CustomersList %}{% endblock %}" href="/Procedure/customers/" >
+                      Find Customers
+                    </a>
+                  </li>
+                  {% endif %}
+                  {% if perms.Procedure.add_customers %}
+                  <li >
+                    <a class="dropdown-item {% block CustomerAdd %}{% endblock%}" href="/Procedure/customer/" >
+                      New Customer
+                    </a>
+                  </li>
+                  {% endif %}
+                  <li>
+                      <a class="dropdown-item" href="#">Customers</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item {% block call-list %}{% endblock %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-extra" data-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon">
+                      <i class="fa fa-list"></i>
+                  </span>
+                  <span class="nav-link-title">Call List</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-arrow">
+                  <li>
+                    <a class="dropdown-item {% block random-test %}{% endblock %}" href="/CallLists/random-test/" >
+                      Random Test
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              {%  if perms.Procedure.view_accounting %}
+              <li class="nav-item {% block accounting %}{% endblock %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-extra" data-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon">
+                      <i class="fa fa-bar-chart-o"></i>
+                  </span>
+                  <span class="nav-link-title">Accounting</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-arrow">
+                  {% if perms.Accounting.view_commission%}
+                  <li>
+                    <a class="dropdown-item {% block commissions %}{% endblock %}" href="/Accounting/commissions/" >
+                      Commissions
+                    </a>
+                  </li>
+                  {% endif %}
+                  {% if perms.Procedure.daily_chart %}
+                  <li>
+                    <a class="dropdown-item {% block daily_chart %}{% endblock %}" href="/Procedure/daily_chart/" >
+                      Daily Chart
+                    </a>
+                  </li>
+                  {% endif %}
+                  <li>
+                    <a class="dropdown-item {% block bills_paid %}{% endblock %}" href="/Procedure/bills_paid" >
+                      Bills Paid
+                    </a>
+                  </li>
+                  <li >
+                    <a class="dropdown-item" href="#" >
+                      Pay Invoice
+                    </a>
+                  </li>
+                  <li >
+                    <a class="dropdown-item {%block invunpaid%}{%endblock%}" href="/Procedure/invunpaid/" >
+                      Inv. Unpaid
+                    </a>
+                  </li>
+                  <li >
+                    <a class="dropdown-item {% block credits %} {% endblock %}" href="/Procedure/credits/0" >
+                      Credits
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              {% endif %}
+              {% if perms.Procedure.reports %}
+              <li class="nav-item {% block report %}{% endblock %}">
+                <a class="nav-link dropdown-toggle" href="#navbar-extra" data-toggle="dropdown" role="button" aria-expanded="false" >
+                  <span class="nav-link-icon">
+                      <i class="fa fa-file-text-o"></i>
+                  </span>
+                  <span class="nav-link-title">Report</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-arrow">
+                  {% if perms.Procedure.drivers_report %}
+                    <li>
+                      <a class="dropdown-item {% block consortium %}{% endblock %}" href="/Consortium/" >
+                        Consortium
+                      </a>
+                    </li>
+                  {% endif %}
+                  {% if perms.Procedure.expirations_reports %}
+                    <li>
+                      <a class="dropdown-item {% block expirations %}{% endblock %}" href="/Procedure/expirations/" >
+                        Expirations
+                      </a>
+                    </li>
+                  {% endif %}
+                  {% if perms.Procedure.reports %}
+                  <li>
+                    <a class="dropdown-item {% block invoices %}{% endblock %}" href="/Reports/invoices/" >
+                      Invoices
+                    </a>
+                  </li>
+                  {% endif %}
+                  
+                  {% if perms.Procedure.projects_report %}
+                  <li>
+                    <a class="dropdown-item {% block projects_reports %}{% endblock %}" href="/Procedure/projects_reports/" >
+                      Projects
+                    </a>
+                  </li>
+                  {% endif %}
+                {% if perms.Procedure.sellers %}
+                  <li>
+                    <a class="dropdown-item {% block seller %}{% endblock %}" href="/Procedure/sellers/" >
+                      Sales
+                    </a>
+                  </li>
+                  {% endif %}
+                    <li>
+                        <a class="dropdown-item {% block units_report %}{% endblock %}" href="/Procedure/search_unit/" >
+                          Units
+                        </a>
+                    </li>
+                </ul>
+              </li>
+              {% endif %}
+              {% if perms.Attendanceapp.view_attendance %}
+              <li class="nav-item {% block attendance %}{% endblock %}">
+                  <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                      <span class="nav-link-icon"><i class="fa fa-clock-o"></i></span>
+                      <span class="nav-link-title">Attendance</span>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-arrow">
+                      {% if perms.Attendanceapp.view_employee %}<a class="dropdown-item {%block employees%}{%endblock%}" href="/Attendance/employees">Employees</a>{% endif %}
+                      <a class="dropdown-item {%block attendance-control%}{%endblock%}" href="/Attendance/attendance-control">Attendance Control</a>
+                  </ul>
+              </li>
+              {% endif %}
+              <li class="nav-item dropdown {% block Configuration %}{% endblock %}">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                  <span class="nav-link-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                  </span>
+                  <span class="nav-link-title">Configuration</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-arrow">
+                    {% if perms.auth.add_user %}
+                    <a class="dropdown-item" href="/admin/Procedure/user/">Users</a>
+                    {% endif %}
+                    {% if perms.Procedure.add_services %}
+                    <a class="dropdown-item {% block Services %}{% endblock %}" href="/admin/Procedure/services/">Services</a>
+                    {% endif %}
+                    <a class="dropdown-item {% block Audit_Logs%}{% endblock %}" href="/AuditLogs/">Audit Logs</a>
+                </ul>
+              </li>
+            </ul>
+            <div class="navbar-side">
+                <div class="d-none d-xl-block ml-auto d-none-navbar-vertical-narrow">
+                  <form id="frmsearch" action="." method="get">
+                      {% csrf_token %}
+                      <div class="input-icon">
+                            <input id="value_search" name="value_search" class="form-control form-control-rounded" type="text" placeholder="Search...">
+                            <span class="input-icon-addon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </span>
+                      </div>
+                  </form>
+                </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <nav class="navbar navbar-light navbar-secondary navbar-expand" id="navbar-secondary">
+        <div class="container">
+          <a href="/Procedure/index/" class="navbar-brand navbar-brand-autodark d-none-navbar-vertical">
+            <!--<img src="{% static 'assets/Christmas/arbol.png' %}" alt="Tabler" class="navbar-brand-logo navbar-brand-logo-large" style="height:3rem;">-->
+            <img src="{% static 'site/img/logo-01.png' %}" alt="Tabler" class="navbar-brand-logo navbar-brand-logo-large" style="height:3rem;">
+            <img src="{% static 'site/img/logo-small.svg' %}" alt="Tabler" class="navbar-brand-logo navbar-brand-logo-small">
+            <!--<img src="{% static 'assets/Christmas/santa.png' %}" alt="Tabler" width="60px">--> 
+            <!--<img src="{% static 'assets/Christmas/thanks.png' %}" alt="Tabler" width="60px">-->
+          </a>
+          <ul class="navbar-nav ml-auto">
+            {% if perms.Attendanceapp.add_attendance %}
+            <li class="nav-item">
+              <span class="nav-link text-bold">
+                <i class="fa fa-clock-o"></i>&nbsp;
+                  <div id="hoursworked" class="text-msg-attendance">
+                      {% if request.session.msg_attendance %}
+                          <span class="text-bold">{{ request.session.msg_attendance }}</span>
+                      {% else %}
+                          {{ request.session.last_event }} at {{ request.session.recorded_time }}
+                      {% endif %}
+                  </div>
+              </span>
+            </li>
+            <li class="nav-item {% if request.session.class_name %}{{ request.session.class_name }}{% else %}checkin{% endif %}" id="clock">
+                <span class="nav-link px-0" onclick="attendanceCheck(event);">
+                    <i class="fa fa-clock-o registered-event"></i>&nbsp;<div id="control-access" data-value="{% if request.session.register_event %}{{ request.session.register_event }}{% else %}CheckIn{% endif %}">{% if request.session.register_event %}{{ request.session.register_event }}{% else %}Clock-In{% endif %}</div>
+                </span>
+            </li>
+            {% endif %}
+            <li id="alert-notification" class="nav-item dropdown pl-2">
+                <a href="#" id="notification-counter" class="nav-link d-flex lh-1 text-inherit p-0 text-left {% if request.session.total_notifications %}active{% endif %}" data-toggle="dropdown">
+                    <span class="nav-link px-0">
+                        <i class="fa fa-bell-o"></i>
+                        <i class="badge badge-pill bg-red alert-notification">{{ request.session.total_notifications | default:"0"}}</i>
+                    </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow dropdown-menu-card" >
+                    <span class="dropdown-item dropdown-header text-center mt-1 "> <div class="alert-notification">{{ request.session.total_notifications | default:"0"}}</div>&nbsp; Notifications</span>
+                    <div class="dropdown-divider"></div>
+                    <!--<a class="dropdown-item" href="#">
+                        <i class="fas fa-envelope mr-2"></i>
+                        4 new messages
+                        <span class="float-right text-muted text-sm ml-4">3 mins</span>
+                    </a>
+                    <div class="dropdown-divider"></div>-->
+                    <a class="dropdown-item" href="/calendar/">
+                        <i class="fas fa-bell mr-2"></i>
+                        <div id="appointments-tomorrow"> {{ request.session.appointments_tomorrow | default:"0"}}</div>&nbsp; appointments
+                        <span class="float-right text-muted text-sm ml-4">Tomorrow</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/calendar/">
+                        <i class="fas fa-calendar mr-2"></i>
+                        <div id="appointments-today"> {{ request.session.appointments_today | default:"0" }}</div>&nbsp; appointments
+                        <span class="float-right text-muted text-sm ml-4">Today</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/calendar/">
+                        <i class="fas fa-list mr-2"></i>
+                        <div id="total-tasks">{{ request.session.total_tasks | default:"0" }}</div>&nbsp;tasks
+                        <span class="float-right text-muted text-sm ml-4"></span>
+                    </a>
+                </div>
+                {% block show-tasks %}
+                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow dropdown-menu-card "  style="max-width: 20rem;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">My Tasks</h3>
+                            </div>
+                        </div>
+                        <div class="list-group list-group-flush list-group-hoverable" id="load-tasks">
+                            {% include 'Procedure/Tasks/tasks-pop-up.html' %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </li>
+            <li class="nav-item dropdown pl-2">
+              <a href="#" class="nav-link d-flex lh-1 text-inherit p-0 text-left" data-toggle="dropdown">
+                <span class="avatar" style="background-image: url('/media/{{ user.avatar }}')"></span>
+                <div class="d-none d-lg-block pl-2">
+                  <div>{{ user.username }}</div>
+                  <div class="mt-1 small text-muted">username</div>
+                </div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                <a class="dropdown-item" href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-item-icon"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  Action
+                </a>
+                <a class="dropdown-item" href="">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-item-icon"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  Another action
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'Procedure:logout' %}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-item-icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  Logout</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <div class="content">
+      <!--<canvas class="snow1"></canvas>
+        <canvas class="snow2"></canvas>-->
+        <div style="padding-left: 2%;padding-right: 1%">
+           {% block container-fluid %} {% endblock %}
+        <!--<div class="container-xl">-->
+          <!-- Page title --
+          <div class="page-header">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                !-- Page pre-title --
+                <div class="page-pretitle">
+                  Overview
+                </div>
+                <h2 class="page-title"> Tituto  </h2>
+              </div>
+            </div>
+          </div> -->
+        </div>
+        <footer class="footer footer-transparent">
+          <div class="container">
+            <div class="row text-center align-items-center flex-row-reverse">
+              <div class="col-lg-auto ml-lg-auto">
+                <ul class="list-inline list-inline-dots mb-0">
+                  <li class="list-inline-item"><a href="./docs/index.html" class="link-secondary">Documentation</a></li>
+                  <li class="list-inline-item"><a href="./faq.html" class="link-secondary">FAQ</a></li>
+                  <li class="list-inline-item"><a href="https://github.com/tabler/tabler" target="_blank" class="link-secondary">Source code</a></li>
+                </ul>
+              </div>
+              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                Copyright © 2020
+                <a href="." class="link-secondary">Tabler</a>.
+                All rights reserved.
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <div class="modal modal-blur fade" id="modal-customize" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Customize Tabler</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted">Set preferences that will be saved for your live preview.</p>
+            <div class="mb-3">
+              <label class="form-label">Color scheme</label>
+              <div class="form-hint">Light or dark presentation.</div>
+              <div class="btn-group w-100">
+                <button class="btn btn-secondary" data-theme-toggle="theme:light"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                  Light</button>
+                <button class="btn btn-secondary" data-theme-toggle="theme:dark"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                  Dark</button>
+              </div>
+            </div>
+            <div class="mb-4 text-muted">
+              You can use the <code>.theme-dark-auto</code> class to automatically adjust the color version to the system settings.
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Navigation position</label>
+              <div class="form-hint">Choose where the main navigation in your project should be located.</div>
+              <div class="btn-group w-100">
+                <button class="btn btn-secondary" data-theme-toggle="navbar-position:horizontal">Topnav</button>
+                <button class="btn btn-secondary" data-theme-toggle="navbar-position:vertical">Sidenav</button>
+                <button class="btn btn-secondary" data-theme-toggle="navbar-position:both">Both</button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Sidebar size</label>
+              <div class="form-hint">Standard sidebar width or narrow version with icons only.</div>
+              <div class="btn-group w-100">
+                <button class="btn btn-secondary" data-theme-toggle="navbar-size:wide">Wide</button>
+                <button class="btn btn-secondary" data-theme-toggle="navbar-size:narrow">Narrow</button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Sidebar position</label>
+              <div class="form-hint">Choose whether the sidebar should appear on the left or on the right.</div>
+              <div class="btn-group w-100">
+                <button class="btn btn-secondary" data-theme-toggle="navbar-side:left">Left</button>
+                <button class="btn btn-secondary" data-theme-toggle="navbar-side:right">Right</button>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Navigation color</label>
+              <div class="form-hint">Light or dark version of the sidebar </div>
+              <div class="btn-group w-100">
+                <button class="btn btn-secondary" data-theme-toggle="navbar-color:light">Light</button>
+                <button class="btn btn-secondary" data-theme-toggle="navbar-color:dark">Dark</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="modal-load-messages"></div>
+    <!-- Libs JS -->
+    <script type="text/javascript" src="{% static 'site/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/dist/js/jquery.slim.min.js' %}"></script>
+    <!-- Tabler Core -->
+    <script type="text/javascript" src="{% static 'site/dist/js/tabler.min.js' %}"></script>
+		<!-- REQUIRED SCRIPTS -->
+
+		<!-- jQuery -->
+		<script type="text/javascript" src="{% static '/site/plugins/jquery/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static '/site/js/blockcharacters.js' %}"></script>
+		<!-- Bootstrap 4 -->
+		<script type="text/javascript" src="{% static '/site/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+		<!-- AdminLTE App -->
+		<script type="text/javascript" src="{% static '/site/dist/js/adminlte.min.js' %}"></script>
+		<!-- Load -->
+		<script type="text/javascript" src="{% static '/site/js/bootstrap-notify.min.js' %}"></script>
+		<script type="text/javascript" src="{% static '/site/plugins/datatables/jquery.dataTables.js' %}"></script>
+		<script type="text/javascript" src="{% static '/site/plugins/datatables-bs4/js/dataTables.bootstrap4.js' %}"></script>
+		<script type="text/javascript" src="{% static '/site/plugins/toastr/toastr.min.js' %}"></script>
+        <script type="text/javascript" src="{% static '/site/js/helpers/components.js' %}"></script>
+        <script type="text/javascript" src="{% static '/site/plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+        <!-- HoldOn -->
+        <script src="{% static '/site/plugins/HoldOn.js/HoldOn.min.js' %}" type="text/javascript"></script>
+        <!-- Chosen -->
+        <script src="{% static '/site/plugins/chosen/chosen.jquery.min.js' %}" type="text/javascript"></script>
+        <!-- Datepicker -->
+        <script type="text/javascript" src="{% static '/site/plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+        <!-- Formset -->
+        <script type="text/javascript" src="{% static '/site/plugins/formset_bootstrap/js/jquery.formset.js' %}" type="text/javascript"></script>
+        <script type="text/javascript" src="{% static '/site/js/postajax.js' %}" type="text/javascript"></script>
+        <script type="text/javascript" src="{% static '/site/js/tasks_action.js' %}" type="text/javascript"></script>
+        <script type="text/javascript" src="{% static '/site/dist/libs/selectize/dist/js/standalone/selectize.min.js' %}"></script>
+        <script type="text/javascript" src="{% static '/site/plugins/jquery-sumoselect/jquery.sumoselect.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+        <script type="text/javascript" src="{% static '/site/js/helpers/count-back.js'%}"></script>
+        <!--<script type="text/javascript" src="{% static '/assets/Christmas/PureSnow.js' %}"></script>-->
+        <script type="text/javascript">
+            /* Attendance section */
+            function attendanceCheck(event) {
+                event.preventDefault();
+                $("#modal-load-messages").load('/Attendance/control/', function(){
+                    $("#attendance_modal").modal("show");
+                });
+            }
+            /*--------------------------------------------------------------------------------------------------------*/
+
+			function credit_card(){
+               $("#modal-load").load("/Procedure/cards/{{ customer_id }}",function(){
+                   $("#modal-card").modal("show")
+               });
+            }
+
+			$('#value_search').autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/Procedure/search_box/',
+                        data: $('#frmsearch').serialize(),
+                        dataType:'json',
+                        type:'POST'
+                    }).done(function (data) {
+                        response(data);
+                    });
+                },
+                delay: 200,
+                minLength:1,
+                classes: {
+                    "ui-autocomplete": "highlight"
+                },
+                select: function (e,i) {
+                    location.href = '/Procedure/customer_view/'+i.item.id;
+                }
+            });
+
+
+		</script>
+        <!--<script type="text/javascript" src="{% static '/assets/Christmas/snow.js' %}"></script>-->
+		{% block script  %}
+		{% endblock %}
+  </body>
+</html>
+{% else %}
+    <p>Please login to see this page.</p>
+{% endif %}

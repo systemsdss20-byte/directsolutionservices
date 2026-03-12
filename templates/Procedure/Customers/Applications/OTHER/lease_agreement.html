@@ -1,0 +1,91 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">LEASE AGREEMENT</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="form-label">Date:</label>
+                                <input name="date" id="date" class="form-control datepicker" type="text">
+                                <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="form-label">Date End:</label>
+                                <input name="date_end" id="date_end" class="form-control datepicker" type="text">
+                                <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="unit">Lessor:</label>
+                                <select name="lessor" id="lessor" class="form-select">
+                                    <option>--Select--</option>
+                                    <option value="1">Company</option>
+                                    <option value="2">Personal</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-text"><h3 class="card-title">UNITS</h3></div>
+                    <div class="row">
+                        <table class="table table-striped table-center" id="tblunits">
+                            <thead>
+                                <tr>
+                                    <th>&nbsp;</th>
+                                    <th>No.</th>
+                                    <th>Year</th>
+                                    <th>Make</th>
+                                    <th>VIN</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for unit in units %}
+                                <tr>
+                                    <td><input name="idunit" class="form-check-input" value="{{ unit.idunit }}" type="checkbox"></td>
+                                    <td>{{ unit.nounit }}</td>
+                                    <td>{{ unit.year }}</td>
+                                    <td>{{ unit.make }}</td>
+                                    <td>{{ unit.vin }}</td>
+                                    <td>{{ unit.type }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('.datepicker').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true
+    });
+    post_showPDF('/Procedure/other_lease/{{ customer.idcustomer }}', '#frm');
+</script>

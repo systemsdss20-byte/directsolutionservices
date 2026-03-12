@@ -1,0 +1,148 @@
+<table class="table card-table table-vcenter" id="DailyChart">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Invoice</th>
+            <th>Customer</th>
+            <th>Company</th>
+            <th>Paid</th>
+            <th>Service</th>
+            <th>Quantity</th>
+            <th>Charge ACCT</th>
+            <th>Rate</th>
+            <th>Cost</th>
+            <th>Amount</th>
+            <th>Payment</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invoice in invoices %}
+        <tr data-id="{%if invoice.details%}{{ invoice.details.0.idinvoicedet }}{%endif%}">
+            <td rowspan="{{ invoice.details_count }}">{{ invoice.invdate }}</td>
+            <td rowspan="{{ invoice.details_count }}">{{ invoice.idinvoice }}</td>
+            <td rowspan="{{ invoice.details_count }}">{{ invoice.idcustomer }}</td>
+            <td rowspan="{{ invoice.details_count }}">{{ invoice.cusname }}</td>
+            {% if invoice.details %}
+            <td>&nbsp;</td>
+            <td class="service-column">{{ invoice.details.0.service }}</td>
+            <td>{{ invoice.details.0.quantity | floatformat:0}}</td>
+            <td>&nbsp;</td>
+            <td>{{ invoice.details.0.rate | floatformat:2 }}</td>
+            <td class="cost-column">{{ invoice.details.0.cost | floatformat:2 }}</td>
+            <td>{{ invoice.details.0.amount | floatformat:2 }}</td>
+            <td class="text-red" rowspan="{{ invoice.details | length }}">{{ invoice.amount | floatformat:2}}</td>
+        </tr>
+        {% for detail in invoice.details|slice:"1:" %}
+        <tr data-id="{{ detail.idinvoicedet }}">
+            <td>&nbsp;</td>
+            <td class="service-column">{{ detail.service }}</td>
+            <td>{{ detail.quantity | floatformat:0}}</td>
+            <td>&nbsp;</td>
+            <td>{{ detail.rate | floatformat:2 }}</td>
+            <td class="cost-column">{{ detail.cost | floatformat:2 }}</td>
+            <td>{{ detail.amount | floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <td colspan="4">Details not found</td>
+        {% endif %}
+        {% for paid in invoice.paids %}
+        <tr class="bg-primary text-white font-weight-bold">
+            <td>{{ paid.datepaid }}</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>{{ paid.typepaid }}</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>{{ paid.paid | floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="4">&nbsp;</th>
+            <th class="bg-dark text-white">&nbsp;</th>
+            <th class="bg-dark text-white text-right"><label> Total </label> </th>
+            <th class="bg-dark text-white"></th>
+            <th class="bg-dark text-white"></th>
+            <th class="bg-dark text-white"></th>
+            <th class="bg-dark text-white"><label id="total_cost">{{ total_cost | floatformat:2 }}</label></th>
+            <th class="bg-dark text-white"></th>
+            <th class="bg-dark text-white"><label id="total_payment">{{ total_payment | floatformat:2 }}</label></th>
+        </tr>
+    </tfoot>
+</table>
+<div class="dataTables_info">
+    Page {{ invoices.number }} of {{ invoices.paginator.num_pages }}.
+</div>
+<div id="pagination-links" class="dataTables_paginate paging_simple_numbers">
+    <ul class="pagination justify-content-end">
+        {% if invoices.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                    <span class="sr-only">First</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ invoices.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                    <span class="sr-only">First</span>
+                </a>
+            </li>
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>    
+        {% endif %}
+        {% for num in invoices.paginator.page_range %}
+            {% if invoices.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% elif num > invoices.number|add:"-5" and num < invoices.number|add:"5" %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        {% if invoices.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ invoices.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ invoices.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                    <span class="sr-only">Last</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                    <span class="sr-only">Last</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</div>

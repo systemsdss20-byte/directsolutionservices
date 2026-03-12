@@ -1,0 +1,145 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %}Units{% endblock %}
+{% load static %}
+{% block style %}
+	<!-- Ionicons -->
+  	<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  	<!-- DataTables -->
+  	<link rel="stylesheet" href="{% static '/site/plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
+	<!-- Google Font: Source Sans Pro -->
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+	<!-- SweetAlert2 -->
+	<link rel="stylesheet" href="{% static '/site/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
+  	<!-- Toastr -->
+  	<link rel="stylesheet" href="{% static '/site/plugins/toastr/toastr.min.css' %}">
+{% endblock %}
+{% block customers %}{% endblock %}
+{% block units %}active-mh{% endblock %}
+{% block row-right %}
+    <style>
+        .actions-buttons{
+            text-align: center
+        }
+    </style>
+		<div class="col-md-10">
+			<div class="card card-info">
+				<div class="card-header">
+					<div class="row row-ext">
+						<div class="col-sm-11">
+							<h5 class="card-title"> {{cusname}} </h5>
+						</div>
+						{% if perms.Procedure.add_units %}
+						<div class="col-sm-1">
+							<button class="btn btn-block btn-sm btn-pill btn-info" onclick="unit('/Procedure/unit_add/{{ customer_id }}');">
+								<li class="fas fa-plus"></li>&nbsp;Add
+							</button>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+				<div class="card-body">
+                    <div class="table-responsive">
+                        <table id="tbUnits" class="table card-table table-vcenter table-striped "></table>
+                    </div>
+				</div>
+			</div>
+		</div>
+    <div class="modal fade" id="modal-danger">
+        <div class="modal-dialog">
+          <div class="modal-content modal-danger">
+            <div class="modal-header">
+              <h4 class="modal-title">Delete Unit</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+				<form id="delete_form_unit">
+					{% csrf_token %}
+					<input id="idunit" hidden type="number" name='idunit' value="" >
+				</form>
+              <p id="message-text">One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-danger" onclick="delete_customer_unit();">Accept</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+    <div class="modal-load"></div>
+{%endblock%}
+{% block script %}
+	<script src="{% static '/site/plugins/datatables/jquery.dataTables.js' %}"></script>
+	<script src="{% static '/site/plugins/datatables-bs4/js/dataTables.bootstrap4.js' %}"></script>
+	<script src="{% static '/site/plugins/toastr/toastr.min.js' %}"></script>
+	<script src="{% static '/site/plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+	<script>
+        let table = AjaxDatatableViewUtils.initialize_table(
+            $('#tbUnits'),
+            '/Procedure/units_datatable/',
+            {
+                order: [[10, 'asc']],
+                processing: false,
+                autoWidth: false,
+                full_row_select:false,
+            }, {
+                customer_id: '{{ customer_id }}',
+            }
+        );
+        AjaxDatatableViewUtils.adjust_table_columns();
+        function unit(url) {
+            $("#modal-load").load(url, function(){
+                $("#modal-unit").modal("show");
+            });
+        }
+		function delete_message(id, name){
+			$('#idunit').attr('value', id);
+			$('#message-text').html('Are you sure you want to delete the '+name+' unit?');
+		}
+	    function delete_customer_unit(){
+	    	$.ajax({
+				type:'POST',
+				url:'/Procedure/unit_delete/',
+				data:$('#delete_form_unit').serialize(),
+				dataType:'json',
+				success:function(response){
+					content = response.message.description;
+					type = response.message.type;
+					notification(content, type);
+					$('#modal-danger').modal('hide');
+					$('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+					if(response.message.status == 'True'){
+						table = $('#tbUnits').closest('table.dataTable');
+                        table.DataTable().ajax.reload(null, false);
+                        $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
+					}
+				}
+			});
+	    }
+
+	    /*let tblUnits = $("#tbUnits").DataTable({
+	    	"order": [[ 0, "desc" ]],
+            "orderCellsTop": true,
+	    });*/
+
+        function change_status(idunit) {
+		    var url = '/Procedure/change_status_unit/';
+		    var data = {'idunit': idunit};
+		    $.get(url, data, function (data) {
+		        notification(data.message.description, data.message.type);
+		        $('#'+idunit).html(data.data);
+		        if(data.data === 'Active'){
+		            $(`#${idunit}`).removeClass("btn-outline-danger").addClass("btn-outline-success");
+                    $(`#edit-${idunit}`).removeAttr('disabled');
+                }else{
+                    $(`#${idunit}`).removeClass("btn-outline-success").addClass("btn-outline-danger");
+                    $(`#edit-${idunit}`).attr('disabled', 'disabled');
+                }
+            })
+        }
+	</script>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block title-page %}Sellers{% endblock %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'site/plugins/monthpicker/MonthPicker.css' %}">
+    <link href="{% static '/site/plugins/datatables-rowgroup/css/rowGroup.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
+    <style>
+        td.details-control {
+            background: url("{% static '/site/img/details_open.png' %}") no-repeat center center;
+            cursor: pointer;
+        }
+        tr.details td.details-control {
+            background: url("{% static '/site/img/details_close.png' %}") no-repeat center center;
+        }
+    </style>
+{% endblock %}
+{% block index %} {% endblock %}
+{% block report %}active{% endblock %}
+{% block seller %}active{% endblock %}
+{% block container-fluid %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Sellers
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="frmSearch">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div id="cl_date" class="col-sm-2">
+                            <div class="input-group">
+                                <label class="col-form-label" for="from_date">From:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="from_date" type="text" name="from_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div id="cl_date_second" class="col-sm-2">
+                            <div class="input-group">
+                                <label class="col-form-label" for="to_date">To:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="to_date" type="text" name="to_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button id="btnSearch" class="btn btn-pill btn-outline-warning"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <div class="hr"></div>
+                <table class="table card-table table-vcenter table-bordered table-striped" id="Sellers">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Id</th>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Sales</th>
+                            <th>Amount</th>
+                            <th>Active</th>
+                            <th>From Date</th>
+                            <th>To Date</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-rowgroup/js/dataTables.rowGroup.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-rowgroup/js/rowGroup.bootstrap4.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="application/javascript">
+        var d = new Date();
+        var currMonth = (d.getMonth()+1) < 10 ? '0'+(d.getMonth()+1) : (d.getMonth()+1);
+        var currYear = d.getFullYear();
+        $('#from_date').val(currMonth+'/01/'+currYear);
+        $('#from_date').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true
+        });
+        $("#to_date").val(currMonth+'/'+d.getDate()+'/'+currYear);
+        $('#to_date').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth: true,
+            changeYear: true
+        });
+        function format(url, data){
+            var div = $('<div/>').addClass('row-details-wrapper loading').text('Loading...');
+            $.ajax({
+                url: url,
+                data: {
+                    action: 'details',
+                    user_id: data.Id,
+                    from_date: $('#from_date').val(),
+                    to_date: $('#to_date').val(),
+                },
+                dataType: 'json',
+                success: function(json) {
+                    var parent_row_id = json['parent-row-id'];
+                    if (parent_row_id !== undefined) {
+                        div.attr('data-parent-row-id', parent_row_id);
+                    }
+                    div.html(json.html).removeClass('loading');
+                }
+            });
+            return div;
+        }
+
+        let table= $('#Sellers').DataTable({
+            dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+            processing: true,
+            serverSide: false,
+            paging: true,
+            searching: true,
+            pageLength: 10,
+            length: 10,
+            buttons:[
+                { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy'},
+                { text: '<i class="fa fa-print"></i>', className:'btn btn-light', extend: 'print', titleAttr: 'Print'},
+                { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel'},
+                { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF'},
+                { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV'},
+            ],
+            ajax:{
+                url:"/Procedure/sellers/",
+                type:"POST",
+                dataType:"JSON",
+                cache: true,
+                data: function(d){
+                    d.from_date = $('#from_date').val();
+                    d.to_date = $('#to_date').val();
+                    d.csrfmiddlewaretoken = $('input[name=csrfmiddlewaretoken]').val();
+                },
+            },
+            deferRender: true,
+            columns:[
+                {
+                    'class': 'details-control',
+                    'orderable': false,
+                    'data': null,
+                    'defaultContent': ''
+                },
+                {'data': 'Id', 'visible': false},
+                {'data': 'Photo', render:function (data, type, row) {
+                    data = data ? data : 'user.png'
+                        return `<span class='avatar' style='background-image:url(/media/${data})'></span>`;
+                    }
+                },
+                {'data': 'Name'},
+                {'data': 'Sales'},
+                {'data': 'Amount', render:function (data, type, row) {
+                        return "<strong>$ "+data+"</strong>";
+                    }
+                },
+                {'data': 'is_active', render:function (data, type, row) {
+                        var active =  data ? "Active"  : "inactive";
+                        return ""+active;
+                    }
+                },
+                {'data': 'FromDate'},
+                {'data': 'ToDate'},
+            ],
+        });
+        var detailRows = [];
+        $('#Sellers tbody').on('click', 'tr td.details-control', function (){
+            var tr = $(this).closest('tr');
+            var row = table.row(tr);
+            var idx = $.inArray(tr.attr('id'), detailRows);
+            if(row.child.isShown()){
+                tr.removeClass('details');
+                row.child.hide();
+                detailRows.splice(idx, 1);
+            } else {
+                tr.addClass('details');
+                row.child(format('/Procedure/sellers/',row.data())).show();
+                if(idx === -1){
+                    detailRows.push(tr.attr('id'))
+                }
+            }
+        });
+        table.on('draw', function (){
+           $.each(detailRows, function (i, id){
+               $('#'+id+' td.details-control').trigger('click');
+            });
+        });
+        $('#btnSearch').on('click', function (env) {
+            env.preventDefault();
+            table.ajax.reload();
+        })
+    </script>
+{% endblock %}                                                                              

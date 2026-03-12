@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title-page %}File Explorer{% endblock %}
+{% block index %}{% endblock %}
+{% block file %}active{% endblock %}
+{% block file-explorer %}active{% endblock %}
+{% block container-fluid %}
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <h2 class="page-title">File Explorer</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row row-deck row-cards">
+        <div class="col">
+            {% include  'Procedure/File/upload_files.html' with Allfiles=True %}
+        </div>
+    </div>
+    <div class="row row-deck row-cards">
+        <div class="col">
+            <div class="card card-info">
+                <div class="card-header">
+                    <div class="row row-ext">
+                        <div class="col-sm-11">
+                            <h5 class="card-title"> Files </h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <table id="tbfiles" class="table table-striped table-hover"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static '/site/plugins/uploader-master/src/js/jquery.dm-uploader.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/js/files-upload-ui.js' %}"></script>
+    <script type="text/javascript">
+        var url = '/Procedure/upload_files/0';
+        let table = AjaxDatatableViewUtils.initialize_table(
+            $('#tbfiles'),
+            '/Procedure/datatable_files/',
+            {
+                processing: false,
+                autoWidth: false,
+                full_row_select: false,
+                scrollX: false
+            },
+        );
+    </script>
+    <script type="text/javascript" src="{% static '/site/js/files-upload.js'%}"></script>
+{% endblock %}

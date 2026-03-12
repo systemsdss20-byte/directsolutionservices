@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title-page %}Sellers Invoices{% endblock %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'site/plugins/monthpicker/MonthPicker.css' %}">
+    <link href="{% static '/site/plugins/datatables-rowgroup/css/rowGroup.bootstrap4.min.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block index %} {% endblock %}
+{% block report %}active{% endblock %}
+{% block seller_invoices %}active{% endblock %}
+{% block container-fluid %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Seller Invoices
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="frmSearch">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label class="form-label col-form-label" for="type">Type Expiration:</label>
+                        </div>
+                        <div class="col-2">
+                            <select id="type" name="type" class="form-select form-select-sm">
+                                <option value="0" selected>--Select--</option>
+                                {% for type in types %}
+                                    <option value="{{ type.value }}"> {{ type.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            <label class="form-label col-form-label" for="By">By:</label>
+                        </div>
+                        <div class="col-1">
+                            <select id="by" name="by" class="form-select form-select-sm" disabled>
+                                <option value="No">--Select--</option>
+                                <option value="date">Date</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div id="cl_date" class="col-sm-2" style="display:none;">
+                            <div class="input-group">
+                                <label class="col-form-label" for="from_date">From:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="from_date" type="text" name="from_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div id="cl_date_second" class="col-sm-2" style="display: none;">
+                            <div class="input-group">
+                                <label class="col-form-label" for="to_date">To:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="to_date" type="text" name="to_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button id="btnSearch" class="btn btn-pill btn-outline-warning"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <div class="hr"></div>
+                <table class="table card-table table-vcenter" id="Sellers">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-rowgroup/js/dataTables.rowGroup.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-rowgroup/js/rowGroup.bootstrap4.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="application/javascript">
+    $(document).ready(function (){
+        var collapsedGroups = {};
+        var table = AjaxDatatableViewUtils.initialize_table(
+            $('#Sellers'),
+             '/Procedure/datatable_sellers/',
+            {
+                dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+                buttons: [
+                    { text: "<i class='fa fa-plus-circle'></i>&nbsp;New Employee", className:'btn btn-pill btn-info btn-outline-blue btn-sm', action: function (e) {
+                        e.preventDefault();
+                        $("#modal-load").load('/Attendance/new-employee', function (data) {
+                            try{
+                                $("#modal-employee").modal("show");
+                            } catch(error){
+                                location.reload();
+                            }
+                        });
+                    }}
+                ],
+                processing: false,
+                autoWidth: false,
+                full_row_select: false,
+                scrollX: false,
+                rowGroup: {
+                    dataSrc: 'username',
+                    startRender: function (rows, group) {
+                        var collapsed = !!collapsedGroups[group];
+                        rows.nodes().each(function (r) {
+                            r.style.display = collapsed ? 'none' : '';
+                        });
+
+                        // Add category name to the <tr>. NOTE: Hardcoded colspan
+                        return $('<tr/>')
+                            .append('<td colspan="8">' + group + ' (' + rows.count() + ')</td>')
+                            .attr('data-name', group)
+                            .toggleClass('collapsed', collapsed);
+                    }
+                }
+            }
+        );
+       $('#Sellers tbody').on('click', 'tr.dtrg-start', function () {
+           table = $('#Sellers').closest('table.dataTable');
+           var name = $(this).data('name');
+           collapsedGroups[name] = !collapsedGroups[name];
+           table.DataTable().ajax.reload(null, false);
+        });
+    });
+
+    </script>
+{% endblock %}

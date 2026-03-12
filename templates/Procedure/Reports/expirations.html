@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% block title-page %}Expirations{% endblock %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'site/plugins/monthpicker/MonthPicker.css' %}">
+{% endblock %}
+{% block index %} {% endblock %}
+{% block report %}active{% endblock %}
+{% block expirations %}active{% endblock %}
+{% block container-fluid %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Reports & Expirations List
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="frmSearch">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label class="form-label col-form-label" for="type">Type Expiration:</label>
+                        </div>
+                        <div class="col-2">
+                            <select id="type" name="type" class="form-select form-select-sm">
+                                <option value="0" selected>--Select--</option>
+                                {% for type in types %}
+                                    <option value="{{ type.value }}"> {{ type.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            <label class="form-label col-form-label" for="By">By:</label>
+                        </div>
+                        <div class="col-1">
+                            <select id="by" name="by" class="form-select form-select-sm" disabled>
+                                <option value="No">--Select--</option>
+                                <option value="date">Date</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div id="cl_date" class="col-sm-2" style="display:none;">
+                            <div class="input-group">
+                                <label class="col-form-label" for="from_date">From:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="from_date" type="text" name="from_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div id="cl_date_second" class="col-sm-2" style="display: none;">
+                            <div class="input-group">
+                                <label class="col-form-label" for="to_date">To:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="to_date" type="text" name="to_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button id="btnSearch" class="btn btn-pill btn-outline-warning"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <div class="hr"></div>
+                <table id="tblResult" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>E-mail</th>
+                        <th>Type</th>
+                        <th>Date Exp</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="application/javascript">
+        $(document).ready(function () {
+            initDatepicker();
+            $('#type').on('change click', function () {
+                if ($(this).val() != 'ANR'){
+                    $('#by').prop('disabled', false);
+                }else {
+                    $('#by').prop('disabled', true);
+                    $('#by').val('all');
+                    $('#cl_date').hide();
+                    $('#cl_date_second').hide();
+                }
+            })
+            $('#by').on('change click', function () {
+                if($(this).val() == 'date'){
+                    $('#cl_date').show();
+                    $('#cl_date_second').show();
+                }else {
+                    $('#cl_date').hide();
+                    $('#cl_date_second').hide();
+                }
+            });
+
+            let table = $('#tblResult').DataTable({
+                dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+                processing: true,
+                serverSide: false,
+                order:[[0,'asc']],
+                length:10,
+                buttons: [
+                    { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy'},
+                    { text: '<i class="fa fa-print"></i>', className:'btn btn-light', extend: 'print', titleAttr: 'Print'},
+                    { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel'},
+                    { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF'},
+                    { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV'},
+                ],
+                ajax:{
+                    url:'/Procedure/expirations/',
+                    type:'POST',
+                    dataType: 'JSON',
+                    cache: true,
+                    data: function (d) {
+                        d.csrfmiddlewaretoken = $('input[name=csrfmiddlewaretoken]').val();
+                        d.type = $('#type').val();
+                        d.by = $('#by').val();
+                        d.from_date = $('#from_date').val();
+                        d.to_date = $('#to_date').val();
+                    },
+                    //dataSrc:'data'
+                },
+                deferRender: true,
+                columns:[
+                    {'data': 'idcustomer'},
+                    {'data': 'cusname'},
+                    {'data': 'mobile1'},
+                    {'data': 'email'},
+                    {'data': 'type'},
+                    {'data': 'dateexp'}
+                ]
+            });
+            $(table.column( 4 ).header()).text($('#type').val());
+            $('#btnSearch').on('click', function (e) {
+                e.preventDefault();
+                table.clear().draw();
+                $(table.column( 4 ).header()).text($('#type').val());
+                table.ajax.reload();
+            });
+        });
+        function initDatepicker (){
+            var d = new Date();
+            var currMonth = (d.getMonth()+1) < 10 ? '0'+(d.getMonth()+1) : (d.getMonth()+1);
+            var currYear = d.getFullYear();
+            var startDate = currMonth+'/'+d.getDate()+'/'+currYear;
+            $('#from_date').val('01/01/'+currYear);
+            $('#to_date').val(startDate);
+            $('.datepicker').datepicker({
+                dateFormat: 'mm/dd/yy',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                setDate: startDate
+            });
+        }
+    </script>
+{% endblock %}

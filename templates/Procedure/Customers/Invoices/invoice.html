@@ -1,0 +1,365 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %} Invoice {% endblock %}
+{% block customers %}{% endblock %}
+{% block invoices %}active-mh{% endblock %}
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+{% block cards %}
+    <li class="nav-item">
+		<a class="nav-link" href="#" onclick="credit_card();">
+			<span class="fa fa-credit-card"> </span>
+			<div class="nav-text">Cards</div>
+		</a>
+    </li>
+{% endblock %}
+{% block row-right %}
+		<div class="col-md-10">
+			<div id="card-customers" class="card card-info">
+            {% if customer.clientstatus == 'Active' %}
+				<form id="addInvoice" role="form" method="post">
+					{% csrf_token %}
+					<div class="card-header">
+						<div class="col-md-8">
+							<div class="row">
+								<h3 class="card-title">{{ customer.cusname }}</h3>
+								<input type="text" name="cusname" value="{{ customer.cusname }}" hidden>
+								<input type="text" name="idcustomer" value="{{ customer.idcustomer }}" hidden>
+                                <input type="text" name="iduser" value="{{ user.id }}" hidden>
+                                <input type="text" name="status" value="Unpaid" hidden>
+							</div>
+							<div class="row">
+								<h3 class="card-title">{{ customer.address }}</h3>
+								<input type="text" name="address" value="{{ customer.address }}" hidden>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group row">
+								<label for="{{ form.idinvoice.id_for_label }}" class="col-sm-2 col-form-label">No:</label>
+								<div class="col-sm-10">
+								  <label class="form-control" id="idfactura">{{ idinvoice }}</label>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="{{ form.invdate.id_for_label }}" class="col-sm-2 col-form-label">Date</label>
+								<div class="col-sm-10">
+									<input id="id_invdate" class="form-control text-dark" data-toggle="datepicker" type="text" name="invdate" value="{{ datetoday }}" required>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<table id="tblinvoice" class="table table-sm table-bordered">
+							{{ formset.management_form }}
+                            {% for form in formset %}
+                            <thead>
+                                <tr>
+                                    <th>{{ form.code.label|capfirst }}</th>
+                                    <th>{{ form.service.label|capfirst }}</th>
+                                    <th>{{ form.quantity.label|capfirst }}</th>
+                                    <th>{{ form.cost.label|capfirst }}</th>
+                                    <th>{{ form.rate.label|capfirst }}</th>
+                                    <th>{{ form.discount.label|capfirst }}</th>
+                                    <th>{{ form.discountype.label|capfirst }}</th>
+                                    <th>{{ form.amount.label|capfirst }}</th>
+                                    <th>{{ form.coments.label|capfirst }}</th>
+                                    <th>NOTE</th>
+                                    <th>DELETE</th>
+                                </tr>
+                            </thead>
+                            <tr class="formset_row">
+                                <td>{{ form.code }}</td>
+                                <td>{{ form.service }}</td>
+                                <td>{{ form.quantity }}</td>
+                                <td>{{ form.cost }}</td>
+                                <td>{{ form.rate }}</td>
+                                <td>{{ form.discount }}</td>
+                                <td>{{ form.discountype }}</td>
+                                <td>{{ form.amount }}</td>
+                                <td>{{ form.coments }}</td>
+                                <td><button class="btn btn-info btn-pill btn-sm btn-notes" type="button">Note</button></td>
+                                <td>
+                                    {% if formset.can_delete %}
+                                        {{ form.DELETE }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+							{% endfor %}
+						</table>
+						<div class="row">
+							<div class="col">
+								<div class="form-group row">
+									<label for="{{ form.coments.id_for_label }}" class="col-sm-3 col-form-label">Comments:</label>
+									<div class="col-sm-9">
+									  {{ form.coments }}
+									</div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="form-group row">
+									<label for="{{ form.amount.id_for_label }}" class="col-sm-3 col-form-label">Total:</label>
+									<div class="col-sm-9">
+									  {{ form.amount }}
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="{{ form.deu.id_for_label }}" class="col-sm-3 col-form-label">Paid:</label>
+									<div class="col-sm-9">
+									  {{ form.deu }}
+									</div>
+								</div>
+							</div>
+						</div>
+                        <div class="row">
+                            <div class="col">
+                                <input id="btnsave" type="submit" value="Save" class="btn btn-info">
+								<a href="/Procedure/invoices/{{customer.idcustomer}}" id="btnfinish" type="button" class="btn btn-info" hidden>Finish</a>
+								<button id="btnpaid" class="btn btn-success float-right" type="button" value="" hidden>
+									<i class="far fa-credit-card"> </i>
+									Submit Payment
+								</button>
+								<a href="/Procedure/invoices/{{customer.idcustomer}}" class="btn btn-warning"> <li class="fa fa-reply"> </li> </a>
+                                <input id="pdf-refresh" type="number" value="0" hidden readonly>
+                            </div>
+                        </div>
+					</div>
+				</form>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <div class="d-flex">
+                        <div>
+                            <!-- Download SVG icon from http://tabler-icons.io/i/alert-circle -->
+                            <!-- SVG icon code with class="alert-icon" -->
+                        </div>
+                        <div>
+                            <h4 class="alert-title">I'm so sorry&hellip;</h4>
+                            <div class="text-muted">You cannot create new invoices because this customer is inactive.</div>
+                        </div>
+                    </div>
+                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                </div>
+            {% endif %}
+			</div>
+		</div>
+		<div id="modal-note" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Note</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <textarea id="message" rows="1" placeholder="Note..." class="form-control form-control-sm type-msg"></textarea>
+                            <input type="text" id="element_add" value="" hidden/>
+                            <span class="input-group-append">
+                                <button type="button" class="btn btn-outline-pink btn-primary" id="addNote">
+                                    <i class="fas fa-location-arrow"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+{% block script %}
+<script>
+		$(document).ready(function(){
+			calc_total();
+		    $('.formset_row').formset({
+                addText: 'Add',
+                addCssClass: 'btn btn-info btn-add btn-pill btn-sm',
+                deleteText: 'X',
+                deleteCssClass: 'btn btn-danger btn-remove btn-sm btn-pill',
+                removed: function (row){
+                    var tdtotal = row.find('.total');
+                    var inptotal = $('#id_amount').val();
+                    row.find('textarea').val(' ');
+                    row.find('.qty').val(0);
+                    row.find('.code').val(0);
+                    var rest = parseFloat(inptotal).toFixed(2) - parseFloat(tdtotal.val()).toFixed(2);
+                    $('#id_amount').val(rest.toFixed(2));
+                    tdtotal.val(0);
+                },
+                prefix: 'details',
+                added: function(row) {
+                    var txt = row.find('.services');
+                    var discount = row.find('.discount');
+					var amount = row.find('.total');
+					discount.val(0);
+                    amount.val(0);
+                    txt.change(function(e){
+                    	e.preventDefault;
+                    	process_service($(this));
+                    });
+                    txt.chosen({
+                        inherit_select_classes:true,
+                        //max_shown_results:4,
+                    });
+                }
+            });
+		    $(function() {
+                $('[data-toggle="datepicker"]').datepicker({
+                    dateFormat: 'mm/dd/yy',
+                    changeMonth:true,
+                    changeYear:true,
+                    showButtonPanel: true
+                });
+            });
+			$('#addInvoice').on('submit',function(e){
+				e.preventDefault();
+				$.ajax({
+					url: '/Procedure/invoice_add/{{customer.idcustomer}}/0/',
+					dataType: 'json',
+					type: 'POST',
+					data: $(this).serialize(),
+					beforeSend: function(){ HoldOn.open({ message: "Please wait"}); },
+					success: function(response, status){
+						HoldOn.close();
+						notification(response.message.description, response.message.type);
+						$("#btnpaid").removeAttr('hidden');
+						$("#btnfinish").removeAttr('hidden');
+						$("#btnsave").prop('hidden', 'true');
+						$("#btnpaid").val(response.data.idinvoice);
+						$(".btn-remove").attr("disabled", true);
+						$(".btn-add").attr("disabled", true);
+						$("#id_amount").val(response.data.amount);
+						$("input").prop("readonly",true);
+						$("textarea").prop("readonly",true);
+						$("select").prop("disabled",true);
+					},
+					error: function(response){
+						HoldOn.close();
+						var message = response.responseJSON.message
+                        if( message != 'Validation'){
+                            notification(message.description, message.type);
+                        } else {
+                            var errors = response.responseJSON.errors;
+                            $('#idfactura').html(response.responseJSON.idinvoice);
+                            $.each(errors, function (index, error) {
+                                $.each( error, function( key, value ) {
+                                    var content = key + ": "+ value[0];
+                                    notification(content, 'error');
+                                });
+                            });
+                        }
+					}
+				});
+			});
+			$('#tblinvoice tbody').on('keyup change',function(){
+				calc();
+            });
+            $('#tblinvoice tbody').on('change', '#id_details-0-service',function(e) {
+            	e.preventDefault();
+                process_service($(this));
+            });
+            $("#id_details-0-service").chosen({
+                inherit_select_classes:true,
+                //max_shown_results:4,
+            });
+		});
+        function process_service (name_service) {
+            //var data = Services(name_service.val());
+            service = name_service;
+            var code = name_service.parent('td').parent('tr').find('.code');
+            rate = name_service.parent('td').parent('tr').find('.rate');
+            comment = name_service.parent('td').parent('tr').find('.comment');
+            price = name_service.parent('td').parent('tr').find('.price');
+            postData('/Procedure/get_service/', {description: name_service.val()}, '{{ csrf_token }}')
+                .then(data=> {
+                    code.val(data.code);
+                    price.val(data.cost);
+                    if(data.code != 158 && data.code !== 216){
+                        rate.val(data.rate);
+                        var comment_project = 'id_details-'+ (comment.parent('td').parent('tr').index())+ '-comments_projects';
+                        if($('#' + comment_project).length){
+                            $("#" + comment_project).remove();
+                        }
+                    } else {
+                        let url_modal = data.code === 158 ? "/Procedure/category_road_tax/?customer_id={{ customer.idcustomer }}" : "/Procedure/florida_tag_gvw/?customer_id={{ customer.idcustomer }}";
+                        $("#modal-load").load(url_modal, function () {
+                           $('#modal-category').modal('show');
+                        });
+                    }
+                });
+        };
+        function calc() {
+            $('#tblinvoice tbody tr').each(function(i, element) {
+                var html = $(this).html();
+                if(html!='') {
+                 	var qty = $(this).find('.qty').val();
+                    var rate = $(this).find('.rate').val();
+                    var price = $(this).find('.price').val();
+                    var typediscount = $(this).find('.typediscount').val();
+                    var discount = $(this).find('.discount').val();
+                    switch (typediscount) {
+                    	case '$':
+                    		$(this).find('.total').val((qty*rate)-discount);
+                    		break;
+                    	case '%':
+                    		var amount = qty*rate;
+                    		var percentage = discount/100;
+                    		discount = amount * percentage;
+                    		$(this).find('.total').val(amount-discount);
+                    		break;
+                    	default:
+                    		$(this).find('.total').val(qty*rate);
+                    }
+                    calc_total();
+                }
+            });
+        }
+
+        function calc_total() {
+            total = 0;
+            $('.total').each(function() {
+            	$(this).val();
+                //total += parseInt($(this).val());
+                total += parseFloat($(this).val());
+            });
+            $("#id_amount").val(total.toFixed(2));
+        }
+
+        $("#btnpaid").click(function(e){
+            e.preventDefault();
+            $("#modal-load").load("/Procedure/paid/"+$(this).val(),function(){
+                $("#modal-paid").modal("show");
+            });
+		});
+
+        $('.btn-notes').click(function (event) {
+            $('#message').val('');
+            idname='';
+            btn_name = '';
+            btn_name = "details-"+$(this).parent('td').parent('tr').index()+'_btn';
+            $(this).attr('id', btn_name);
+            idname = "details-"+$(this).parent('td').parent('tr').index()+"-comments_notes";
+            $('#element_add').val(idname);
+            var message = '';
+            if ($('#id_'+idname).length){
+                $('#message').val($('#id_'+idname).val());
+                //$('#id_'+idname).val('');
+            }else{
+                $(this).parent('td').append('<textarea id="id_'+idname+'" rows="1" name="'+idname+'" placeholder="Comment..." class="form-control form-control-sm type-msg" hidden/>');
+            }
+            $('#modal-note').modal('show');
+            $('#addNote').click(function (e) {
+                e.preventDefault();
+                message = $('#message').val();
+                $('#id_'+$('#element_add').val()).val(message);
+                if(message != ''){
+                    $('#'+btn_name).html('Note<span class="badge bg-red">1</span>');
+                }else{
+                    $('#'+btn_name).html('Note');
+                }
+
+                $('#modal-note').modal('hide');
+            });
+        });
+	</script>
+{% endblock %}

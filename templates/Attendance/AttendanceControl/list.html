@@ -1,0 +1,173 @@
+{% extends 'Attendance/index.html' %}
+{% load static %}
+{% block title-page %}Attendance{% endblock %}
+{% block attendance %}active{% endblock %}
+{% block attendance-control %}active{% endblock %}
+{% block title %}Attendance Control{% endblock %}
+{% block card-title %}Attendance Control{% endblock %}
+{% block card-body %}
+    <div class="row-deck">
+        <div class="card">
+            <div class="card-body">
+                <form  id="formSearch" class="form ">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <label class="form-label inline_label">From:</label>
+                                <input id="date_from" type="text" class="form-control form-control-sm datepicker" name="date_from" placeholder="mm/dd/yyyy">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <label class="form-label inline_label">To:</label>
+                                <input id="date_to" type="text" class="form-control form-control-sm datepicker" name="date_to" placeholder="mm/dd/yyyy">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                                <label class="form-label inline_label">Employee:</label>
+                                <select id="sl-employees" class="form-select form-select-sm" name="employee">
+                                    <option data-data='{"name": "", "surname": ""}'>--Select--</option>
+                                    {% for employee in employees %}
+                                        <option value="{{ employee.id }}" data-data='{"name": "{{ employee.names }}", "surname": "{{ employee.surname }}"}'>{{ employee.names | upper }} {{ employee.surnames | upper }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="dt-buttons">
+                                <button id="btn-search" class="btn btn-sm btn-pill btn-info " type="button">
+                                    <span>
+                                        <i class="fa fa-search">&nbsp;Search</i>
+                                    </span>
+                                </button>
+                                <button id="btn-reset" class="btn btn-sm btn-pill btn-danger " type="button">
+                                    <span>
+                                        <i class="fa fa-sync">&nbsp;Reset</i>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive card-body">
+                    <table class="table card-table table-vcenter" id="Attendance"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+{% endblock %}
+{% block extra-script %}
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="application/javascript">
+        $('.datepicker').datepicker();
+        var table2;
+        $('#Attendance').on('drawCallback', function(event, table) {
+            table2 = table;
+        });
+
+        AjaxDatatableViewUtils.initialize_table(
+            $('#Attendance'),
+            '{% url 'datatable-attendance-control' %}',
+            {
+                dom: '<"toolbar"><"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+                buttons:[
+                    {
+                        text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', titleAttr: 'Excel',
+                        action: function (e, dt, node, config) {
+                            if(fn_validate_dates()){
+                                $.post('/Attendance/attendance-report/', $('#formSearch').serialize(), function (data) {
+                                    if (data.filename != undefined){
+                                        window.open('/Procedure/get_file/'+data.filename, '_blank');
+                                    }else{
+                                        notification(data.message, data.type);
+                                    }
+                                }).fail(function (data){
+                                    notification(data.responseJSON.message, data.responseJSON.type);
+                                });
+                            }
+                        }
+                    },
+                ],
+                processing: false,
+                autoWidth: false,
+                full_row_select: false,
+                scrollX: false,
+            }
+        );
+        $('#btn-search').on('click', function (e) {
+            e.preventDefault();
+            if(fn_validate_dates()){
+                fn_searching_on_table();
+            }
+        })
+        $('#btn-reset').on('click', function (e){
+           e.preventDefault();
+           $('#date_from').val('');
+           $('#date_to').val('');
+           $('#sl-employees')[0].selectedIndex=0;
+           $('#date_from').removeClass('is-invalid');
+           $('#date_to').removeClass('is-invalid');
+           fn_searching_on_table();
+        });
+        function format_date(input_date) {
+            var output_date = input_date.split('/');
+            if(input_date){
+                return output_date[2] + '-'+ output_date[0] + '-' + output_date[1];
+            }else {
+                return input_date
+            }
+        }
+        function fn_searching_on_table() {
+            //Filter by date
+            var searching_date_from = $('#date_from').val() != '' ? format_date($('#date_from').val()) : '';
+            var searching_date_to = $('#date_to').val() != '' ? format_date($('#date_to').val()) : '';
+
+            table2.data('date_from', searching_date_from);
+            table2.data('date_to', searching_date_to);
+            //Filter by name and surname
+            var data = $('#sl-employees').find(':selected').attr('data-data');
+            data = JSON.parse(data)
+            var column = table2.api().column(2);
+            column.search(data.name).draw();
+            column = table2.api().column(3);
+            column.search(data.surname).draw();
+            //Draw datatable
+            table2.api().draw();
+        }
+
+        function fn_validate_dates(){
+            if($('#date_from').val() !='' & $('#date_to').val() != ''){
+                $('#date_from').removeClass('is-invalid');
+                $('#date_to').removeClass('is-invalid');
+                return true;
+            }else{
+                notification('Please filter by date', 'error');
+                $('#date_from').addClass('is-invalid');
+                $('#date_to').addClass('is-invalid');
+                return false;
+            }
+        }
+
+        function update(id) {
+            $("#modal-load").load('/Attendance/attendance-control/'+id, function (){
+                try{
+                    $("#modal-attendance-control").modal("show");
+                } catch(error){
+                    location.reload();
+                }
+            });
+        }
+    </script>
+{% endblock %}

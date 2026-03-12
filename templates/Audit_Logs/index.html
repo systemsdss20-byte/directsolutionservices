@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title-page %}Audit Logss{% endblock %}
+{% block index %}{% endblock %}
+{% block Configuration %}active{% endblock %}
+{% block Audit_Logs %}active{% endblock %}
+{% load static %}
+{% block container-fluid %}
+    <div class="row row-ext">
+        <div class="col-md-2">
+            <div class="row">
+                <div class="menu-horizontal">
+                    <ul class="navbar-nav">
+                        <li class="nav-item {% block table_audit_customers %}{% endblock %}">
+                            <a class="nav-link" href="/AuditLogs/customers_audit_log/">
+                                <span class="fa fa-user"></span>
+                                <div class="nav-text">Customers</div>
+                            </a>
+                        </li>
+                        <li class="nav-item {% block table_audit_cards %}{% endblock %}">
+                            <a class="nav-link" href="/AuditLogs/cards_audit_log/">
+                                <span class="fa fa-drivers-license-o"></span>
+                                <div class="nav-text">Cards</div>
+                            </a>
+                        </li>
+                        <li class="nav-item {% block table_audit_drivers %}{% endblock %}">
+                            <a class="nav-link" href="/AuditLogs/drivers_audit_log/">
+                                <span class="fa fa-drivers-license-o"></span>
+                                <div class="nav-text">Drivers</div>
+                            </a>
+                        </li>
+                        <li class="nav-item {% block table_audit_units %}{% endblock %}">
+                            <a class="nav-link" href="/AuditLogs/unit_audit_log/">
+                                <span class="fa fa-truck"></span>
+                                <div class="nav-text">Units</div>
+                            </a>
+                        </li>
+                        <!--<li class="nav-item {% block table_audit_files %}{% endblock %}">
+                            <a class="nav-link" href="#">
+                                <span class="fa fa-folder-open-o"></span>
+                                <div class="nav-text">Files</div>
+                            </a>
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <!-- Page pretitle -->
+                        <div class="page-pretitle">
+                            {% block page-pretitle %} {% endblock %}
+                        </div>
+                        <h2 class="page-title">
+                            {% block page-content-title %}Audit Logs {% endblock %}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-info">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        {% block table-content %}
+                            <table id="table-audit" class="table card-table table-vcenter"></table>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+    {% block extra-script %}{% endblock %}
+{% endblock %}

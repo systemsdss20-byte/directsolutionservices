@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% block title-page %}Bills Paid{% endblock %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'site/plugins/monthpicker/MonthPicker.css' %}">
+{% endblock %}
+{% block index %} {% endblock %}
+{% block accounting %}active{% endblock %}
+{% block bills_paid %}active{% endblock %}
+{% block container-fluid %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Accounts Payable
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="frmBillsPaid">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-1">
+                            <label class="form-label col-form-label" for="customers">Customer:</label>
+                        </div>
+                        <div class="col-2">
+                            <select id="customers" name="customers" class="form-select form-select-sm">
+                                <option value="0" selected>All Customers</option>
+                                {% for customer in customers %}
+                                    <option value="{{ customer.idcustomer }}"> {{ customer.idcustomer }}-{{ customer.cusname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            <label class="form-label col-form-label" for="sldate">Date By:</label>
+                        </div>
+                        <div class="col-2">
+                            <select id="sldate" name="sldate" class="form-control form-select form-select-sm">
+                                <option value="0">--Select--</option>
+                                <option value="1">By Date Range</option>
+                                <option value="2">By Month</option>
+                                <option value="3">By Year</option>
+                            </select>
+                        </div>
+                        <div id="cl_date" class="col-3" style="display:none;">
+                            <div class="input-group">
+                                <label class="col-form-label" for="date">From:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="date" type="text" name="date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div id="cl_date_second" class="col-sm-2" style="display: none;">
+                            <div class="input-group">
+                                <label class="col-form-label" for="date">To:</label>
+                                <span class="input-group-text">
+                                    <li class="fa fa-calendar-o"></li>
+                                </span>
+                                <input id="date_second" type="text" name="second_date" class="form-control form-control-sm datepicker">
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button id="btnSearch" class="btn btn-pill btn-outline-warning"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+                <div class="hr"></div>
+                <table id="tbBalanceBasic" class="table table-responsive-lg table-bordered">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Date Trans</th>
+                        <th>No. Inv</th>
+                        <th>Amount</th>
+                        <th>Type Paid Amount</th>
+                        <th>Transaction</th>
+                        <th>Bill No.</th>
+                        <th>Cost</th>
+                        <th>Type Paid Cost</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for payable in data %}
+                        <tr>
+                            <td>{{ payable.idpayable }}</td>
+                            <td>{{ payable.idcustomer_id }}-{{ payable.idcustomer.cusname }}</td>
+                            <td>{{ payable.datetrans | date:'m/d/Y' }}</td>
+                            <td>{{ payable.idinvoice }}</td>
+                            <td>{{ payable.amount | floatformat:2 }}</td>
+                            <td>{{ payable.typepayamount }}</td>
+                            <td>{{ payable.typetrans }}</td>
+                            <td>{{ payable.nobill }}</td>
+                            <td>{{ payable.cost | floatformat:2 }}</td>
+                            <td>{{ payable.typepaycost }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot style="background: #0c85d0; color: white; text-align: end">
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                                <label class="form-label">Total:</label>
+                                <label class="form-label ">Check:</label>
+                                <label class="form-label ">Cash:</label>
+                                <label class="form-label ">Credit Card:</label>
+                            </td>
+                            <td>
+                                <label id="total_amount" class="form-label">${{ total_amount | floatformat:2 | default:'0.00'}}</label>
+                                <label id="check" class="form-label">${{ check | floatformat:2 | default:'0.00'}}</label>
+                                <label id="cash" class="form-label">${{ cash | floatformat:2 | default:'0.00'}}</label>
+                                <label id="credit_card" class="form-label">${{ credit_card | floatformat:2 | default:'0.00'}}</label>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                                <label id="total_cost" class="form-label">${{ total_cost | floatformat:2 | default:'0.00'}}</label>
+                                <label class="form-label">&nbsp;</label>
+                                <label class="form-label">&nbsp;</label>
+                                <label class="form-label">&nbsp;</label>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/monthpicker/MonthPicker.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#customers').chosen({
+                inherit_select_classes:true,
+                //max_shown_results:4,
+            });
+        });
+        var d = new Date();
+        var currMonth = (d.getMonth()+1) < 10 ? '0'+(d.getMonth()+1) : (d.getMonth()+1);
+        var currYear = d.getFullYear();
+        var startDate = currMonth+'/'+'01/'+currYear;
+        $('#sldate').val(0);
+        function initDatepicker (){
+            $('.datepicker').val(startDate);
+            $('.datepicker').datepicker({
+                dateFormat: 'mm/dd/yy',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                setDate: startDate
+            });
+        }
+        $('#sldate').on('change click', function () {
+            $('#date').val('');
+            $('#date').MonthPicker();
+            $('#date').MonthPicker('destroy');
+            $("#date").datepicker("destroy");
+            switch ($(this).val()) {
+                case '1':
+                    $('#cl_date').show();
+                    $('#cl_date_second').show();
+                    initDatepicker();
+                    break;
+                case '2':
+                    $('#cl_date').show();
+                    $('#cl_date_second').hide();
+                    $('#date').val(currMonth+'/'+ currYear);
+                    $('#date').MonthPicker({ ShowIcon: false });
+                    break;
+                case '3':
+                    $('#cl_date').show();
+                    $('#cl_date_second').hide();
+                    $('#date').val(currYear);
+                    $('#date').show();
+                    break;
+                default:
+                    $('#cl_date').hide();
+                    $('#cl_date_second').hide();
+                    $('#sldate').val(0);
+            }
+        });
+        let table = $('#tbBalanceBasic').DataTable({
+            order: [[0, "desc"]],
+            dom: '<"#buttons.row row-cards justify-content-between"liB><tr><ip>',
+            buttons: [
+                { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy', footer:true},
+                { text: '<i class="fa fa-print"></i>', className:'btn btn-light', extend: 'print', titleAttr: 'Print', footer:true},
+                { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel', footer:true},
+                { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF', footer:true},
+                { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV', footer:true},
+            ],
+        });
+        //table.buttons().container().prependTo('#tbBalanceBasic_wrapper .col-md-6:eq(1)' );
+        //table.buttons().container().prependTo('#buttons' );
+        $('#customer').on('keyup', function () {
+            table.column(1).search(this.value).draw();
+        });
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            searchPost();
+        });
+        function searchPost() {
+            let url = '/Procedure/bills_paid/';
+            let data = $('#frmBillsPaid').serialize();
+            $.ajax({
+                url:url,
+                dataType: 'json',
+                type: 'POST',
+                data:data,
+                beforeSend: function(){
+                    HoldOn.open({ message: "Processing..."});
+                },
+                success: function (response, status) {
+                    $('#total_amount').html("$"+parseFloat(response.total_amount).toFixed(2));
+                    $('#total_cost').html("$"+parseFloat(response.total_cost).toFixed(2));
+                    $('#cash').html("$"+parseFloat(response.cash).toFixed(2));
+                    $('#check').html("$"+parseFloat(response.check).toFixed(2));
+                    $('#credit_card').html("$"+parseFloat(response.credit_card).toFixed(2));
+                    table.clear();
+                    let data = JSON.parse(response.payable);
+                    if(data.length){
+                        $.each(data, function (i, item) {
+                            let customer = item.idcustomer_id + " "+ item.idcustomer__cusname;
+                            let datetrans = formate_date(item.datetrans);
+                            let rowNode = table.row.add([
+                               item.idpayable,
+                               customer,
+                               datetrans,
+                               item.idinvoice,
+                               parseFloat(item.amount).toFixed(2),
+                               item.typepayamount,
+                               item.typetrans,
+                               item.nobill,
+                               parseFloat(item.cost).toFixed(2),
+                                item.typepaycost
+                            ]).draw();
+                            table.order([0, 'desc']).draw();
+                            //$(rowNode).css('color', 'red').animate({color: 'black'}, 2000);
+                        });
+                    }else {
+                        table.draw();
+                    }
+                },
+                error: function (response) {
+                    HoldOn.close();
+                    notification('Error to proccess data', 'error');
+                }
+            }).done(function () {
+                HoldOn.close();
+            });
+        }
+        function formate_date(date){
+            var array = date.split("-");
+            var new_date = new Date(array[0], array[1], array[2]);
+            var day = new_date.getDate();
+            if(day <10){
+                day = "0"+day;
+            }
+            var month = new_date.getMonth();
+            if(month <10){
+                month = "0"+month;
+            }
+            var year = new_date.getFullYear();
+            new_date = month+"/"+day+"/"+year;
+            return new_date;
+        }
+    </script>
+{% endblock %}

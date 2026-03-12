@@ -1,0 +1,47 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">OVER WEIGHT / OVER SIZE</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="hr-text hr-text-spaceless">&nbsp;</div>
+                    <div class="row justify-content-center">
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label">AXLES:</label>
+                                <select name="axles" class="form-select form-select-sm" required>
+                                    <option>--Select--</option>
+                                    <option value="3">3</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    post_showPDF('/Procedure/overweight_oversize/{{ customer.idcustomer }}', '#frm');
+</script>

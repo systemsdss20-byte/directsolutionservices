@@ -1,0 +1,215 @@
+{% extends 'Procedure/index.html' %}
+{% block title %}{% endblock %}
+{% load static %}
+{% block body-content %}
+    <div class="row align-items-center">
+        <div class="col-auto"></div>
+        <div class="col-auto ml-auto d-print-none">
+            <a class="btn btn-warning" href="{{ request.META.HTTP_REFERER }}">
+                <li class="fa fa-reply text-white"></li>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Project Details -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Project Details</div>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-5">Project ID:</dt>
+                        <dd class="col-7">{{ project.idproject }}</dd>
+                        <dt class="col-5">Quantity:</dt>
+                        <dd class="col-7">{{ project.quantity }}</dd>
+                        <dt class="col-5">Service:</dt>
+                        <dd class="col-7">{{ project.service }}</dd>
+                        <dt class="col-5">Date:</dt>
+                        <dd class="col-7">{{ project.request }}</dd>
+                        <dt class="col-5">Create By:</dt>
+                        <dd class="col-7">{{ project.iduserlast.fullname }}</dd>
+                        <dt class="col-5">Invoice:</dt>
+                        <dd class="col-7">
+                            <div id="invoice-id-field">
+                                {% if project.idinvoicedet %}
+                                    <a href="/Procedure/pdf_invoice/{{ project.invoice_id }}">{{ project.invoice_id }} <i class="fa fa-external-link"></i></a>
+                                {% else %}
+                                    <button id="btn-add-invoice" class="button btn-pill btn-outline-primary" {% if tasks.count != 0 and percentage != 100.0 %}disabled{% endif %} onclick="modal_invoice('/Procedure/invoice_add/{{ project.idcustomer.idcustomer }}/{{ project.idproject }}/');">Add Invoice</button>
+                                {% endif %}
+                            </div>
+                        </dd>
+                        {% if project.idinvoicedet %}
+                        <dt class="col-5">Invoice Status:</dt>
+                        <dd class="col-7">
+                            <span class="badge {% if project.idinvoicedet.idinvoice.status  == 'Paid'%}bg-success{% else %}bg-danger{% endif %}">{{ project.idinvoicedet.idinvoice.status }}</span>
+                        </dd>
+                        {% endif %}
+                        <dt class="col-5">Comments:</dt>
+                        <dd class="col-7">{{ project.comments }}</dd>
+                        <dt class="col-5">Status:</dt>
+                        <dd class="col-7">
+                            <div class="input-group-append">
+                                <select id="change-status" style="cursor: pointer;" name="status" class="status form-select form-select-sm badge {% if project.status == 'Opened' %}bg-danger {% elif project.status == 'Closed'%}bg-success{% else %}bg-warning{% endif %}">
+                                    <option value="Opened" {% if project.status == 'Opened' %}selected{% endif %}>Opened</option>
+                                    <option value="In Process" {% if project.status == 'In Process' %}selected{% endif %}>In Process</option>
+                                    <option value="Closed" {% if project.status == 'Closed' %}selected{% endif %}>Closed</option>
+                                </select>
+                                <button id="btn-status" class="btn btn-sm btn-outline-dark" value="{{ project.idcustomer_id }}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        </dd>
+                        <dt class="col-5">Completed:</dt>
+                        <dd class="col-7">
+                            <div class="progress-group">
+                                Tasks
+                                <span id="percentage-number" class="float-right">{{ percentage }}%</span>
+                                <div class="progress progress-sm">
+                                    <div id="percentage-indicator" class="progress-bar bg-green" style="width: {{ percentage }}%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <!-- Card Customer -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Customer</div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2"><i class="fa fa-external-link"></i> Customer: <a href="/Procedure/customer_edit/{{ project.idcustomer.idcustomer }}"> <strong>{{ project.idcustomer.idcustomer }} - {{ project.idcustomer.cusname }}</strong> </a></div>
+                    <div class="mb-2"><i class="fa fa-user-o"></i> Owner Name: <strong> {{ project.idcustomer.owner }} </strong></div>
+                    <div class="mb-2"><i class="fa fa-user-o"></i> Owner Last Name: <strong> {{ project.idcustomer.owner_surname | default:''}} </strong></div>
+                    <div class="mb-2"><i class="fa fa-address-card-o"></i> Contact: <strong>{{ project.idcustomer.contact1 }}</strong></div>
+                    <div class="mb-2"><i class="fa fa-phone"></i> Mobile: <strong>{{ project.idcustomer.mobile1 }}</strong></div>
+                    <div class="mb-2"><i class="fa fa-envelope-o"></i> Email: <strong>{{ project.idcustomer.email }}</strong></div>
+                    <div class="mb-2"><i class="fa fa-address-book-o"></i> Address: <strong>{{ project.idcustomer.address }}</strong></div>
+                    <div class="mb-2"><i class="fa fa-address-card-o"></i> Postal Code: <strong>{{ project.idcustomer.codepostal }}</strong></div>
+                    <div class="mb-2"><i class="fa fa-file-text-o"></i> Customer Notes: <strong>{{ project.idcustomer.clientpass }}</strong></div>
+                </div>
+            </div>
+        </div>
+        <!-- Direct Chat -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="card direct-chat direct-chat-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Project Notes</h3>
+                </div>
+                <div class="card-body" id="comments">
+                </div>
+                <div class="card-footer">
+                    <form id="frm-add-comment" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <textarea id="message" class="form-control form-control-sm type-msg" name="comments" rows="1" placeholder="Type Message..." required></textarea>
+                            <input type='hidden' name="iduser" value="{{ request.user.id }}">
+                            <input type='hidden' name="project" value="{{ project.idproject }}">
+                            <span class="input-group-append">
+                                <button class="btn btn-primary" id="add-comment" type="button">
+                                    <i class="fas fa-location-arrow"></i> &nbsp; Send
+                                </button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Tasks -->
+        <div class="col-sm-6 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="nav nav-tabs card-header-tabs">
+                        <div class="nav-item">
+                            <h4 class="card-title nav-link">
+                                <i class="ion ion-clipboard mr-1"></i>TASKS
+                            </h4>
+                        </div>
+                        <div class="nav-item ml-auto nav-link">
+                            <button class="btn btn-pill btn-primary" type="button" onclick="add_task('/Procedure/tasks/add/{{ project.idproject }}');"><i class="fas fa-plus-circle text-white"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" id="tasks">
+                    {% include 'Procedure/Tasks/list.html' with is_calendar=0 %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+    <div id="modal-load-category"></div>
+{% endblock %}
+{% block script %}
+    <script src="{% static '/site/plugins/moment/moment-with-locales.js' %}"></script>
+    <script src="{% static '/site/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script type="application/javascript">
+        var is_calendar = false;
+        var url_category = "/Procedure/helpers/category_road_tax/?customer_id={{project.idcustomer_id}}";
+        var url_floridatag = "/Procedure/helpers/florida_tag_gvw/?customer_id={{ customer.idcustomer }}";
+        $(document).ready(function () {
+            load_comments();
+        });
+
+        function modal_invoice(url){
+            $("#modal-load").load(url, function (){
+               $("#modal-invoice").modal("show");
+               setTimeout(()=>{
+                   formset_action('{{ csrf_token }}');
+                   tblInvoice('{{ csrf_token }}');
+               }, 1000);
+            });
+        }
+
+        function add_task(url) {
+            $("#modal-load").load(url, function(){
+                if(document.getElementById('task-modal') === null){
+                    location.href = '/Procedure/login/'
+                }else{
+                    $("#task-modal").modal("show");
+                }
+            });
+        }
+
+        $("#add-comment").on('click',function(e){
+            e.preventDefault();
+            let form = $('#frm-add-comment').serialize();
+            let url = "/Procedure/notes_projects/{{project.idproject}}/1";
+            if($('#message').val() !== ' ' && document.getElementById('message').value.length !== 0){
+               $.post(url, form, function (result, status, xhr) {
+                    load_comments();
+                    $('#frm-add-comment')[0].reset();
+               }).fail(function (xhr, status, error) {
+                    notification(error, 'error');
+                });
+            }
+        });
+
+        function load_comments() {
+            $('#comments').load('/Procedure/notes_projects/{{ project.idproject }}/1');
+        }
+
+        $('#btn-status').on('click', function (){
+            let url = '/Procedure/edit_project/';
+            sendForm(url, JSON.stringify({ idproject: {{project.idproject}}, status: $('#change-status').val() }), '{{ csrf_token }}')
+                .then(data=>{
+                        notification(data.message.description, data.message.type);
+                        $('.summary-project-open').html(data.open_projects+" Open Projects");
+                        $('.summary-project-open-date').html("Since "+data.date_open);
+                        $('.summary-project-process').html(data.inprocess_project+" My Projects In Process");
+                        $('.summary-project-process-date').html("Since "+data.date_inprocess);
+                        $('.summary-unpaid').html(data.invoice_unpaid + " Unpaid Invoices");
+                        if(data.new_projects){
+                            $('.summary-project-new').html("("+data.new_projects+" New )");
+                            $('#open-projects').addClass('status-indicator-pulse');
+                        }else{
+                            $('.summary-project-new').html("");
+                            $('#open-projects').removeClass('status-indicator-pulse');
+                        }
+                    })
+        });
+    </script>
+    <script type="application/javascript" src="{% static 'site/js/helpers/invoices.js' %}"></script>
+{% endblock %}

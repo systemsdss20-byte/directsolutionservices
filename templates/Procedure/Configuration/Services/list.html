@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title-page %}Configuration{% endblock %}
+{% block index %}{% endblock %}
+{% block Configuration %}active{% endblock %}
+{% block Services %}active{% endblock %}
+{% block container-fluid %}
+    <div class="container">
+        <div class="page-header align-items-center">
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="page-title col-6"><i class="fa fa-newspaper-o"></i>&nbsp;Services</div>
+                <div class="col-3"></div>
+            </div>
+        </div>
+        <div class="row row-cards row-deck">
+            <div class="card row row-ext">
+                <div class="card-header">
+                    <h4 class="card-title"><i class="fa fa-newspaper-o"></i>&nbsp;Services List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="tblServices" class="table table-responsive table-hover card-table">
+                           
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        AjaxDatatableViewUtils.initialize_table(
+            $('#tblServices'),
+            '/Procedure/datatable_services/',
+            {
+                processing: false,
+                autoWidth: false,
+            },
+        )
+    </script>
+{% endblock %}

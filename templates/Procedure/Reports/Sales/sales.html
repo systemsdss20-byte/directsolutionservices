@@ -1,0 +1,17 @@
+<table id="tblInvoice{{ user_id }}" class="table-vcenter table-bordered table-info">
+</table>
+<script type="application/javascript">
+    AjaxDatatableViewUtils.initialize_table(
+        $('#tblInvoice{{ user_id }}'),
+        '/Procedure/datatable_sales_details/',
+        {
+            processing: false,
+            autoWidth: false,
+            full_row_select:false,
+        }, {
+            user_id: '{{ user_id }}',
+            from_date: '{{ from_date }}',
+            to_date: '{{ to_date }}',
+        }
+    )
+</script>

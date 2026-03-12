@@ -1,0 +1,486 @@
+<!-- /.modal -->
+{% load static %}
+{% block style %}
+    <link href="{% static '/site/plugins/yearpicker/yearpicker.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+<style>
+    .yearpicker-container{
+        z-index:1999;
+    }
+    input[type=number]{
+        display: block;
+        width: 100%;
+        /*min-height: calc(1.4666667em + .75rem + 2px);*/
+        padding: .375rem .75rem;
+        font-size: .9375rem;
+        font-weight: 400;
+        line-height: 1.4666667;
+        color: #354052;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(134,140,151,.24);
+        border-radius: 3px;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        height: 22px;
+    }
+    label{
+        margin: 0px;
+    }
+    table tr td{
+        border: 1px solid rgba(155, 155, 155, 0.5);
+    }
+    table tr th{
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-weight: bold;
+    }
+</style>
+<div class="modal modal-blur fade show" id="modal-millage" tabindex="-1" role="dialog" style="display: block; padding-right: 17px;">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <form id="frmAdd" role="form" method="post">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Millage Calculator</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="tblmillages">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Cusname:</th>
+                                <th scope="col" colspan="5">{{customer.cusname}}</th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th scope="col" col>
+                                    {{ form.year.errors }}
+                                    {{ form.year.label_tag }}
+                                </th>
+                                <th scope="col">{{ form.year }}</th>
+                                <th scope="col">
+                                    {{ form.qtr.errors }}
+                                    {{ form.qtr.label_tag }}
+                                </th>
+                                <th scope="col">{{ form.qtr }}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="150px">JURISDICTION</td>
+                                <td width="120px">ACTUAL MILES</td>
+                                <td width="150px">JURISDICTION</td>
+                                <td width="120px">ACTUAL MILES</td>
+                                <td width="150px">JURISDICTION</td>
+                                <td width="120px">ACTUAL MILES</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.fl.errors }}
+                                    {{ form.fl.label_tag }}
+                                </td>
+                                <td>{{form.fl}}</td>
+                                <td>
+                                    {{ form.mi.errors }}
+                                    {{ form.mi.label_tag }}
+                                </td>
+                                <td>{{form.mi}}</td>
+                                <td>
+                                    {{ form.tx.errors }}
+                                    {{ form.tx.label_tag }}
+                                </td>
+                                <td>{{form.tx}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.al.errors }}
+                                    {{ form.al.label_tag }}
+                                </td>
+                                <td>{{form.al }}</td>
+                                <td>
+                                    {{ form.mn.errors }}
+                                    {{ form.mn.label_tag }}
+                                </td>
+                                <td>{{form.mn }}</td>
+                                <td>
+                                    {{ form.ut.errors }}
+                                    {{ form.ut.label_tag }}
+                                </td>
+                                <td>{{form.ut }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ak.errors }}
+                                    {{ form.ak.label_tag }}
+                                </td>
+                                <td>{{ form.ak }}</td>
+                                <td>
+                                    {{ form.mo.errors }}
+                                    {{ form.mo.label_tag }}
+                                </td>
+                                <td>{{ form.mo }}</td>
+                                <td>
+                                    {{ form.va.errors }}
+                                    {{ form.va.label_tag }}
+                                </td>
+                                <td>{{ form.va }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ar.errors }}
+                                    {{ form.ar.label_tag }}
+                                </td>
+                                <td>{{form.ar}}</td>
+                                <td>
+                                    {{ form.ms.errors }}
+                                    {{ form.ms.label_tag }}
+                                </td>
+                                <td>{{form.ms}}</td>
+                                <td>
+                                    {{ form.vt.errors }}
+                                    {{ form.vt.label_tag }}
+                                </td>
+                                <td>{{form.vt}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.az.errors }}
+                                    {{ form.az.label_tag }}
+                                </td>
+                                <td>{{form.az}}</td>
+                                <td>
+                                    {{ form.mt.errors }}
+                                    {{ form.mt.label_tag }}
+                                </td>
+                                <td>{{form.mt}}</td>
+                                <td>
+                                    {{ form.wa.errors }}
+                                    {{ form.wa.label_tag }}
+                                </td>
+                                <td>{{form.wa}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ca.errors }}
+                                    {{ form.ca.label_tag }}
+                                </td>
+                                <td>{{form.ca}}</td>
+                                <td>
+                                    {{ form.nc.errors }}
+                                    {{ form.nc.label_tag }}
+                                </td>
+                                <td>{{form.nc}}</td>
+                                <td>
+                                    {{ form.wi.errors }}
+                                    {{ form.wi.label_tag }}
+                                </td>
+                                <td>{{form.wi}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.co.errors }}
+                                    {{ form.co.label_tag }}
+                                </td>
+                                <td>{{form.co}}</td>
+                                <td>
+                                    {{ form.nd.errors }}
+                                    {{ form.nd.label_tag }}
+                                </td>
+                                <td>{{form.nd}}</td>
+                                <td>
+                                    {{ form.wv.errors }}
+                                    {{ form.wv.label_tag }}
+                                </td>
+                                <td>{{form.wv}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ct.errors }}
+                                    {{ form.ct.label_tag }}
+                                </td>
+                                <td>{{form.ct}}</td>
+                                <td>
+                                    {{ form.ne.errors }}
+                                    {{ form.ne.label_tag }}
+                                </td>
+                                <td>{{form.ne}}</td>
+                                <td>
+                                    {{ form.wy.errors }}
+                                    {{ form.wy.label_tag }}
+                                </td>
+                                <td>{{form.wy}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.dc.errors }}
+                                    {{ form.dc.label_tag }}
+                                </td>
+                                <td>{{form.dc}}</td>
+                                <td>
+                                    {{ form.nh.errors }}
+                                    {{ form.nh.label_tag }}
+                                </td>
+                                <td>{{form.nh}}</td>
+                                <td>
+                                    {{ form.ab.errors }}
+                                    {{ form.ab.label_tag }}
+                                </td>
+                                <td>{{form.ab}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.de.errors }}
+                                    {{ form.de.label_tag }}
+                                </td>
+                                <td>{{form.de}}</td>
+                                <td>
+                                    {{ form.nj.errors }}
+                                    {{ form.nj.label_tag }}
+                                </td>
+                                <td>{{form.nj}}</td>
+                                <td>
+                                    {{ form.bc.errors }}
+                                    {{ form.bc.label_tag }}
+                                </td>
+                                <td>{{form.bc}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ga.errors }}
+                                    {{ form.ga.label_tag }}
+                                </td>
+                                <td>{{form.ga}}</td>
+                                <td>
+                                    {{ form.nm.errors }}
+                                    {{ form.nm.label_tag }}
+                                </td>
+                                <td>{{form.nm}}</td><td>
+                                    {{ form.mb.errors }}
+                                    {{ form.mb.label_tag }}
+                                </td>
+                                <td>{{form.mb}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ia.errors }}
+                                    {{ form.ia.label_tag }}
+                                </td>
+                                <td>{{form.ia}}</td>
+                                <td>
+                                    {{ form.nv.errors }}
+                                    {{ form.nv.label_tag }}
+                                </td>
+                                <td>{{form.nv}}</td>
+                                <td>
+                                    {{ form.mx.errors }}
+                                    {{ form.mx.label_tag }}
+                                </td>
+                                <td>{{form.mx}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.id.errors }}
+                                    {{ form.id.label_tag }}
+                                </td>
+                                <td>{{form.id}}</td>
+                                <td>
+                                    {{ form.ny.errors }}
+                                    {{ form.ny.label_tag }}
+                                </td>
+                                <td>{{form.ny}}</td>
+                                <td>
+                                    {{ form.nb.errors }}
+                                    {{ form.nb.label_tag }}
+                                </td>
+                                <td>{{form.nb}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.il.errors }}
+                                    {{ form.il.label_tag }}
+                                </td>
+                                <td>{{form.il}}</td>
+                                <td>
+                                    {{ form.oh.errors }}
+                                    {{ form.oh.label_tag }}
+                                </td>
+                                <td>{{form.oh}}</td>
+                                <td>
+                                    {{ form.nl.errors }}
+                                    {{ form.nl.label_tag }}
+                                </td>
+                                <td>{{form.nl}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.in1.errors }}
+                                    {{ form.in1.label_tag }}
+                                </td>
+                                <td>{{form.in1}}</td>
+                                <td>
+                                    {{ form.ok.errors }}
+                                    {{ form.ok.label_tag }}
+                                </td>
+                                <td>{{form.ok}}</td>
+                                <td>
+                                    {{ form.ns.errors }}
+                                    {{ form.ns.label_tag }}
+                                </td>
+                                <td>{{form.ns}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ks.errors }}
+                                    {{ form.ks.label_tag }}
+                                </td>
+                                <td>{{form.ks}}</td>
+                                <td>
+                                    {{ form.or1.errors }}
+                                    {{ form.or1.label_tag }}
+                                </td>
+                                <td>{{form.or1}}</td>
+                                <td>
+                                    {{ form.nt.errors }}
+                                    {{ form.nt.label_tag }}
+                                </td>
+                                <td>{{form.nt}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ky.errors }}
+                                    {{ form.ky.label_tag }}
+                                </td>
+                                <td>{{form.ky}}</td>
+                                <td>
+                                    {{ form.pa.errors }}
+                                    {{ form.pa.label_tag }}
+                                </td>
+                                <td>{{form.pa}}</td>
+                                <td>
+                                    {{ form.on1.errors }}
+                                    {{ form.on1.label_tag }}
+                                </td>
+                                <td>{{form.on1}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.la.errors }}
+                                    {{ form.la.label_tag }}
+                                </td>
+                                <td>{{form.la}}</td>
+                                <td>
+                                    {{ form.ri.errors }}
+                                    {{ form.ri.label_tag }}
+                                </td>
+                                <td>{{form.ri}}</td>
+                                <td>
+                                    {{ form.pe.errors }}
+                                    {{ form.pe.label_tag }}
+                                </td>
+                                <td>{{form.pe}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.ma.errors }}
+                                    {{ form.ma.label_tag }}
+                                </td>
+                                <td>{{form.ma}}</td>
+                                <td>
+                                    {{ form.sc.errors }}
+                                    {{ form.sc.label_tag }}
+                                </td>
+                                <td>{{form.sc}}</td>
+                                <td>
+                                    {{ form.qc.errors }}
+                                    {{ form.qc.label_tag }}
+                                </td>
+                                <td>{{form.qc}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.md.errors }}
+                                    {{ form.md.label_tag }}
+                                </td>
+                                <td>{{form.md}}</td>
+                                <td>
+                                    {{ form.sd.errors }}
+                                    {{ form.sd.label_tag }}
+                                </td>
+                                <td>{{form.sd}}</td>
+                                <td>
+                                    {{ form.sk.errors }}
+                                    {{ form.sk.label_tag }}
+                                </td>
+                                <td>{{form.sk}}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {{ form.me.errors }}
+                                    {{ form.me.label_tag }}
+                                </td>
+                                <td>{{form.me}}</td>
+                                <td>
+                                    {{ form.tn.errors }}
+                                    {{ form.tn.label_tag }}
+                                </td>
+                                <td>{{form.tn}}</td>
+                                <td>
+                                    {{ form.yt.errors }}
+                                    {{ form.yt.label_tag }}
+                                </td>
+                                <td>{{form.yt}}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td colspan="2"></td>
+                                <td>
+                                    {{form.total.errors}}
+                                    {{form.total.label_tag}}
+                                </td>
+                                <td>
+                                    {{form.total}}
+                                    <input id="id_idcustomer" name="idcustomer" value="{{customer.idcustomer}}" required hidden>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button id="savefrm" type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </form>
+    </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<script type="text/javascript" src="{% static 'site/plugins/yearpicker/yearpicker.js' %}"></script>
+<script type="text/javascript">
+$('.yearpicker').yearpicker({
+    autoHide: true
+});
+$("input[type=number]").val(0);
+$("#tblmillages tbody").on("keyup change", function(){
+    var total = 0;
+    var millages = 0;
+    $("tbody input[type=number]").each(function(){
+        millages = parseFloat($(this).val());
+        total = millages+total;
+        $("input[name=total]").val(total);
+    });
+});
+
+$("#frmAdd").submit(function(e){
+  e.preventDefault();
+  var form = $(this).serialize();
+  var url = "/Procedure/add_fueltaxes/{{customer.idcustomer}}";
+  RequestPost(form, url, true);
+});
+</script>

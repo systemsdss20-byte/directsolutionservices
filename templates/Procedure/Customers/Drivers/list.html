@@ -1,0 +1,146 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %}Drivers{% endblock %}
+{% load static %}
+{% block style %}
+	<!-- Ionicons -->
+  	<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  	<!-- DataTables -->
+  	<link rel="stylesheet" href="{% static '/site/plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
+	<!-- Google Font: Source Sans Pro -->
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+	<!-- SweetAlert2 -->
+	<link rel="stylesheet" href="{% static '/site/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
+  	<!-- Toastr -->
+  	<link rel="stylesheet" href="{% static '/site/plugins/toastr/toastr.min.css' %}">
+{% endblock %}
+{% block customers %}{% endblock %}
+{% block Drivers %}active-mh{% endblock %}
+{% block row-right %}
+		<div class="col-md-10">
+			<div class="card card-info">
+				<div class="card-header">
+					<div class="row row-ext">
+						<div class="col-sm-11">
+							<h5 class="card-title"> {{customer.cusname}} </h5>
+						</div>
+						{% if perms.Procedure.add_units %}
+						<div class="col-sm-1">
+							<button id="btnadd" class="btn btn-block btn-pill btn-sm btn-info" value="{{ customer_id }}">
+								<li class="fas fa-plus"></li>&nbsp;Add
+							</button>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+				<div class="card-body">
+					<table id="tblDrivers" class="table table-bordered table-striped table-responsive table-responsive-sm">
+					</table>
+				</div>
+			</div>
+		</div>
+    <div class="modal fade" id="modal-danger">
+        <div class="modal-dialog">
+          <div class="modal-content modal-danger">
+            <div class="modal-header">
+              <h4 class="modal-title">Delete Customer</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+				<form id="delete_form_unit">
+					{% csrf_token %}
+					<input id="idunit" hidden type="number" name='idunit' value="" >
+				</form>
+              <p id="message-text">One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-danger" onclick="delete_customer_unit();">Accept</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <div id="modal-load"></div>
+{%endblock%}
+{% block script %}
+	<script src="{% static '/site/plugins/datatables/jquery.dataTables.js' %}"></script>
+	<script src="{% static '/site/plugins/datatables-bs4/js/dataTables.bootstrap4.js' %}"></script>
+	<script src="{% static '/site/plugins/toastr/toastr.min.js' %}"></script>
+	<script src="{% static '/site/plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+	<script>
+		let table = AjaxDatatableViewUtils.initialize_table(
+            $('#tblDrivers'),
+            '/Procedure/datatable_driver/',
+            {
+                order: [[10, 'asc']],
+                processing: false,
+                autoWidth: false,
+                full_row_select:false,
+            }, {
+                customer_id: '{{ customer_id }}',
+            }
+        );
+        AjaxDatatableViewUtils.adjust_table_columns();
+        function unit(url) {
+            $("#modal-load").load(url, function(){
+                $("#modal-driver").modal("show");
+            });
+        }
+		function delete_message(id, name){
+			$('#idunit').attr('value', id);
+			$('#message-text').html('Are you sure you want to delete the '+name+' unit?');
+		}
+
+	    function delete_customer_unit(){
+	    	$.ajax({
+				type:'POST',
+				url:'/Procedure/unit_delete/',
+				data:$('#delete_form_unit').serialize(),
+				dataType:'json',
+				success:function(response){
+					content = response.message.description;
+					type = response.message.type;
+					notification(content, type);
+					$('#modal-danger').modal('hide');
+					if(response.message.status == 'True'){
+						setTimeout(function(){location.reload();},5000);
+					}
+				}
+			});
+	    }
+		$("#btnadd").click(function(e){
+            e.preventDefault();
+            $("#modal-load").load("/Procedure/add_driver/"+$(this).val(), function(){
+                $("#modal-driver").modal("show");
+            });
+        });
+		function editDriver(idDriver){
+		    $("#modal-load").load("/Procedure/edit_driver/"+idDriver, function(){
+                $("#modal-driver").modal("show");
+            });
+        }
+        function show_exams(iddriver){
+		    $('#modal-load').load('/Procedure/add_exams/'+iddriver, function () {
+                $('#modal-exam').modal('show');
+            });
+        }
+        function change_status(iddriver) {
+		    var url = '/Procedure/change_status_driver/';
+		    var data = {'iddriver': iddriver};
+		    $.get(url, data, function (data) {
+		        notification(data.message.description, data.message.type);
+		        $('#'+iddriver).html(data.data);
+		        if(data.data === 'Active'){
+		            $('#'+iddriver).removeClass("btn-outline-danger");
+                    $('#'+iddriver).addClass("btn-outline-success");
+                }else{
+		            $('#'+iddriver).removeClass("btn-outline-success");
+                    $('#'+iddriver).addClass("btn-outline-danger");
+                }
+            })
+        }
+	</script>
+{% endblock %}

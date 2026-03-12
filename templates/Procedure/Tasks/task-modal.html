@@ -1,0 +1,119 @@
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static '/site/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" />
+{% endblock %}
+<style>
+    .selectize-input {
+        line-height: 9px;
+    }
+    .form-group label {
+        color: #FFFFFF;
+        font-weight: bold;
+        padding-right: 5px;
+    }
+</style>
+<div class="modal fade" id="task-modal" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div id="card-customers" class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <form id="task-form" role="form" method="post">
+                {% csrf_token %}
+                <div class="modal-header bg-blue text-white">
+                    <h4 class="modal-title">TASK</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body bg-info">
+                    <div class="form-group row mb-1">
+                        <div class="col-sm-3 col-form-label">
+                            {{ form.title.label_tag }}
+                        </div>
+                        <div class="input-group col-sm">
+                            {{ form.title }}
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <div class="col-sm-3 col-form-label">{{ form.description.label_tag }}</div>
+                        <div class="input-group col-sm">
+                            {{ form.description }}
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <div class="col-sm-3 col-form-label">
+                            <label for="created_at">Due Date:</label>
+                        </div>
+                        <div class="input-group col-sm">
+                            {{ form.due_date }}
+                            <div class="input-group-append">
+                                <span class="input-group-text text-white">
+                                    <i class="fa fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <div class="col col-sm-3"><label for="id_to_assign">To Assign:</label></div>
+                        <div class="input-group col-sm-6">
+                            <select name="to_assign" class="form-select form-select-sm" id="id_to_assign">
+                                <option value="0">--Select--</option>
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="form-check form-check-inline">
+                                <span class="form-check-label align-content-start">{{ form.priority.label_tag }}</span>
+                                {{ form.priority }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between bg-info">
+                    <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Close</button>
+                    <input id="add_btn" type="submit" class="btn btn-pill btn-primary" value="Save">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="application/javascript">
+	$(document).ready(() => {
+        const config = {
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            "showTodayButton": true,
+            "format": "MM/DD/YYYY HH:mm:ss",
+        };
+        $('.datepicker').datetimepicker(config);
+	    $('#id_to_assign').selectize({sortField: "text",});
+        $('#add_btn').on('click',function(e){
+            e.preventDefault();
+            HoldOn.open({ message: "Please wait"});
+            sendForm('{{ url }}', $("#task-form").serialize(), '{{ csrf_token }}', 'POST')
+                .then(response => {
+                    const {data, message} = response;
+                    notification(message.description, message.type);
+                    $('#task-modal').modal('hide');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    {% if project_id %}
+                        load_tasks('/Procedure/tasks/project/{{ project_id }}');
+                        //load_menu_tasks();
+                        document.getElementById('percentage-number').innerHTML = response.percentage+"%";
+                        document.getElementById('percentage-indicator').style.width = ""+response.percentage+"%";
+                        enable_add_invoice(response.percentage);
+                    {% else %}
+                        load_tasks('/Procedure/tasks/list/1');
+                        calendar.addEvent(data);
+                    {% endif %}
+                    total_notifications();
+                    HoldOn.close();
+                }).catch(error => {
+                    HoldOn.close();
+                    console.error(error);
+            });
+        });
+    });
+</script>

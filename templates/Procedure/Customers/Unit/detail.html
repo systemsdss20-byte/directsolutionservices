@@ -1,0 +1,37 @@
+<table class="table-primary tab table-bordered">
+    <tbody>
+        <tr>
+            <th>LEASE</th>
+            <th>COLOR</th>
+            <th>FUEL</th>
+            <th>PLATE EXPIRATION</th>
+            <th>STATE</th>
+            <th>PURCHASE DATE</th>
+            <th class="2">PURCHASE PRICE</th>
+        </tr>
+        <tr>
+            <td>{% if detail.lease %}Yes{% else %} No {% endif %}</td>
+            <td>{{ detail.color }}</td>
+            <td>{{ detail.fuel }}</td>
+            <td>{{ detail.expiration_date }}</td>
+            <td>{{ detail.state }}</td>
+            <td>{{ detail.date }}</td>
+            <td>{{ detail.price | default:''}}</td>
+        </tr>
+        <tr>
+            <th colspan="5"><center>ROAD TAXES</center></th>
+        </tr>
+        <tr>
+            <th>GROSS WEIGHT</th>
+            <th>EMPTY WEIGHT</th>
+            <th>CATEGORY</th>
+            <th colspan="2">LAST UPDATE</th>
+        </tr>
+        <tr>
+            <td>$ {{ detail.gross }}</td>
+            <td>{{ detail.empty }}</td>
+            <td>{{ detail.road_taxes }}</td>
+            <td colspan="2">{{ detail.road_taxes_date }}</td>
+        </tr>
+    </tbody>
+</table>

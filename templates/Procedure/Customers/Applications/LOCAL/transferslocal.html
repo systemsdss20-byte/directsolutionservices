@@ -1,0 +1,203 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">TRANSFERS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <table class="table table-responsive-sm">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <h3 class="card-title">Customer:</h3>
+                                </td>
+                                <td colspan="7">
+                                    <span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><label class="form-label col-form-label-sm" for="date_transfers">Date of Transfers:</label></td>
+                                <td colspan="2">
+                                    <div class="input-group">
+                                        <input type="text" name="date_transfers" id="date_transfers" class="form-control form-control-sm">
+                                        <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                    </div>
+                                </td>
+                                <td colspan="4">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td colspan="8"><h3 class="text-center">Vehicle</h3></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="vehicle_type">Vehicle Type:</label></td>
+                                <td>
+                                    <select name="vehicle_type" id="vehicle_type" class="form-select form-select-sm">
+                                        <option value="0" selected>--Selected--</option>
+                                        <option value="1">Motor Vehicle</option>
+                                        <option value="2">Mobile Home</option>
+                                        <option value="3">Vessel</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label class="form-label col-form-label" for="unit">Unit:</label>
+                                </td>
+                                <td>
+                                    <select id="unit" name="unit" class="form-select item form-select-sm" required="true" disabled>
+                                        <option value="No">--Select--</option>
+                                        {% for unit in units %}
+                                            <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><label class="form-label col-form-label" for="make">Make:</label></td>
+                                <td><input name="make" id="make" class="form-control form-control-sm" type="text"></td>
+                                <td><label class="form-label col-form-label" for="year">Year:</label></td>
+                                <td><input name="year" id="year" class="form-control form-control-sm" type="text"></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="type_unit">Type:</label></td>
+                                <td><input name="type_unit" id="type_unit" class="form-control form-control-sm" type="text"></td>
+                                <td><label class="form-label col-form-label" for="vin">VIN:</label></td>
+                                <td><input name="vin" id="vin" class="form-control form-control-sm" type="text"></td>
+                                <td><label class="form-label col-form-label" for="title">Title:</label></td>
+                                <td><input name="title" id="title" class="form-control form-control-sm" type="text"></td>
+                                <td><label class="form-label col-form-label" for="color">color:</label></td>
+                                <td><input name="color" id="color" class="form-control form-control-sm" type="text"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="8"><h3 class="text-center">Owner:</h3></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="type_owner">Type:</label></td>
+                                <td>
+                                    <select name="type_owner" id="type_owner" class="form-select form-select-sm">
+                                        <option value="0">--Select--</option>
+                                        <option value="1">Company</option>
+                                        <option value="2">Personal</option>
+                                        <option value="3">Other</option>
+                                    </select>
+                                </td>
+                                <td><label class="form-label col-form-label" for="name_owner">Name:</label></td>
+                                <td colspan="2"><input name="name_owner" id="name_owner" type="text" class="form-control form-control-sm"></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="address_owner">Address:</label></td>
+                                <td><input name="address_owner" id="address_owner" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="city_owner">City:</label></td>
+                                <td><input name="city_owner" id="city_owner" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="state_owner">State:</label></td>
+                                <td><input name="state_owner" id="state_owner" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="zipcode_owner">Zip Code:</label></td>
+                                <td><input name="zipcode_owner" id="zipcode_owner" type="text" class="form-control form-control-sm"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="8"><h3 class="text-center">Co-Owner:</h3></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="type_coowner">Type:</label></td>
+                                <td>
+                                    <select name="type_coowner" id="type_coowner" class="form-select form-select-sm">
+                                        <option value="0">--Select--</option>
+                                        <option value="1">Company</option>
+                                        <option value="2">Personal</option>
+                                        <option value="3">Other</option>
+                                    </select>
+                                </td>
+                                <td><label class="form-label col-form-label" for="name_coowner">Name:</label></td>
+                                <td><input name="name_coowner" id="name_coowner" type="text" class="form-control form-control-sm"></td>
+                                <td colspan="4">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label col-form-label" for="address_coowner">Address:</label></td>
+                                <td><input name="address_coowner" id="address_coowner" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="city_coowner">City:</label></td>
+                                <td><input name="city_coowner" id="city_coowner" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="state_coowner">State:</label></td>
+                                <td><input name="state_coowner" id="state_coowner" type="text" class="form-control form-control-sm"></td>
+                                <td><label class="form-label col-form-label" for="zipcode_coowner">Zip Code:</label></td>
+                                <td><input name="zipcode_coowner" id="zipcode_coowner" type="text" class="form-control form-control-sm"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input name="feinolic_owner" id="feinolic_owner" hidden>
+                    <input name="feinolic_coowner" id="feinolic_coowner" hidden>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <input type="submit" id="showPDF" class="btn btn-pill btn-primary" value="View" />
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#date_transfers').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true
+    });
+    $('#vehicle_type').on('change', function () {
+        if($(this).val() === '1'){
+          $('#unit').prop('disabled', false);
+        } else {
+            $('#unit').val('No');
+            $('#unit').prop('disabled', true);
+            $('#make').val('');
+            $('#year').val('');
+            $('#type_unit').val('');
+            $('#vin').val('');
+            $('#title').val('');
+            $('#color').val('');
+        }
+    });
+    $('#unit').on('change', function () {
+        var url= '/Procedure/get_unit/';
+        $.get(url, {'unit': $(this).val()}, function (response) {
+            $('#make').val(response.make);
+            $('#year').val(response.year);
+            $('#type_unit').val(response.type);
+            $('#vin').val(response.vin);
+            $('#title').val(response.title);
+            $('#color').val(response.color);
+        })
+    });
+    $('#type_owner').on('change', function () {
+        fill_form($(this).val(), 'owner');
+    });
+    $('#type_coowner').on('change', function () {
+        fill_form($(this).val(), 'coowner');
+    });
+
+    post_showPDF('/Procedure/transfers/{{ customer.idcustomer }}', '#frm');
+
+    function fill_form(type, control) {
+        var url = '/Procedure/get_customertype/'+ {{ customer.idcustomer }};
+        if(type === '1' || type === '2'){
+            $.get(url,{'type': type},function (response) {
+                $('#name_'+control).val(type === '1' ? response.cusname : response.owner);
+                $('#address_'+control).val(response.address);
+                $('#city_'+control).val(response.city);
+                $('#state_'+control).val(response.state);
+                $('#zipcode_'+control).val(response.codepostal);
+                $('#feinolic_'+control).val(type === '1' ? response.fein : response.lic);
+            });
+        }else{
+            $('#name_'+control).val('');
+            $('#address_'+control).val('');
+            $('#city_'+control).val('');
+            $('#state_'+control).val('');
+            $('#zipcode_'+control).val('');
+        }
+    }
+</script>

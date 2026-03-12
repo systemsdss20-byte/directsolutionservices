@@ -1,0 +1,144 @@
+
+{% load static %}
+<link rel="icon" href="{% static '/site/favicon.ico' %}" type="image/x-icon"/>
+<link rel="shortcut icon" href="{% static '/site/favicon.ico' %}" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="{% static '/admin/css/login.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static '/admin/css/base.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static '/site/plugins/fontawesome-free/css/v4-shims.min.css'%}"/>
+<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link type="text/css" rel="stylesheet" href="{% static '/site/plugins/fontawesome-free/css/all.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static '/site/plugins/HoldOn.js/HoldOn.min.css' %}" />
+<script type="text/javascript" src="{% static '/site/plugins/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static '/site/plugins/HoldOn.js/HoldOn.min.js' %}"></script>
+<script src="{% static '/assets/Holiday/jquery.modal.min.js' %}"></script>
+<!-- Christmas Assets 
+<link rel="stylesheet" href="{% static '/assets/Holiday/jquery.modal.min.css' %}" />
+<link rel="stylesheet" href="{% static '/assets/Holiday/firework/jquerysctipttop.css' %}" />
+<script type="text/javascript" src="{% static '/assets/Christmas/jquery.snow.js' %}"></script>
+ End Christmas Assets -->
+<!-- New Year Assets -->
+<!--
+<link rel="stylesheet" href="{% static '/assets/Holiday/happy_new_year.css' %}" />
+<script src="{% static '/assets/Holiday/firework/jquery.fireworks.js' %}"></script>
+-->
+<!-- End New Year Assets -->
+<style>
+    .container{
+        background: #0b7ec4;
+    }
+    .modal a.close-modal[class*="icon-"] {
+        cursor: pointer;
+        background: #ffffff;
+        top: -10px;
+        right: -10px;
+        width: 20px;
+        height: 20px;
+        color: #fff;
+        line-height: 1.25;
+        text-align: center;
+        text-decoration: none;
+        text-indent: 0;
+        background: #900;
+        border: 2px solid #fff;
+        -webkit-border-radius:  26px;
+        -moz-border-radius:     26px;
+        -o-border-radius:       26px;
+        -ms-border-radius:      26px;
+        -moz-box-shadow:    1px 1px 5px rgba(0,0,0,0.5);
+        -webkit-box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+        box-shadow:         1px 1px 5px rgba(0,0,0,0.5);
+    }
+    .modal {
+        background: none;
+    }
+</style>
+<!--<body class="login"  style="background-image: url('{% static '/assets/Christmas/background.jpg' %}'); background-repeat: no-repeat; background-size: cover; background-position: center center"> -->
+<body class="login"  style="background-image: url('{% static '/site/dist/img/boxed-bg.png' %}');">
+	<div id="container" style="box-shadow: 1px 1px 14px gold; border: solid 1px #fffceb; ">
+		<div id="header" style="background: rgba(255, 215, 18, 1);">
+			<div id="branding" >
+                <!--<img src="{% static 'assets/Christmas/arbol.png' %}" style="height:3rem;">-->
+                <!--<img src="{% static 'assets/Christmas/thanksgiving.png' %}" style="height:3rem;">-->
+                <img src="{% static 'site/img/logo-01.png' %}" width="150px" height="60px">
+                <!--<img src="{% static 'assets/Christmas/santa.png' %}" alt="Tabler" width="60px">-->
+			</div>
+            <!--<img src="{% static 'site/img/logo-01.png' %}" width="150px" height="60px">-->
+		</div>
+		<div id="content" class="colM">
+			{% if messages %}
+				<p class="messages">
+				    {% for message in messages %}
+				    	<li {% if message.tags %} class="{{ message.tags }}note"{% endif %}>{{ message }}</li>
+				    {% endfor %}
+				</p>
+			{% endif %}
+			<div id="content-main">
+			    <form id="login-form" method="POST" action="/Procedure/login/">
+			    {% csrf_token %}
+					<div class="form-row">
+						<label class="required">Username</label>
+						<input id="id_username" type="text" name="username" required="true"  />
+					</div>
+					<div class="form-row">
+						<label class="required">Password</label>
+						<input id="id_password" type="password" name="password" required="true"  />
+					</div>
+					<div class="submit-row">
+						<input name="enviar" type="submit" value="Send" style="background: #ffcc00"/>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+   <!-- Modal HTML embedded directly into document
+    <div id="ex1" class="modal">
+      <div class="feliz">Happy new year</div>
+        <div class="ano_novo">
+          <span>202</span>
+          <span class="seis">1</span>
+          <span class="sete">2</span>
+          <div class="balao"></div>
+        </div>
+        <a class="close-modal icon-remove" id="close">X</a>
+    </div> -->
+</body>
+<script type="application/javascript">
+var msj = false;
+{% if msj %}
+	msj ={{msj}};
+{% endif %}
+if(msj === true){
+	location.reload();
+}
+
+jQuery.fn.snow({
+    target: jQuery('.login'),
+    elements: [
+        { html: '<i class="fa fa-snowflake-o" aria-hidden="true"></i>', color:'#fff' },
+        { html: '<i class="fa fa-bell-o" aria-hidden="true"></i>', color:'#ed9b40' },
+        { html: '<i class="fa fa-music" aria-hidden="true"></i>', color:'#cc2037' }
+    ],
+    minSize: 10,
+    maxSize: 50
+});
+/*
+$(document).ready(function () {
+    $('.close-modal').on('click', function(event, modal) {
+        event.preventDefault();
+         $('#ex1').fireworks('destroy');
+         console.log('clic');
+    });
+    $("#ex1").modal({
+        fadeDuration: 100,
+        escapeClose: false,
+        clickClose: false,
+        showClose: false
+    });
+    $('#ex1').fireworks();
+    $('#close').on('click', function (e) {
+        $('#ex1').fireworks('destroy');
+        $.modal.close();
+    })
+});
+*/
+</script>

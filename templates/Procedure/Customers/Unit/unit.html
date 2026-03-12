@@ -1,0 +1,454 @@
+{% load static %}
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal fade" id="modal-unit" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <form id="frmUnit" role="form" method="post">
+                {% csrf_token %}
+                <div class="modal-header bg-blue text-white">
+                    <h4 class="modal-title">{{ modal_title }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {{ form.non_field_errors }}
+                    </div>
+                    <table class="table table-responsive table-bordered" style="background:rgba(222,222,222,0.6)">
+                        <tr>
+                            <th colspan="6">Information Basic</th>
+                        </tr>
+                        <tr style="display:none">
+                            <td><input id="idcustomer" name="idcustomer" value="{{customer_id}}"></td>
+                            <td><input id="iduser" name="iduser" value="0"></td>
+                            <td><input id="status" type="text" name="status" value="Active"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.nounit.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.nounit }}
+                                            <div class="invalid-feedback" id="nounit-feedback"></div>
+                                            <div class="bg-warning text-white font-weight-bold" style="padding: 0px 5px;">
+                                                {{ form.lease.label_tag }}
+                                                {{ form.lease }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.irp.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.irp }}
+                                            <div class="invalid-feedback" id="irp-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.expiration_date.label_tag }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                                {{ form.expiration_date }}
+                                            </div>
+                                            <div class="invalid-feedback" id="expiration_date-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.year.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.year }}
+                                            <div class="invalid-feedback" id="year-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.make.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.make }}
+                                            <div class="invalid-feedback" id="make-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.type.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.type }}
+                                            <div class="invalid-feedback" id="type-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.vin.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.vin }}
+                                            <div class="invalid-feedback" id="vin-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.title.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.title }}
+                                            <div class="invalid-feedback" id="title-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.state.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.state }}
+                                            <div class="invalid-feedback" id="state-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.fuel.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.fuel }}
+                                            <div class="invalid-feedback" id="fuel-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.gross.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.gross }}
+                                            <div class="invalid-feedback" id="gross-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.empty.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.empty }}
+                                            <div class="invalid-feedback" id="empty-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.color.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            {{ form.color }}
+                                            <div class="invalid-feedback" id="color-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.date.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                </span>
+                                            </div>
+                                            {{ form.date }}
+                                            <div class="invalid-feedback" id="date-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.price.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">$</span>
+                                                <!--
+                                                       <span class="input-group-text">0.00</span> -->
+                                            </div>
+                                            {{ form.price }}
+                                            <div class="invalid-feedback" id="price-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="table table-responsive table-bordered">
+                        <tr>
+                            <th colspan="3">Road Tax Information</th>
+                            <th>IFTA Information</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-text text-dark text-sm">
+                                            Road Tax Category
+                                        </div>
+                                        {{ form.road_taxes }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.road_taxes_date.label_tag }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                </span>
+                                            </div>
+                                            {{ form.road_taxes_date }}
+                                            {% if modal_title == 'Edit Unit' %}
+                                            <button id="btn-refresh-date" class="btn btn-sm btn-info"><i class="fa fa-refresh"></i></button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="bg-warning text-white font-weight-bold" style="padding-left: 25%;">
+                                            {{ form.ifta.label_tag }}
+                                            {{ form.ifta }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Close</button>
+                    {% if url_action != 'view' %}
+                    <input id="btnunit" type="submit" class="btn btn-pill btn-primary" value="Save">
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+	$(document).ready(function(){
+	    table = $('#tbUnits').closest('table.dataTable');
+        {% if url_action == 'view' %}
+            $('#frmUnit input').prop("readonly", true);
+            $('#frmUnit select').prop("disabled", true);
+            $('#frmUnit input[type=checkbox]').prop("disabled", true);
+        {% else %}
+		$('.datepicker').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth:true,
+            changeYear:true,
+            showButtonPanel: true
+        });
+        $('#btnunit').on('click',function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '{{ url_action }}',
+                dataType: 'json',
+                type: 'POST',
+                data: $("#frmUnit").serialize(),
+                beforeSend: function(){ HoldOn.open({ message: "Please wait"}); },
+                success: function(response){
+                    content = response.message.description;
+                    type = response.message.type;
+                    if(response.message.status == "True"){
+                        notification(content, type);
+                        $('#modal-unit').modal('hide');
+					    $('body').removeClass('modal-open');
+                        $('.modal-backdrop').remove();
+                        //table = $('#tbUnits').closest('table.dataTable');
+                        //table.DataTable().ajax.reload(null, false);
+                    }else{
+                        var errors = JSON.parse(response.message.errors);
+                        var content = '';
+                        $.each( errors, function( key, value ) {
+                            content += "*"+key + ": "+ value[0].message + "\n";
+                            if(key == 'type' || key == 'taxid'){
+                                $('#id_'+key).addClass('is-invalid');
+                            }else {
+                                $('input[name=' + key + ']').addClass('is-invalid');
+                                $('#'+key+'-feedback').addClass('d-block').text(value[0].message);
+                            }
+                            notification(content, 'warning');
+                        });
+                    }
+                        HoldOn.close();
+                },
+                error: function(response){
+                    HoldOn.close();
+                }
+            }).done(function (data, textStatus, jqXHR) {
+                table.DataTable().ajax.reload(null, false);
+                $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+            });
+        });
+        {% endif %}
+        $('#btn-refresh-date').on('click', function (event) {
+            event.preventDefault();
+            var url = '/Procedure/update_date_road_taxes/{{ unit_id }}';
+            var data = {'update_date': true}
+            $.get(url, data ,function (data) {
+                notification(data.message.description, data.message.type);
+                $('#id_road_taxes_date').val(data.date);
+            });
+        });
+        $('#id_gross').bind('change keyup', function (e) {
+            e.preventDefault;
+            if($(this).val() != ''){
+                $.get("/Procedure/category_road_tax/",{'gross': $(this).val()}).done(function ( data ) {
+                    $('#id_road_taxes').val(data.category);
+                });
+            }
+        });
+    });
+</script>

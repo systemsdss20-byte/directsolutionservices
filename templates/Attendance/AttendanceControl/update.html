@@ -1,0 +1,205 @@
+{% block card-body %}
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal fade" id="modal-attendance-control" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="UpdateAttendanceControl" role="form">
+            {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Attendance Control</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col col-md-6">
+                            <div class="form-group">
+                                <h3>Employee:<span class="text-primary"> {{ form.instance.employee.names }} {{ form.instance.employee.surnames }}</span></h3>
+                                <input type="hidden" name="employee" value="{{ form.instance.employee.id }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-md-4">
+                            <div class="form-group">
+                                <label class="control-label" for="attendance-date">Date:</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control form-control-sm" id="attendance-date" name="attendance_date" value="{{ form.instance.date|date:'m/d/Y' }}" readonly>
+                                    <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                </div>
+                            </div>
+                        </div>                        
+                        <div class="col col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label" for="clock-in">Clock-In:</label>
+                                <div class="input-group input-group-sm">
+                                    <input id="clock-in" type="time" step="1" class="form-control form-control-sm time-input" name="clock_in_at" value="{{ form.instance.clock_in_at|time:'H:i:s' }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-dark btn-sm set-current-time" type="button" data-target="#clock-in" title="Set current time">
+                                            <span class="fa fa-clock"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label" for="lunch-in">Lunch-In:</label>
+                                <div class="input-group input-group-sm">
+                                    <input id="lunch-in" type="time" step="1" class="form-control form-control-sm time-input" name="lunch_in_at" value="{{ form.instance.lunch_in_at|time:'H:i:s' }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-dark btn-sm set-current-time" type="button" data-target="#lunch-in" title="Set current time">
+                                            <span class="fa fa-clock"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">    
+                        <div class="col col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label" for="lunch-out">Lunch-Out:</label>
+                                <div class="input-group input-group-sm">
+                                    <input id="lunch-out" type="time" step="1" class="form-control form-control-sm time-input" name="lunch_out_at" value="{{ form.instance.lunch_out_at|time:'H:i:s' }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-dark btn-sm set-current-time" type="button" data-target="#lunch-out" title="Set current time">
+                                            <span class="fa fa-clock"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col col-md-4">
+                            <div class="form-group">
+                                <label class="control-label" for="clock-out">Clock-Out:</label>
+                                <div class="input-group input-group-sm">
+                                    <input id="clock-out" type="time" step="1" class="form-control form-control-sm time-input" name="clock_out_at" value="{{ form.instance.clock_out_at|time:'H:i:s' }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-dark btn-sm set-current-time" type="button" data-target="#clock-out" title="Set current time">
+                                            <span class="fa fa-clock"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="coll col-md-4">
+                            <div class="form-group">
+                                <label class="control-label" for="hours-worked">Hours Worked:</label>
+                                <input id="hours-worked" type="text" class="input-group form-control form-control-sm" name="hours" value="{{ form.instance.hours|time:'H:i:s' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="attendance_update();">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script type="application/javascript">
+    $(document).ready(function(){
+        $('#attendance-date').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+
+        // Helpers
+        function pad(n){ return (n < 10 ? '0' + n : '' + n); }
+        function currentTimeHHMMSS(){
+            const d = new Date();
+            return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+        function timeToSeconds(timeStr){
+            if (!timeStr) return null;
+            const parts = timeStr.split(':').map(function(p){ return parseInt(p,10)||0; });
+            const h = parts[0] || 0;
+            const m = parts[1] || 0;
+            const s = parts[2] || 0;
+            return h*3600 + m*60 + s;
+        }
+        function secondsToHHMMSS(sec){
+            sec = Math.max(0, Math.floor(sec));
+            const h = Math.floor(sec/3600);
+            const m = Math.floor((sec % 3600)/60);
+            const s = sec % 60;
+            return pad(h) + ':' + pad(m) + ':' + pad(s);
+        }
+
+        // Compute worked hours: (clock_out - clock_in) - (lunch_out - lunch_in)
+        function computeHoursWorked(){
+            const cin = timeToSeconds($('#clock-in').val());
+            const cout = timeToSeconds($('#clock-out').val());
+            if (cin === null || cout === null){
+                $('#hours-worked').val('');
+                return;
+            }
+            let total = cout - cin;
+            if (isNaN(total)) { $('#hours-worked').val(''); return; }
+            const lin = timeToSeconds($('#lunch-in').val());
+            const lout = timeToSeconds($('#lunch-out').val());
+            if (lin !== null && lout !== null){
+                const lunch = lout - lin;
+                if (!isNaN(lunch)) total -= lunch;
+            }
+            if (total < 0) total = 0;
+            $('#hours-worked').val(secondsToHHMMSS(total));
+        }
+
+        // Visual confirmation: temporarily swap icon to a check and color the button
+        function showTemporaryCheck($btn, duration){
+            duration = duration || 900;
+            if (!$btn || $btn.length === 0) return;
+            if (!$btn.data('orig-html')) $btn.data('orig-html', $btn.html());
+            const checkSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            $btn.addClass('btn-success').html(checkSvg);
+            setTimeout(function(){
+                $btn.removeClass('btn-success').html($btn.data('orig-html'));
+            }, duration);
+        }
+
+        // Attach handler to clock buttons: set the input to current system time, trigger compute and show confirmation
+        $('.set-current-time').on('click', function(e){
+            e.preventDefault();
+            const $btn = $(this);
+            const selector = $btn.data('target');
+            const $input = $(selector);
+            if ($input.length === 0) return;
+            const nowVal = currentTimeHHMMSS();
+            $input.val(nowVal).trigger('change');
+            computeHoursWorked();
+            showTemporaryCheck($btn, 1000);
+        });
+
+        // Recompute when any time input changes
+        $('.time-input').on('change input', function(){
+            computeHoursWorked();
+        });
+
+        // Compute on modal show (in case values are present)
+        $('#modal-attendance-control').on('shown.bs.modal', function(){
+            computeHoursWorked();
+        });
+    });
+    function attendance_update() {
+        const url= '/Attendance/attendance-control/{{ id}}';
+        let data = $('#UpdateAttendanceControl').serialize();
+        let token = $('input[name="csrfmiddlewaretoken"]').val();
+        sendForm(url, data, token).then(responseJson => {
+           HoldOn.close();
+           const {message} = responseJson;
+           notification(message.description, message.type);
+           $('#modal-attendance-control').modal('hide');
+           fn_searching_on_table();
+        });
+    }
+</script>

@@ -1,0 +1,63 @@
+{% extends 'Procedure/index.html' %}
+{% load static %}
+{% block title-text %}
+    <a href="/Procedure/index"><i class="fa fa-reply"></i></a>
+{% endblock %}
+{% block title-page %}Reports{% endblock %}
+{% block report %}active{% endblock %}
+
+{% block body-content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-status-top bg-orange"></div>
+                <div class="card-header text-center">
+                    <h3 class="card-title">Customer Report & Export</h3>
+                </div>
+                <div class="card-body">
+                    <form class="form" role="form" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Registration Date Range</label>
+                                <div class="input-group">
+                                    <input type="date" class="form-control" name="start_date" placeholder="Start Date">
+                                    <span class="input-group-text">to</span>
+                                    <input type="date" class="form-control" name="end_date" placeholder="End Date">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Search Name</label>
+                                <input type="text" class="form-control" name="search_text" placeholder="Full Name (Partial)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Total Orders</label>
+                                <div class="input-group">
+                                    <select class="form-select" name="orders_op">
+                                        <option value="eq">=</option>
+                                        <option value="gt">&gt;</option>
+                                        <option value="lt">&lt;</option>
+                                    </select>
+                                    <input type="number" class="form-control" name="orders_val" placeholder="Value">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status (Hold Ctrl for multiple)</label>
+                                <select class="form-select" name="status" multiple>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Suspend">Suspend</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Export to Excel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

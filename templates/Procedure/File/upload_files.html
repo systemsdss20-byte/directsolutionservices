@@ -1,0 +1,106 @@
+<style>
+    .dm-uploader.active {
+        border-color: red;
+        border-style: solid;
+    }
+</style>
+{% load static %}
+    <form class="card" enctype="multipart/form-data" id="frmAdd" method="post" action="#" >
+        {% csrf_token %}
+        <input id="customer" type="hidden" name="customer" value="{{ customer_id | default:0}}">
+        <input id="uploaded_by" type="hidden" name="uploaded_by" value="{{ user.id }}">
+        <div class="card-header">
+            <h4 class="card-title">Upload Files</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-3">
+                    <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <label class="form-label inline_label">Directory</label>
+                                    <div class="input-group-append">
+                                        <select id="folder" class="form-select" name="folder" required>
+                                            <option value="">--Select--</option>
+                                            <option value="cab_card">CAB CARD</option>
+                                            <option value="cdl">CDL</option>
+                                            <option value="companies">COMPANIES</option>
+                                            <option value="compliance">COMPLIANCE</option>
+                                            <option value="dot">DOT</option>
+                                            <option value="fuel_taxes">FUEL TAXES</option>
+                                            <option value="ifta">IFTA</option>
+                                            <option value="iftarenew">IFTA RENEW</option>
+                                            <option value="permits">PERMITS</option>
+                                            <option value="road_taxes">ROAD TAXES</option>
+                                            <option value="small_corp">SMALL CORP</option>
+                                            <option value="taxid">TAX ID</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% if Allfiles %}
+                            <div class="alert alert-warning" role="alert">
+                                Format of the file name
+                                <span class="form-label alert-link">(customer id)-(filename).pdf</span>
+                                <img src="{% static '/site/img/format_save.gif' %}" width="400" height="139"/>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="mb-3">
+                                <div id="drag-and-drop-zone" class="dm-uploader text-center">
+                                    <h3 class="mb-5 mt-5 text-muted">Drag & Drop Files here</h3>
+                                    <div class="btn btn-primary mb-5">
+                                        <span>Open the file Browser</span>
+                                        <input type="file" title="Click to add Files" name="path" multiple />
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button id="btnApistart" class="btn btn-info"><i class="fa fa-upload"></i>&nbsp; Upload</button>
+                                    <button id="btnApireset" class="btn btn-success"><i class="fa fa-refresh"></i>&nbsp; Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl">
+                    <div class="row">
+                        <div class="col-md-6 col-xl-12">
+                            <div class="card">
+                                <div class="card-header">File List</div>
+                                <ul id="files" class="list-unstyled d-flex flex-column col" style="overflow-y: scroll !important; min-height: 110px;">
+                                    <li class="text-muted text-center empty">No files uploaded</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- File item template -->
+    <script type="text/html" id="files-template">
+        <li class="media flex-column">
+            <div class="media-body mb-1">
+                <p class="mb-2">
+                    <strong>%%filename%%</strong>- Status: <span class="text-muted">Waiting</span>
+                </p>
+                <div class="progress mb-2">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0% " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p class="controls mb-2">
+                    <button class="btn btn-sm btn-primary start" role="button">Start</button>
+                    <button class="btn btn-sm btn-danger cancel" role="button">Cancel</button>
+                </p>
+                <hr class="mt-1 mb-1" />
+            </div>
+        </li>
+    </script>
+

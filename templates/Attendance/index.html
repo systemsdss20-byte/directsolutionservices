@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+    <link href="{% static 'ajax_datatable/css/style.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block title-page %}Index{% endblock %}
+{% block index %}active{% endblock %}
+{% block container-fluid %}
+    <div class="container">
+        <div class="page-header align-items-center">
+            <div class="row">
+                <div class="col-4"></div>
+                <h2 class="page-title col-6">{% block title %}Employee{% endblock %}</h2>
+                <div class="col-3"></div>
+            </div>
+        </div>
+        {% block body-content %}
+        <div class="row row-cards row-deck">
+            <div class="card row row-ext">
+                <div class="card-header">
+                    <h4 class="card-title">{% block card-title %}{% endblock %}</h4>
+                </div>
+                <div class="card-body">
+                    {% block card-body %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+    {% block extra-script %}{% endblock %}
+{% endblock %}
+

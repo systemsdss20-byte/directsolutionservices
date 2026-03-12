@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <link rel="icon" href="{{ favicon }}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{ favicon }}" type="image/x-icon"/>
+    <title>Invoice</title>
+    <style media="all" rel="stylesheet">
+        @page {
+            margin: 56pt;
+        }
+        .header {
+            text-align: center;
+            display:block;
+            font-size: 10pt;
+        }
+        .title{
+            color:#0000CC; font-size: 15pt; font-family: Arial; font-weight:700; display:block
+        }
+        .negrita{
+            font-weight:700;
+        }
+        .aleft{
+            text-align:right;
+            width:200px;
+        }
+        .aright{
+            text-align:right;
+        }
+        .logo{
+            display: inline;
+            width: 187px; height: 119px;
+            left: 150px;
+        }
+        .tblinvoice {
+            margin-top: 12px;
+        }
+        .tblinvoice thead tr th {
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+            padding-top: 4px;
+        }
+
+        .tblinvoice thead tr {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .tblinvoice tbody tr {
+            text-align: center;
+            padding-top: 1;
+            border-bottom: 1px solid #ccc;
+        }
+        .amount {
+            font-family: Arial; color: #333333;
+        }
+        #tblamount{
+            margin-top:12px;
+        }
+        .addpadding{
+            padding-left:5px;
+        }
+        .txtfooter {
+            display: block;
+            padding: 0;
+            margin:0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <table style="text-align:center">
+            <tr>
+                <td width="10%">&nbsp;</td>
+                <td width="70%"><label class="title">DIRECT SOLUTION SERVICES</label></td>
+                <td width="20%" rowspan="4"><img src="{{ logo }}" class="logo"></td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <label class="header">Truck Permitting &amp; Tax Services</label>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr><td colspan="2"><hr></td><td>&nbsp;</td></tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td><label class="header">1248 Viscaya Pkwy, Cape Coral, FL 33990</label>
+                    <label class="header">Off: 239-443-5846                            Fax: 800-920-4857</label>
+                    <label class="header">info@directsolutionservices.com</label>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+    <div>
+        <table>
+            <tr>
+                <td width="8%"><label class="negrita">Bill To:</label></td>
+                <td width="52%" style="text-align:left;"><label>{{customer.idcustomer}} - {{customer.cusname}}</label></td>
+                <td width="30%" class="aright"><label class="negrita">No:</label></td>
+                <td width="10%" style="padding-left:10px;"><label class="aleft">{{ invoice.idinvoice }}</label></td>
+            </tr>
+            <tr>
+                <td width="8%">&nbsp;</td>
+                <td width="52%" style="text-align:left;">
+                    <label style="width:200px">{{ customer.address}}</label>
+                </td>
+                <td width="30%" class="aright"><label class="negrita">Date:</label></td>
+                <td width="10%" class="aright"><label class="aleft">{{ invoice.invdate }}</label></td>
+            </tr>
+            <tr>
+                <td width="8%">&nbsp;</td>
+                <td width="52%" style="text-align:left;">
+                    <label style="width:200px">{{customer.city | default:' '}}, {{customer.state| default:' '}} {{customer.codepostal | default:" "}}</label>
+                </td>
+                <td width="30%" class="aright"><label class="negrita">Date Paid:</label></td>
+                <td width="10%" class="aright"><label class="aleft">{{ Paid.datepaid | default:''}}</label></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table width="100%" class="tblinvoice">
+            <thead>
+                <tr>
+                    <th width="10%">Code:</th>
+                    <th width="25%">Services:</th>
+                    <th width="10%">Qty:</th>
+                    <th width="10%">Rate:</th>
+                    <th width="10%">Discount:</th>
+                    <th width="10%">Amount:</th>
+                    <th width="25%">Comments:</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detail in details %}
+                    <tr>
+                        <td>{{detail.code.idservice}}</td>
+                        <td>{{detail.service}}</td>
+                        <td>{{detail.quantity | floatformat:0}}</td>
+                        <td>{{detail.rate | floatformat:2}}</td>
+                        {% if detail.discountype == "%" %}
+                            <td>{{detail.discount | default:""}} %</td>
+                        {% elif detail.discountype == "$" %}
+                            <td>{{detail.discount | default:""}} $</td>
+                        {% else %}
+                            <td>{{detail.discount | default:"0"}} </td>
+                        {% endif %}
+                            <td>{{detail.amount | floatformat:2 }}</td>
+                            <td>{{detail.coments | default:""}}</td>
+                    </tr>
+                {% endfor%}
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <table id="tblamount">
+            <tr>
+                <td width="150px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Cash:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ Paid.cash | floatformat:2 | default:'0.00'}}</label></td>
+                <td width="250px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Total:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ invoice.amount | floatformat:2 | default:'0.00'}}</label></td>
+            </tr>
+            <tr>
+                <td width="150px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Credit Card:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ Paid.credit_card | floatformat:2 | default:'0.00'}}</label></td>
+                <td width="250px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Paid:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ Paid.total_paid | floatformat:2 | default:'0.00' }}</label></td>
+            </tr>
+            <tr>
+                <td width="150px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Check:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ Paid.check | floatformat:2 | default:'0.00' }}</label></td>
+                <td width="250px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Total Due:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ invoice.deu | floatformat:2 | default:'0.00' }}</label></td>
+            </tr>
+            <tr>
+                <td width="150px">&nbsp;</td>
+                <td class="aright"><label class="amount negrita">Zelle:</label></td>
+                <td class="addpadding"><label class="amount negrita">{{ Paid.zelle | floatformat:2 | default:'0.00' }}</label></td>
+                <td width="250px">&nbsp;</td>
+                <td class="aright">&nbsp;</td>
+                <td class="addpadding">&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+    <div>
+        <table width="100%" style="margin-top:40px;">
+            <tr>
+                <td width="80%">
+                    <label class="txtfooter">Make all checks payable to: DIRECT SOLUTION SERVICES</label>
+                    <label class="txtfooter">If you have any questions concerning this invoice, Permit Department, 239-443-5846</label>
+                </td>
+                <td  width="20%" style="margin:0; padding:0;">
+                    {% if invoice.status == "Paid" %}
+                        <img height="100px" src="{{ payment }}" width="156px" style="padding-top:5px;"/>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:center">
+                    <label style="font-family: 'Baskerville Old Face'; font-size: xx-large; color: #999999;">
+                        THANK YOU FOR YOUR TRUST!!!
+                    </label>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

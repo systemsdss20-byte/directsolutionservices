@@ -1,0 +1,142 @@
+<div class="modal fade" id="modal-category" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <form role="form" class="form form-inline">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Road Tax Category</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col col-sm-5">
+                            <div class="input-group">
+                                <div class="form-label">
+                                    {{ form.category.label }}
+                                </div>
+                                {{ form.category }}
+                            </div>
+                        </div>
+                        <div class="col col-sm-7">
+                        <style>
+                            .SumoSelect{
+                                width: 170px;
+                            }
+                            .SumoSelect > .CaptionCont > span{
+                                padding-right: inherit;
+                            }
+                            .SumoSelect .is-invalid{
+                                border: 1px solid #FF0000;
+                            }
+                        </style>
+                            <div class="input-group">
+                                <div class="form-label">Unit:</div>
+                                <select class="form-select form-select-sm" name="unit" id="unit" >
+                                    <option>--Select--</option>
+                                    {% for unit in units %}
+                                        <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-sm-5">
+                            <div class="input-group">
+                                <div class="form-label">
+                                    {{ form.months.label }}
+                                </div>
+                                {{ form.months }}
+                            </div>
+                            <div class="input-group">
+                                <div class="form-label">
+                                    {{ form.tax_value.label }}
+                                </div>
+                                {{ form.tax_value }}
+                            </div>
+                        </div>
+                        <div class="col col-sm-7">
+                            <div class="input-group">
+                                <div class="form-label">TAXID:</div>
+                                <select class="form-select form-select-sm" id="taxid" name="taxid">
+                                    <option value="0">--Select--</option>
+                                    <option value="Personal">Personal</option>
+                                    <option value="Company">Company</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button id="addRoad" type="button" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="notes-modal" class="modal">
+
+</div>
+<script type="text/javascript">
+    function calculate_rate(){
+        $.get("/Procedure/category_road_tax/",{'id': $('#id_category').val(), 'months': $('#id_months').val()})
+            .done(function ( data ) {
+                $('#id_tax_value').val(data.tax_value);
+            });
+    }
+
+    $('#modal-category').modal({backdrop: 'static', keyboard: false})
+    $(".send-query").on('change keyup', function (e){
+        e.preventDefault;
+        if($('#id_months').val() != '' && $('#id_category').val() !='0'){
+            calculate_rate();
+        } else {
+            $('#id_tax_value').val(0);
+        }
+    });
+    $('#addRoad').on('click', function (e) {
+        e.preventDefault();
+        if($('#id_category').val() !=="0" && $("#taxid").val() !=="0"){
+            rate.val($('#id_tax_value').val());
+            item_category = document.getElementById('id_category');
+            var selected_value = service.val() + ' (' + item_category.options[item_category.selectedIndex].text+ ')';
+            service.append('<option value="'+selected_value+'" selected>'+selected_value+'</option>').trigger("chosen:updated");
+            var addtext = '';
+            addtext = comment.val();
+            addtext = 'Months: ' + $('#id_months').val() + '\n' + addtext + "\nTAXID:" + $("#taxid").val();
+            var idname = 'details-'+ (comment.parent('td').parent('tr').index())+ '-comments_projects';
+            if ($("#id_"+idname).length){
+                $("#id_"+idname).remove();
+            }
+            comment.val(addtext);
+            var comment_project = comment.clone().attr('id', "id_"+idname);
+            comment_project.attr('name', idname);
+            comment_project.removeClass('comment');
+            comment_project.addClass('comment_project');
+            comment_project.attr('hidden', true);
+            //comment_project.val(addtext + "\nTAXID:" + $("#taxid").val());
+            comment.parent('td').append(comment_project);
+            calc();
+            $('#modal-category').modal('hide')
+        } else {
+             $('#id_category').val() === '0' ? $('#id_category').addClass('is-invalid') : $('#id_category').removeClass('is-invalid');
+            $('#taxid').val() === '0' ? $('#taxid').addClass('is-invalid') : $('#taxid').removeClass('is-invalid');
+        }
+    });
+    $('#unit').SumoSelect({search: true, searchText: 'Enter here.'});
+    $('#unit').on('change', function () {
+        $.get("/Procedure/units/{{ customer_id }}",{'unit': $('#unit').val()}).done(function ( data ) {
+            var addtext = "No Unit: "+data.nounit + "\nVIN:"+data.vin + "\nMake: "+ data.make;
+            comment.val(addtext);
+            if (data.road_taxes){
+                $('#id_category').val(data.road_taxes);
+                calculate_rate();
+            }else {
+                $('#id_category').val('0')
+            }
+        });
+    });
+</script>

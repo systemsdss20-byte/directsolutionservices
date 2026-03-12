@@ -1,0 +1,233 @@
+<!-- /.modal -->
+{% load static %}
+{% block style %}
+    <link href="{% static '/site/plugins/yearpicker/yearpicker.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+<style>
+.yearpicker-container{
+    z-index:1999;
+}
+</style>
+<div class="modal fade" id="modal-consortium-pool" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Consortium Pool</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frmRandom" class="form-inline bg-orange-lt" style="border-top: 2px solid #f9a123;">
+                    {% csrf_token %}
+                    <input type="hidden" name="random_list_id" id="random_list_id" value="{{ random_list_id }}">
+                    <div class="input-group col">
+                        <label class="form-check-label">Year:</label>
+                        <input type="text" name="year" class="form-control form-control-sm" id="year">
+                        <div class="input-group-text"><i class="fa fa-calendar-o"></i></div>
+                    </div>
+                    <div class="input-group col">
+                        <label class="form-check-label">Trimester</label>
+                        <div class="input-group-text"><i class="fa fa-calendar-o"></i></div>
+                        <select id="quarter" name="quarter" class="form-select form-select-sm">
+                            {% for quarter in quarters %}
+                                <option value="{{ quarter.item }}" {% if quarter.item == quarter_selected %}selected{% endif %}>{{ quarter.name }}</option>
+                            {% endfor %}                            
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-check-label" id="current-alcohol">Alcohol Tests Performed: {{ current_alcohol.number }} ({{ current_alcohol.percentage }}%)</label>
+                    </div>
+                    <div class="col">
+                        <label class="form-check-label" id="current-substance">Substance Tests Performed: {{ current_drugs.number }} ({{ current_drugs.percentage }}%)</label>
+                    </div>
+                    <div class="input-group col">
+                        <label class="form-check-label">Random Drivers:</label>
+                        <input id="total-drivers" type="number" class="form-control form-control-sm" value="{{ total_drivers }}" readonly>
+                    </div>
+                </form>
+                <div class="row justify-content-center">
+                    <button class="btn btn-primary btn-pill btn-sm" id="btnNew" hidden>Add New</button>
+                </div>
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header text-center justify-content-center bg-orange-lt">
+                        <div class="col col-sm-2">
+                            <div class="input-group col">
+                                <label class="form-check-label">Test:</label>
+                                <select id="test" name="test" id="test" class="form-select form-select-sm">
+                                    <option value="all">All</option>
+                                    <option value="alcohol">Alcohol</option>
+                                    <option value="substances">Substances</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-title text-center col">Random List</div>
+                        <div class="col col-sm-2">
+                            <input type="checkbox" class="form-check-input" id="show-list" name="show" {% if show %}checked{% endif %}>
+                            <label class="form-check-label" for="show-list">Show List</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="tblDetails" class="table table-bordered table-striped table-responsive-sm">
+                            <tfoot style="background: #ffe9d5 ; color: #ff922b; font-weight: bold;">
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td class="total-alcohol">&nbsp;</td>
+                                    <td class="total-substances">&nbsp;</td>
+                                    <td class="total-selected" colspan="2">&nbsp;</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-danger btn-pill" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+        <!-- /.modal-dialog -->
+</div>
+<script type="text/javascript" src="{% static 'site/plugins/yearpicker/yearpicker.js' %}"></script>
+<script type="application/javascript">
+    $(document).ready(function () {
+        var tableDetails = null;
+        $("#year").yearpicker({ autohide:true, year: new Date().getFullYear() });
+        
+        AjaxDatatableViewUtils.initialize_table(
+            $('#tblDetails'),
+            '/Consortium/datatable/',
+            {
+                dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+                buttons: [
+                    { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy', footer:true},
+                    { text: '<i class="fa fa-print"></i>', className:'btn btn-light', extend: 'print', titleAttr: 'Print', footer:true},
+                    { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel', footer:true},
+                    { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF', footer:true, title: function (){
+                            var quarter = $('#quarter').val()
+                            var year = $('#year').val();
+                            return "Controlled Substances Report Quarter"+quarter+" "+year;
+                        }
+                    },
+                    { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV', footer:true}
+                ],
+                autoWidth: false,
+                processing: false,
+                footerCallback: function (row, data, start, end, display) {
+                    load_tables();                    
+                }
+            },
+            {
+                'year': function () { return $('input#year').val(); },
+                'quarter': function () { return $('select#quarter').val(); },
+                'test': function () { return $('select#test').val(); },
+            }
+        );
+               
+        $('#btnNew').on('click', function (e) {
+            e.preventDefault();
+            var csrf = $('input[name=csrfmiddlewaretoken]').val();
+            var year = $('#year').val();
+            var quarter = $('#quarter').val();
+            var total_selected = $('#total-selected').val();
+            $.ajax({
+                url: '/Consortium/newlist/',
+                type: 'POST',
+                dataType: 'JSON',
+                data: {year:year, csrfmiddlewaretoken: csrf, quarter:quarter},
+                beforeSend: function () {
+                    HoldOn.open({ message: "Please wait"});
+                },
+                success:function (response, status) {
+                    HoldOn.close();
+                    notification(response.message.description, response.message.type);
+                    //load_tables(year, quarter, csrf);
+                    reload_tables();
+                },
+                error: function (response) {
+                    HoldOn.close();
+                    var message = response.responseJSON.message;
+                    notification(message.description, message.type);
+                }
+            });
+        });
+
+        async function load_tables() {
+            await $.ajax({
+                url: '/Consortium/list/1/',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {year: $('#year').val(), quarter: $('#quarter').val()},
+                beforeSend: function () {
+                    HoldOn.open({ message: "Please wait"});
+                },
+                success:function (response, status) {
+                    HoldOn.close();
+                    const {filtered_alcohol, filtered_drugs, total_selected, show, random_list_id} = response;
+                    $("#show-list").prop('checked', show);
+                    $('#random_list_id').val(random_list_id);                 
+                    updateFoot(filtered_alcohol, filtered_drugs, total_selected);
+                    var tfootElements = $('table tfoot');
+                    if (tfootElements.length > 1) {
+                        tfootElements[0].remove();
+                    }
+                },
+                error: function (response) {
+                    HoldOn.close();
+                }
+            });         
+        }
+
+        function updateFoot(filtered_alcohol, filtered_drugs, total_selected){
+            const total_test_performed = filtered_alcohol.number + filtered_drugs.number;
+            $('.total-selected').html(`Drivers Selected: ${total_selected}`);
+            $('.total-alcohol').html(`${filtered_alcohol.completed}/${filtered_alcohol.total} (${filtered_alcohol.percentage}%) Alcohol Tests Performed`);
+            $('.total-substances').html(`${filtered_drugs.completed}/${filtered_drugs.total} (${filtered_drugs.percentage}%) Substances Tests Performed`);
+            if(total_selected == 0) $('#btnNew').prop('hidden', false); else $('#btnNew').prop('hidden', true);
+        }
+        function reload_tables(){
+            AjaxDatatableViewUtils.redraw_table("#tblDetails");
+            const tfooElement = $("#tblDetails tfoot");
+            tfooElement.remove();
+        }
+        $('#quarter').on('change', function () {
+            reload_tables();
+        });
+        $('#year').on('change', function () {
+            reload_tables();
+        });  
+        $('#test').on('change', function () {
+            reload_tables();
+        });
+        $('#show-list').on('change', function () {
+            const checkbox = $(this);
+            const isActive = $(this).prop('checked');
+            $.ajax({
+                url: '/Consortium/list/',
+                type: 'PATCH',
+                dataType: 'JSON',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: JSON.stringify({
+                    'id': $('#random_list_id').val(),
+                    show: isActive
+                }),
+                beforeSend: function () {
+                    HoldOn.open({ message: "Please wait"});
+                },
+                success:function (response, status) {
+                    HoldOn.close();
+                    notification(response.message.description, response.message.type);
+                },
+                error: function (xhr, status, error) {
+                    HoldOn.close();
+                    checkbox.prop('checked', !isActive);
+                    notification(error, 'error');
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,165 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %}Projects{% endblock %}
+{% load static %}
+{% block style %}
+    <style>
+        .dt-buttons{
+            float: inline-start;
+        }
+    </style>
+{% endblock %}
+{% block customers %}{% endblock %}
+{% block Projects %}active-mh{% endblock %}
+{% block row-right %}
+		<div class="col-md-10">
+			<div class="card card-info">
+				<div class="card-header">
+					<div class="row row-ext">
+						<div class="col-sm-11">
+							<h5 class="card-title">{{ customer_id }} - {{cusname}} </h5>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+                    <form class="form-control form-inline" method="post" role="form" id="frmUpdate">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <div class="form-text">
+                                <label class="form-label" for="status">Status:</label>
+                            </div>
+                            <select name="status" class="form-select form-select-sm" id="status">
+                                {% for status in status_p %}
+                                    <option value="{{ status }}">{{ status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="dt-buttons">
+                            <input class="btn btn-sm btn-pill btn-primary" id="btnSave" type="submit" value="Save">
+                        </div>
+                    </form>
+                    <div class="hr-text"></div>
+					<table id="tblprojects" class="table table-bordered table-striped">
+						<thead style="background: rgb(5,78,102);">
+							<tr>
+                                <th>&nbsp;</th>
+								<th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Id</th>
+								<th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Services</th>
+								<th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Comments</th>
+								<th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Status</th>
+								<th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Invoice</th>
+                                <th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Request On</th>
+                                <th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Representative</th>
+                                <th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Status Last</th>
+								<th style="color: rgba(255,255,255,1); font-weight: bold; text-align: center;">Representative Last</th>
+                                <th>&nbsp;</th>
+                            </tr>
+						</thead>
+						<tbody>
+							{% for project in projects %}
+								<tr>
+                                    <td><input class="form-check-input" type="checkbox" name="idproject" id="{{ project.id }}" value="{{ project.id }}"></td>
+									<td> {{ project.id }} </td>
+									<td> {{ project.services }} </td>
+									<td> {{ project.comments }} </td>
+                                    <td> {{ project.status }} </td>
+                                    <td>
+                                        {% if project.invoice == "Paid" %}
+                                            <span class='status-icon bg-success'></span>{{ project.invoice }}
+                                        {% elif project.invoice == "Unpaid"%}
+                                            <span class='status-icon bg-danger'></span>{{ project.invoice }}
+                                        {% else %}
+                                            <span class='status-icon bg-warning'></span>{{ project.invoice }}
+                                        {% endif %}
+                                    </td>
+                                    <td> {{ project.request | date:'m/d/Y'}} </td>
+                                    <td> {{ project.representative }}</td>
+                                    <td> {{ project.statuslast | date:'m/d/Y'}} </td>
+                                    <td class="user-last"> {{ project.userlast }} </td>
+								    <td>
+                                        <button class='btn btn-sm btn-pill btn-info' onclick='load_modal({{ project.id }})'><li class='fa fa-file-text-o'></li>&nbsp;Notes&nbsp;{% if project.num_notes %}<span class="badge bg-red">{{ project.num_notes }}</span> {% endif %}</button>
+                                    </td>
+                                </tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+{%endblock%}
+{% block script %}
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    let text = {% if showAll %} 'Normal' {% else %} 'Show All' {% endif %};
+    let isShow = {% if showAll %} 0 {% else %} 1 {% endif %};
+    let table = $('#tblprojects').DataTable({
+        order: [[ 1, "desc" ]],
+        orderCellsTop: true,
+        buttons: [
+            {
+                text: text,
+                className: 'btn btn-sm btn-info',
+                action: function ( e, dt, node, config ) {
+                    location.href = '/Procedure/projects/{{ customer_id }}/'+isShow;
+                }
+            }
+        ],
+        columnDefs: [
+            { "orderable": false, "targets": 0 }
+        ]
+    });
+    table.buttons().container().prependTo('#tblprojects_wrapper .col-md-6:eq(1)' );
+    $('#frmUpdate').on('submit',function (e) {
+        e.preventDefault();
+        var url = '/Procedure/edit_projects/';
+        var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+        var idprojects = [];
+        $('#tblprojects').find('input[type="checkbox"]:checked').each(function (index, element) {
+            idprojects.push($(this).val());
+        });
+        if(idprojects.length !== 0){
+            var data = {'idprojects[]':idprojects, 'status': $("#status").val(), 'csrfmiddlewaretoken': csrf_token};
+            HoldOn.open({ message: "Please wait"});
+            $.post(url, data, function (response) {
+                HoldOn.close();
+                notification(response.message.description, response.message.type);
+                change_data(table,response.data);
+            }, 'json').fail(function (response) {
+                var message= response.responseJSON.message;
+                notification(message.description, message.type);
+                HoldOn.close();
+            });
+        }else{
+            HoldOn.close();
+            notification("You have not selected anything", 'warning');
+        }
+    });
+});
+function change_data(table,list) {
+    list.forEach(function (data){
+        var indexes = table.rows().indexes().filter(function(values, indexes){
+            var idproject = parseInt(table.cell(values,1).data());
+            if(idproject === data.id){
+                var input = table.cell(values,1).data();
+                $('#'+input).prop('checked', false);
+                table.cell(values,4).data(data.status).draw();
+                table.cell(values,7).data(data.statuslast).draw();
+                table.cell(values,8).data(data.userlast).draw();
+                 return true;
+            }else {
+                return false;
+            }
+        });
+        table.rows( indexes )
+        .nodes()
+        .to$()
+        .css('color', 'red').animate( { color: 'black' }, 2000 );
+    });
+}
+let load_modal = function (idproject) {
+    $("#modal-load").load("/Procedure/notes_projects/" + idproject +'/0', function () {
+        $("#modal-notes").modal("show");
+    });
+};
+</script>
+{% endblock %}

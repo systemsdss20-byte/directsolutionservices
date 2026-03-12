@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title-page %} Commissions {% endblock %}
+{% block index %}{% endblock %}
+{% block accounting %}active{% endblock %}
+{% block commissions %}active{% endblock %}
+{% block container-fluid %}
+
+<div class="page-header">
+    <div class="row aling-items-center">
+        <div class="col-auto">
+            <h2 class="page-title">Accounting</h2>
+        </div>
+    </div>
+</div>
+<div class="row row-cards row-deck p-2">
+    <div class="col card p-2">        
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Commissions</h4>
+            </div>
+            <div class="card-body">
+                <form id="frmChangeStatus" name="frmChangeStatus" method="post">
+                    <div class="row py-2 px-2">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <label class="form-label inline_label">Commissions Status:</label>
+                                <select name="status" id="status" class="form-control form-control-sm mx-2" required>
+                                    <option>-- Select --</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="PAID">PAID</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="input-group">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter" id="tbl-commissions"></table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+<script type="application/javascript">
+    $(".datepicker").datepicker({ dateFormat: 'mm/dd/yy' });        
+    $(document).ready(function() {
+        let table = AjaxDatatableViewUtils.initialize_table(
+            $("#tbl-commissions"),
+            "{% url 'accounting:commissions-list' %}",
+            {
+                dom: '<"#buttons.row row-cards justify-content-between"l<".toolbar">fB><tr><".dataTables_extraFooter text-center text-white bg-primary py-2"><ip>',
+                buttons: [
+                    { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy', footer:true},
+                    { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel', footer:true},
+                ],
+                processing: true,
+                autoWidth: false,
+            }
+        );
+        $('#tbl-commissions').on('rowCallback', function(event, table, row, data ) {
+            $(row).addClass(data.read ? 'read' : 'unread');
+            //$("table input").addClass("form-control-sm");
+            $("table select").addClass("form-select form-select-sm").css("font-size", "1em");
+            $("#select-all").on("click", function() {
+                var isChecked = $(this).is(":checked");
+                $(".row-checkbox").prop("checked", isChecked);
+            });            
+        });
+
+        $('#frmChangeStatus').on('submit', function(e) {
+            e.preventDefault();
+            updateStatus();                
+        });
+
+       function updateStatus() {
+           let url = "{% url 'accounting:commissions' %}";
+           let data = {
+               status: $("#status").val(),  
+               commissions: $("input[name='commissions[]']:checked").map(function() {
+                   return this.value;
+               }).get()
+            }
+            
+            sendForm(url, $("#frmChangeStatus").serialize(), "{{csrf_token}}").then(responseJson => {
+                HoldOn.close();
+                const {message} = responseJson;
+                notification(message.description, message.type);
+                AjaxDatatableViewUtils.redraw_table("#tbl-commissions");
+            }).catch(error => {
+                HoldOn.close();
+                console.log(error);
+            });
+       }
+    });
+</script>    
+{% endblock %}

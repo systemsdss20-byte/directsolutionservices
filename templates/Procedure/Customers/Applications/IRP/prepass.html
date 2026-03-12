@@ -1,0 +1,69 @@
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">PRE-PASS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="hr-text-spaceless"></div>
+                    <div class="row">
+                        <div class="col-form-label">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="unit">Type of Application:</label>
+                                <select name="application" id="application" class="form-select form-select-sm">
+                                    <option>--Select--</option>
+                                    <option value="1">Pre-Pass(Weight Station)</option>
+                                    <option value="2">Pre-Pass Plus</option>
+                                    <option value="3">Tolls Only</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-text-spaceless"></div>
+                    <div class="row">
+                        <table class="table table-striped" id="tblunits">
+                            <thead>
+                                <tr>
+                                    <th>&nbsp;</th>
+                                    <th>No.</th>
+                                    <th>Year</th>
+                                    <th>Make</th>
+                                    <th>VIN</th>
+                                    <th>Tag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for unit in units %}
+                                <tr>
+                                    <td><input name="idunit" class="form-check-input" value="{{ unit.idunit }}" type="checkbox"></td>
+                                    <td>{{ unit.nounit }}</td>
+                                    <td>{{ unit.year }}</td>
+                                    <td>{{ unit.make }}</td>
+                                    <td>{{ unit.vin }}</td>
+                                    <td>{{ unit.irp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    post_showPDF('/Procedure/irp_prepass/{{ customer.idcustomer }}', '#frm');
+</script>

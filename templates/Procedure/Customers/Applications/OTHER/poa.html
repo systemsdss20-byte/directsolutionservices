@@ -1,0 +1,72 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">POWER OF ATTORNEY</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="hr-text-spaceless"> </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="custom-control custom-radio custom-control-inline">
+                                <input class="custom-control-input" name="rbgroup" type="radio" value="1" checked>
+                                <span class="custom-control-label">IRP New Account</span>
+                            </label>
+                            <label class="custom-control custom-radio custom-control-inline">
+                                <input class="custom-control-input" name="rbgroup" type="radio" value="2">
+                                <span class="custom-control-label">IFTA New Account</span>
+                            </label>
+                            <label class="custom-control custom-radio custom-control-inline">
+                                <input class="custom-control-input" name="rbgroup" type="radio" value="3">
+                                <span class="custom-control-label">Other Application</span>
+                            </label>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label">Title:</label>
+                                <select name="title" class="form-select form-select-sm">
+                                    <option value="Owner" selected>Owner</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="President">President</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="input-group">
+                                <label class="form-label custom-control-inline">Date:</label>
+                                <input name="date" id="date" class="form-control form-control-sm" type="text">
+                                <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#date').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true
+    });
+    post_showPDF('/Procedure/other_poa/{{ customer.idcustomer }}', '#frm');
+</script>

@@ -1,0 +1,22 @@
+<table class="table-info">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Service</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for detail in details %}
+            <tr>
+                <td>{{ detail.code.idservice }}</td>
+                <td>{{ detail.service }}</td>
+                <td>{{ detail.quantity }}</td>
+                <td>$ {{ detail.amount }}</td>
+                <td>{{ detail.coments }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

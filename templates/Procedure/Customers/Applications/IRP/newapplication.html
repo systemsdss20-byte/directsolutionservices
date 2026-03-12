@@ -1,0 +1,372 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">IRP NEW APPLICATION</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="hr-text"><h3 class="card-title">Registrant Information</h3></div>
+                    <div class="row row-cols-3 justify-content-center">
+                        <div class="input-group">
+                            <label class="form-label inline_label" for="type_application">Type Of Application:</label>
+                            <select name="type_application" id="type_application" class="form-select form-select-sm">
+                                <option value="0">--Select--</option>
+                                <option value="ORIGINAL">Original</option>
+                                <option value="RENEWAL">Renewal</option>
+                                <option value="ADD VEHICLE">Add Vehicle</option>
+                                <option value="TRANSFER">Transfer</option>
+                                <option value="INCREASE WEIGHT">Increase Weight</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="form-label inline_label" for="type_customer">Customer Type:</label>
+                            <select name="type_customer" id="type_customer" class="form-select form-select-sm" disabled>
+                                <option value="0">--Select--</option>
+                                <option value="1">Company</option>
+                                <option value="2">Personal</option>
+                                <option value="3">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="name">Name:</label>
+                                <input type="text" name="name" id="name" class="form-control form-control-sm">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="address">Address:</label>
+                                <input type="text" name="address" id="address" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="phone">Phone:</label>
+                                <input type="text" name="phone" id="phone" class="form-control form-control-sm">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="City">City:</label>
+                                <input type="text" name="city" id="city" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="irp">IRP Acct:</label>
+                                <input type="text" name="irp" id="irp" class="form-control form-control-sm">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="county">County:</label>
+                                <input type="text" name="county" id="county" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="fein">FEIN:</label>
+                                <input type="text" name="fein" id="fein" class="form-control form-control-sm">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label">State/Zip:</label>
+                                <select name="state" id="state_customer" class="form-select">
+                                    {% for state in states %}
+                                        <option value="{{ state.state }}" {% if state.state == customer.state %}selected{% endif %}>{{ state.codestate }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text" name="zip" id="zip" class="form-control form-control-sm">
+                            </div>
+                            <input type="text" name="owner" id="owner" hidden>
+                            <input type="text" name="title" id="title" hidden>
+                            <input type="text" name="email" id="email" hidden>
+                            <input type="text" name="dotid_customer" id="dotid_customer" hidden>
+                        </div>
+                    </div>
+                    <div class="hr-text"><h3 class="card-title">Vehicle Information</h3></div>
+                    <div class="row justify-content-center">
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="transation">Transation Type: </label>
+                                <select id="transaction" class="form-select form-select-sm">
+                                    <option value="No">--Select--</option>
+                                    <option value="A">Add Vehicle</option>
+                                    <option value="C">Correction</option>
+                                    <option value="D">Delete Vehicle</option>
+                                    <option value="O">Original</option>
+                                    <option value="R">Renewal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="unit">Vehicle/Unit: </label>
+                                <select name="unit" id="unit" class="form-select form-select-sm" disabled>
+                                    <option>--Select--</option>
+                                    {% for unit in units %}
+                                    <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="vin">VIN:</label>
+                                <input id="vin" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="make">Make:</label>
+                                <input id="make" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="color">Fuel:</label>
+                                <input id="fuel" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="empty">Empty:</label>
+                                <input id="empty" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="empty">DOT:</label>
+                                <input id="dotid" class="form-control form-control-sm" type="text">
+                                <label class="form-check" for="safely">
+                                    <span class="form-check-label">Safely</span><input type="checkbox" id="safely" class="form-check-input" checked>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="title">Title:</label>
+                                <input id="title_unit" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="year">Year:</label>
+                                <input id="year" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="color">Color:</label>
+                                <input id="color" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="date">Date:</label>
+                                <input id="date" class="form-control form-control-sm" type="text">
+                                <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="FEIN">FEIN:</label>
+                                <input id="fein_unit" class="form-control form-control-sm" type="text">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="nounit">Unit No:</label>
+                                <input id="nounit" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="type">Type:</label>
+                                <input id="type" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="gross">Gross:</label>
+                                <input id="gross" class="form-control form-control-sm" type="text">
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="price">Price:</label>
+                                <input id="price" class="form-control form-control-sm" type="text">
+                                <input id="idunit" class="form-control form-control-sm" type="text" hidden>
+                            </div>
+                            <div class="input-group">
+                                <button id="btnaddUnit" class="btn btn-pill btn-sm btn-success" style="display: none">Accept</button>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div class="table-responsive-sm my-3 scrollable scroll-x">
+                                <table id="tblunit" class="table table-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20px">Tr Type</th>
+                                            <th style="width: 20px">Unit#</th>
+                                            <th>Year</th>
+                                            <th>Make</th>
+                                            <th>VIN</th>
+                                            <th>Type</th>
+                                            <th style="display: none" colspan="9"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-text"><h3 class="card-title">Mileage Information</h3></div>
+                    <div class="row">
+                        <div class="table-responsive table-responsive-sm">
+                            <table class="table table-striped table-center">
+                                <thead>
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <th>ID</th>
+                                        <th>Year</th>
+                                        <th>Quarter</th>
+                                        <th>IFTA Total Milles</th>
+                                        <th>Kentucky</th>
+                                        <th>New Mexico</th>
+                                        <th>New York</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for millage in millages %}
+                                        <tr>
+                                            <td><input name="idmillage" class="form-check-input" type="checkbox" value="{{ millage.idmillage }}"></td>
+                                            <td>{{ millage.idmillage }}</td>
+                                            <td>{{ millage.year }}</td>
+                                            <td>
+                                                {% if millage.qtr == 1 %}1St Quarter(Jan-Mar){% elif millage.qtr == 2 %}
+                                                2Nd Quarter(Apr-Jun){% elif millage.qtr == 3 %}3Rd Quarter(Jul-Sep){% else %}4Th Quarter(Oct-Dec){% endif %}</td>
+                                            <td>{{ millage.total }}</td>
+                                            <td>{{ millage.ky }}</td>
+                                            <td>{{ millage.nm }}</td>
+                                            <td>{{ millage.ny }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#date').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true
+    });
+    $('#btnaddUnit').on('click', function (env) {
+        env.preventDefault();
+        checked = $('#safely').prop('checked') == true ? 'checked' : '';
+        var code_form = '<tr>' +
+                '<td>'+ '<input class="form-control form-control-sm" type="text" name="transaction" value="' + $('#transaction').val() + '" readonly/></td>' +
+                '<td>' + '<input class="form-control form-control-sm" type="text" name="nounit" value="'+ $('#nounit').val() + '" readonly/></td>' +
+                '<td>' + '<input class="form-control form-control-sm" type="text" name="year" value="'+ $('#year').val() + '" readonly/></td>' +
+                '<td>' + '<input class="form-control form-control-sm" type="text" name="make" value="'+ $('#make').val() + '" readonly/></td>' +
+                '<td>' + '<input class="form-control form-control-sm" type="text" name="vin" value="'+ $('#vin').val() + '" readonly/></td>' +
+                '<td>' + '<input class="form-control form-control-sm" type="text" name="type" value="'+ $('#type').val() + '" readonly/></td>' +
+
+                '<td style="display:none;">' + '<input  type="text" name="color" value="'+ $('#color').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="empty" value="'+ $('#empty').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="title_unit" value="'+ $('#title_unit').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="fuel" value="'+ $('#fuel').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="date" value="'+ $('#date').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="gross" value="'+ $('#gross').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="dotid" value="'+ $('#dotid').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="price" value="'+ $('#price').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input  type="text" name="fein_unit" value="'+ $('#fein_unit').val() + '" readonly hidden/></td>' +
+                '<td style="display:none;">' + '<input type="checkbox" name="safely" value="'+ $('#safely').prop('checked') + '" checked /></td>' +
+            '</tr>';
+        $('#tblunit tbody').append(code_form);
+        clean();
+    });
+    $('#type_customer').on('change', function () {
+        var typecustomer = $(this).val();
+        if(typecustomer == 1 || typecustomer == 2){
+            $.get('/Procedure/getCustomers/{{ customer.idcustomer }}', {'type_customer': typecustomer}, function (response) {
+                $('#name').val(response.name);
+                $('#phone').val(response.phone);
+                $('#irp').val(response.irpid);
+                $('#fein').val(response.fein);
+                $('#address').val(response.address);
+                $('#city').val(response.city);
+                $('#county').val(response.county);
+                $('#zip').val(response.zip);
+                $('#owner').val(response.owner);
+                $('#title').val(response.title);
+                $('#email').val(response.email);
+                $('#state_customer').val(response.state);
+                $('#dotid_customer').val(response.dotid);
+            });
+        }else{
+            clean_frm();
+        }
+
+    });
+    $('#unit').on('change', function () {
+        $.get('/Procedure/get_unit/', {'unit': $(this).val()}, function (response) {
+            $('#vin').val(response.vin);
+            $('#title_unit').val(response.title);
+            $('#nounit').val(response.nounit);
+            $('#make').val(response.make);
+            $('#year').val(response.year);
+            $('#type').val(response.type);
+            $('#color').val(response.color);
+            $('#empty').val(response.empty);
+            $('#fuel').val(response.fuel);
+            $('#date').val(response.date);
+            $('#gross').val(response.gross);
+            $('#dotid').val(response.dotid);
+            $('#price').val(response.price);
+            $('#fein_unit').val(response.fein);
+        });
+    });
+    $('#type_application').on('click', function () {
+        var type_application = $(this).val();
+        if (type_application !== '0'){
+            $('#type_customer').removeAttr('disabled');
+            $('#unit').removeAttr('disabled');
+            $('#btnaddUnit').show();
+        }else{
+            $('#type_customer').prop('disabled', 'true');
+            $('#unit').prop('disabled', 'true');
+            $('#btnaddUnit').hide();
+            clean_frm();
+        }
+    });
+    function clean_frm() {
+        $('#name').val('');
+        $('#phone').val('');
+        $('#irp').val('');
+        $('#fein').val('');
+        $('#address').val('');
+        $('#city').val('');
+        $('#county').val('');
+        $('#zip').val('');
+        $('#owner').val('');
+        $('#title').val('');
+        $('#email').val('');
+    }
+    function clean(){
+        $('#vin').val('');
+        $('#title_unit').val('');
+        $('#nounit').val('');
+        $('#make').val('');
+        $('#year').val('');
+        $('#type').val('');
+        $('#color').val('');
+        $('#empty').val('');
+        $('#fuel').val('');
+        $('#date').val('');
+        $('#gross').val('');
+        $('#dotid').val('');
+        $('#price').val('');
+        $('#fein_unit').val('');
+    }
+    post_showPDF('/Procedure/irpapp/{{ customer.idcustomer }}', '#frm');
+</script>

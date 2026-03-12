@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title-page %}My Tasks{% endblock %}
+{% load static %}
+{% block container-fluid %}
+    <div class="row" >
+        <div class="col-sm-2"></div>
+        <div class="col-md-4 col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">My Tasks</h3>
+                </div>
+                <div class="card-body">
+                    {% include 'Procedure/Tasks/list.html' %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4"></div>
+    </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+    function load_tasks() {
+        $('#tasks').load('/Procedure/list_tasks/{{ project.idproject }}');
+    }
+     function archive_task() {
+        var form = $('#delete-form').serialize();
+        var url = '/Procedure/archive_task/';
+        $.post(url,form, function (response) {
+            notification(response.message.description, response.message.type);
+            $('body').removeClass('modal-open');
+            $('#task-'+response.task_id).remove();
+            load_menu_tasks();
+        }).fail(function (response) {
+            var message = response.responseJSON.message;
+            notification(message.description, message.type);
+        });
+    }
+</script>
+{% endblock %}

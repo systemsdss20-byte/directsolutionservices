@@ -1,0 +1,178 @@
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">FORM MCS-150 US DOT UPDATE</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <table class="table table-responsive table-responsive-sm" style="background: rgba(229, 229, 229, 1)">
+                        <tbody>
+                            <tr>
+                                <td><label class="form-label" for="type_app" style="width: 65px">Type App:</label></td>
+                                <td>
+                                    <select name="type_app" id="type_app" class="form-select form-select-sm">
+                                        <option value="0">--Select--</option>
+                                        <option value="New Application">New Application</option>
+                                        <option value="Biennial Update or Changes">Update Biennal</option>
+                                        <option value="Out of Business Notification">Out of Business</option>
+                                        <option value="Reapplication (after revocation of new entrant)">Re-Application</option>
+                                    </select>
+                                </td>
+                                <td><label class="form-label" for="operations">Operations:</label></td>
+                                <td>
+                                    <select name="operations" id="operations" class="form-select form-select-sm">
+                                        <option value="No">--Select--</option>
+                                        <option value="Inter-State">Inter-State</option>
+                                        <option value="Local">Local</option>
+                                    </select>
+                                </td>
+                                <td><label class="form-label" for="millage">Millage</label></td>
+                                <td><input name="millage" id="millage" class="form-control form-control-sm" type="number"></td>
+                            </tr>
+                            <tr>
+                                <td><label class="form-label" for="qty_drivers" style="width: 75px">Qty Drivers</label></td>
+                                <td><input name="qty_drivers" id="qty_drivers" class="form-control form-control-sm" type="number"></td>
+                                <td><label class="form-label" for="dump">Dump</label></td>
+                                <td><input name="dump" id="dump" class="form-control form-control-sm" type="text"></td>
+                                <td><label class="form-label" for="tractors">Tractors</label></td>
+                                <td><input name="tractors" id="tractors" class="form-control form-control-sm" type="text"></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                   <label class="form-check"><input type="checkbox" name="cargo" value="24aBox" class="form-check-input">GENERAL FREIGHT</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24iBox" class="form-check-input">MACHINERY, LARGE OBJ.</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24qBox" class="form-check-input">COAL/COKE</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24xBox" class="form-check-input">BEVERAGES</label>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                   <label class="form-check"><input type="checkbox" name="cargo" value="24bBox" class="form-check-input">HOUSEHOLD GOODS</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24jBox" class="form-check-input">FRESH PRODUCE</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24rBox" class="form-check-input">MEAT</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24yBox" class="form-check-input">PAPER PRODUCT</label>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                   <label class="form-check"><input type="checkbox" name="cargo" value="24cBox" class="form-check-input">METAL:SHEETS, COILS</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24kBox" class="form-check-input">LIQUIDS/GASES</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24sBox" class="form-check-input">GARBAGE, TRASH</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24zBox" class="form-check-input">UTILITY</label>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24dBox" class="form-check-input">MOTOR VEHICLES</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24lBox" class="form-check-input">INTERMODAL CONTAINER</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24tBox" class="form-check-input">U.S MAIL</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24aaBox" class="form-check-input">FARM SUPPLIES</label>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24eBox" class="form-check-input">DRIVE AWAY/TOWAWAY</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24mBox" class="form-check-input">PASSENGERS</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24uBox" class="form-check-input">CHEMICALS</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24bbBox" class="form-check-input">CONSTRUCCION</label>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24fBox" class="form-check-input">LOGS, POLES, BEAMS</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24nBox" class="form-check-input">OIL FIELD EQUIPMENT</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24vBox" class="form-check-input">COMMODITIES DRY BULK</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24ccBox" class="form-check-input">WATER WELL</label>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24gBox" class="form-check-input">BUILDING MATERIALS</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24oBox" class="form-check-input">LIVESTOCK</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24wBox" class="form-check-input">REFRIGERATED FOOD</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24ddBox" class="form-check-input">OTHER</label>
+                                </td>
+                                <td>
+                                    <td><input name="othercargo" id="othercargo" class="form-control form-control-sm" type="text"></td>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24hBox" class="form-check-input">MOBILE HOMES</label>
+                                </td>
+                                <td>
+                                    <label class="form-check"><input type="checkbox" name="cargo" Value="24pBox" class="form-check-input">GRAIN, FEED, HAY</label>
+                                </td>
+                                <td colspan="4">&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <input type="submit" id="showPDF" class="btn btn-pill btn-primary" value="View" />
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    post_showPDF('/Procedure/mcs150/{{ customer.idcustomer }}', '#frm');
+</script>

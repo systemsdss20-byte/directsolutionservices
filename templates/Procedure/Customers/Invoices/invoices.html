@@ -1,0 +1,175 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %}Invoices{% endblock %}
+{% load static %}
+{% block style %}
+	<!-- Ionicons -->
+  	<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  	<!-- DataTables -->
+  	<link rel="stylesheet" href="{% static '/site/plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
+	<!-- Google Font: Source Sans Pro -->
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+	<!-- SweetAlert2 -->
+	<link rel="stylesheet" href="{% static '/site/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
+  	<!-- Toastr -->
+  	<link rel="stylesheet" href="{% static '/site/plugins/toastr/toastr.min.css' %}">
+{% endblock %}
+{% block customers %}{% endblock %}
+{% block invoices %}active-mh{% endblock %}
+{% block cards %}
+    {% if perms.Procedure.view_cards %}
+    <li class="nav-item">
+		<a class="nav-link" href="#" onclick="credit_card();">
+			<span class="fa fa-credit-card"> </span>
+			<div class="nav-text">Cards</div>
+		</a>
+    </li>
+    {% endif %}
+{% endblock %}
+{% block row-right %}
+    <div class="col-md-10">
+        <div class="card card-info">
+            <div class="card-header">
+                <div class="row row-ext">
+                    <div class="col-sm-11">
+                        <h5 class="card-title"> {{cusname}} </h5>
+                    </div>
+                    {% if perms.Procedure.add_invoices %}
+                        <div class="col-sm-1">
+							<a href="/Procedure/invoice_add/{{customer_id}}/0/" class="btn btn-block btn-sm btn-pill btn-info">
+								<li class="fas fa-plus"> </li>&nbsp;Add
+							</a>
+						</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+				<div class="row mb-3">
+					<div class="col-sm-3">
+						<div class="input-group">
+							<label class="col-form-label" for="from_date">From:</label>
+							<span class="input-group-text">
+								<li class="fa fa-calendar-o"></li>
+							</span>
+							<input id="from_date" type="text" name="from_date" class="form-control form-control-sm datepicker" placeholder="mm/dd/yyyy">
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="input-group">
+							<label class="col-form-label" for="to_date">To:</label>
+							<span class="input-group-text">
+								<li class="fa fa-calendar-o"></li>
+							</span>
+							<input id="to_date" type="text" name="to_date" class="form-control form-control-sm datepicker" placeholder="mm/dd/yyyy">
+						</div>
+					</div>
+					<div class="col-sm-2">
+						<div class="input-group">
+							<label class="col-form-label" for="by_year">Year:</label>
+							<span class="input-group-text">
+								<li class="fa fa-calendar"></li>
+							</span>
+							<input id="by_year" type="text" name="by_year" class="form-control form-control-sm datepicker" placeholder="yyyy">
+						</div>
+					</div>
+					<div class="col-sm-3 pt-1">
+						<button id="search_by" class="btn btn-pill btn-outline-info btn-sm"><i class="fa fa-search"></i>&nbsp;Search</button>
+						<button id="clear" class="btn btn-pill btn-outline-dark btn-sm"><i class="fa fa-eraser"></i>&nbsp;Clear</button>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col">
+						<table id="tbinvoices" class="table table-bordered table-striped">
+						</table>
+					</div>
+				</div>
+            </div>
+        </div>
+    </div>
+    {% include 'Procedure/Customers/Invoices/modal-delete-invoice.html' %}
+{%endblock%}
+{% block script %}
+	<script src="{% static '/site/plugins/datatables/jquery.dataTables.js' %}"></script>
+	<script src="{% static '/site/plugins/datatables-bs4/js/dataTables.bootstrap4.js' %}"></script>
+	<script src="{% static '/site/plugins/toastr/toastr.min.js' %}"></script>
+	<script src="{% static '/site/plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+	<script>
+        let table = AjaxDatatableViewUtils.initialize_table(
+            $('#tbinvoices'),
+            '/Procedure/datatable_invoices_details/',
+            {
+                processing: false,
+                autoWidth: false,
+                full_row_select:false,
+            }, {
+                customer_id: '{{ customer_id }}',
+				from_date: function() { return $('#from_date').val(); },
+				to_date: function() { return $('#to_date').val(); },
+				by_year: function() { return $('#by_year').val(); },
+            }
+        );
+		$("#search_by").on("click", function(){
+			$('#tbinvoices').DataTable().ajax.reload(null, false);
+		});
+
+		$("#clear").on("click", function(e){
+			e.preventDefault();
+			$('#from_date').val('');
+			$('#to_date').val('');
+			$('#by_year').val('');
+			$('#tbinvoices').DataTable().ajax.reload(null, false);
+		});
+
+		function delete_message(id, name){
+			$('#idinvoice').attr('value', id);
+			$('#message-text').html('Are you sure you want to delete the invoice '+name+' ?');
+		}
+
+	    function delete_customer_invoice(){
+	    	$.ajax({
+				type:'POST',
+				url:'/Procedure/delete_invoice/',
+				data:$('#delete_form_invoice').serialize(),
+				dataType:'json',
+				beforeSend: function(){ HoldOn.open({ message: "Please wait"}); },
+				success: function(response, status){
+					HoldOn.close();
+					$('#modal-danger').modal('hide');
+					$('body').removeClass('modal-open');
+					$('.modal-backdrop').remove();
+					$("#comment").val("");
+					if(status){
+						//setTimeout(function(){location.reload();},3000);
+                        notification(response.message.description, response.message.type);
+                        table= $('#tbinvoices').closest('table.dataTable');
+                        table.DataTable().ajax.reload(null, false);
+					}
+				},
+				error: function(response, status){
+					HoldOn.close();
+					var message = response.statusText;
+					$.notify({message: "Error",},{type: "success",offset:{x:330,y:20}});
+				}
+			});
+	    }
+
+		$(function () {
+			$('#from_date').datepicker({format: 'mm/dd/yy'});
+			$('#to_date').datepicker({format: 'mm/dd/yy'});
+		});
+
+	    $("#comment").on("keyup change", function(){
+		  if($(this).val().length > 14){
+			$("#msg").hide();
+			$("#btndelete").prop("hidden", false);
+		  }else{
+			$("#msg").show();
+			$("#btndelete").prop("hidden", true);
+		  }
+		});
+        function sent_emails(url) {
+            $("#modal-load").load(url, function(){
+                $("#modal-sent-emails").modal("show");
+            });
+        }
+	</script>
+{% endblock %}

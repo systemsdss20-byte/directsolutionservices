@@ -1,0 +1,13 @@
+{% extends 'Audit_Logs/index.html' %}
+{% block table_audit_cards %}active-mh{% endblock %}
+{% block  page-pretitle %} Audit Logs {% endblock %}
+{% block page-content-title %} Cards {% endblock %}
+{% block extra-script %}
+<script type="application/javascript">
+    let table = AjaxDatatableViewUtils.initialize_table($('#table-audit'), '/AuditLogs/cards_table_audit/', {
+        processing: false,
+        autoWidth: false,
+        full_row_select: false
+    });
+</script>
+{% endblock %}

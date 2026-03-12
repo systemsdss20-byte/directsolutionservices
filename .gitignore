@@ -1,0 +1,26 @@
+# Environment
+env/
+venv/
+.venv/
+Direct/.idea/
+#Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyclass
+*.pyd
+*.so
+*~
+.DS_Store
+Direct/.idea/
+#Settings and archive
+*.env
+.env.*
+
+#IDEs and editors
+.idea/
+.vscode/
+
+#Static files and media
+temp/
+media/

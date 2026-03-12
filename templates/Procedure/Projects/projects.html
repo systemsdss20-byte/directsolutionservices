@@ -1,0 +1,270 @@
+{% extends 'Procedure/index.html' %}
+{% block title %}{% endblock %}
+{% load static %}
+{% block body-content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-status-top bg-orange"></div>
+                <div class="card-header text-center {% if status == 'InProcess'%}bg-orange-lt {% endif %}">
+                    <h3 class="card-title">{% if status == 'InProcess'%}Projects in process {% else %}{{ status }} Projects{% endif %}</h3>
+                    {% csrf_token %}
+                </div>
+            {% if status == 'InProcess' %}
+                <div class="card-body bg-orange-lt">
+                    <form class="form form-inline" id="add-project" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        {{ form.customer.label }}
+                                        {{ form.customer }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        {{ form.service.label }}
+                                        <select id="id_service" class="form-select form-select-lg selectize" name="service" required>
+                                            <option value="" selected>------- Select ---------</option>
+                                            {% for service in services %}
+                                                <option value="{{ service.idservice }}">{{ service.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        {{ form.quantity.label }}
+                                        {{ form.quantity }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        {{ form.comment.label }}
+                                        {{ form.comment }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <button class="btn btn-pill btn-info" type="submit">Send</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+                <div class="card-body">
+                    <table class="table table-bordered table-striped table-center" id="tblProjects">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Customer</th>
+                                <th>Quantity</th>
+                                <th>Services</th>
+                                <th>Comments</th>
+                                <th>Request</th>
+                                <th>Invoice</th>
+                                <th>Agent</th>
+                                <th>Last Agent</th>
+                                <th>Tasks</th>
+                                <th width="11%">Status</th>
+                                <th>&nbsp;</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/monthpicker/MonthPicker.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/js/postajax.js' %}"></script>
+    <script type="application/javascript">
+        let load_modal = function (idproject) {
+            $("#modal-load").load("/Procedure/notes_projects/" + idproject +'/0', function () {
+                $("#modal-notes").modal("show");
+            });
+        };
+
+        var title_datatable = $('.card-title').text();
+
+        var tblProjects = $('#tblProjects').DataTable({
+            dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+            order: [['0', 'desc']],
+            processing: true,
+            serverSide: false,
+            paging: true,
+            searching: true,
+            pageLength: 10,
+            length: 10,
+            buttons:[
+                { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy', title: title_datatable, filename:title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-print"></i>', className:'btn btn-light', extend: 'print', titleAttr: 'Print', title: title_datatable, filename:title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel', title: title_datatable, sheetName: title_datatable, filename: title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF', title: title_datatable, filename: title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV', title: title_datatable, filename: title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+            ],
+            ajax:{
+                url:"/Procedure/projects/{{ status }}",
+                type:"POST",
+                dataType:"JSON",
+                cache: true,
+                data: function (d) {
+                    d.csrfmiddlewaretoken = $('input[name=csrfmiddlewaretoken]').val();
+                }
+            },
+            deferRender: true,
+            rowCallback: function(row, data){
+                if(data.cell_alert){
+                    $(row).addClass('new-projects');
+                }
+            },
+            columns:[
+                {'data': 'id'},
+                {'data': 'customers', render:function (data, type, row) {
+                        return "<a href='/Procedure/projects/"+data.idcustomer+"/0'>"+data.idcustomer +"-"+ data.cusname +"</a>";
+                    }
+                },
+                {'data': 'quantity'},
+                {'data': 'services'},
+                {'data': 'comments'},
+                {'data': 'request'},
+                {'data': 'invoice', render:function (data, type, row) {
+                        if(data == 'Paid'){
+                            return "<span class='status-icon bg-success'></span>"+data;
+                        } else if(data == 'Unpaid'){
+                            return "<span class='status-icon bg-danger'></span>"+data;
+                        } else {
+                            return "<span class='status-icon bg-warning'></span>"+data;
+                        }
+                    }
+                },
+                {'data': 'representative'},
+                {'data': 'userlast'},
+                {'data': 'percentage', render: function (data, type, row){
+                        return `<div class="progress-group"><span id="percentage-number" class="float-right">${data}%</span><div class="progress progress-sm"><div id="percentage-indicator" class="progress-bar bg-green" style="width: ${data}%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="${data}"></div> </div></div>`;
+                    }
+                },
+                {'data': 'status', render:function (data, type, row) {
+                    var list_status = ['Opened', 'In Process', 'Closed'];
+                    var input_status = "<div class='input-group-append'><select name='status' class='status form-select form-select-sm' >";
+                    for (var value of list_status){
+                        var isSelect = value == data ? "selected" : "";
+                        input_status += "<option value='"+value+"'  "+isSelect+">"+value+"</option>";
+                    }
+                    input_status += "</select><button class='btn btn-sm btn-warning save' value='"+row.id+"'><i class='fa fa-save'></i></button></div>";
+                    return input_status;}
+                },
+                {'data': 'id', render:function (data, type,row) {
+                        var num_notes = "";
+                        if (row.num_notes !=0){
+                            num_notes = "<span class='badge bg-red'>"+row.num_notes+"</span>";
+                        }
+                        return "<button class='btn btn-sm btn-pill btn-info' onclick='load_modal("+data+")'><li class='fa fa-file-text-o'></li>&nbsp;Notes&nbsp;"+num_notes+"</button>"
+                    }
+                },
+                {'data': 'id', render: function (data, type, row) {
+                        return "<a class='btn btn-sm btn-pill btn-info' href='/Procedure/detail_project/"+data+"'><li class='fa fa-folder-open-o'></li>&nbsp;Open</a>"
+                    }
+                }
+            ],
+        });
+        $("#tblProjects tbody").on('click', '.save', function (){
+            var row = $(this).parents('tr');
+            var status = $(this).parents('tr').find('.status');
+            var url = '/Procedure/edit_project/';
+            var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+            var data = {'idproject':$(this).val(), 'status': status.val(), 'csrfmiddlewaretoken': csrf_token};
+            var lastuser = $(row).find('td')[7];
+            HoldOn.open({theme:"sk-cube-grid", message:"Please wait..."});
+            $.post(url, data, function (response) {
+                HoldOn.close();
+                notification(response.message.description, response.message.type);
+                refresh_summary(response, row);
+                lastuser.textContent = response.data.lastuser;
+                switch (response.data.status) {
+                    case 'In Process':
+                        $(row).removeClass('new-projects');
+                        return $(row).css('background', '#f2e869');
+                        break;
+                    case 'Opened':
+                        $(row).css('background', 'rgba(0,0,0,0)').animate({color:'black'}, 2000);
+                        break;
+                    case 'Closed':
+                        $(row).removeClass('new-projects');
+                        $(row).css('background', 'rgba(113,188,37,0.5)');
+                        break;
+                    default: break;
+                }
+            }, 'json');
+        });
+        $('.selectize').selectize({create:false});
+        $('#add-project').on('submit', function (e) {
+            e.preventDefault();
+            sendForm('/Procedure/projects_add/', $(this).serialize(), '{{ csrf_token }}' )
+                .then(data=>{
+                    const select_customer = $('#id_customer').selectize();
+                    let control = select_customer[0].selectize;
+                    control.clear();
+                    const select_service = $('#id_service').selectize();
+                    control = select_service[0].selectize;
+                    control.clear();
+                    $('#add-project')[0].reset();
+                    notification(data.message.description, data.message.type);
+                    refresh_summary(data);
+                    reload_datatable();
+            }).catch(error=>{
+                console.log(error)
+            });
+        });
+        function reload_datatable() {
+            tblProjects.ajax.reload();
+            setTimeout(function (){
+               let row = tblProjects.rows().count();
+               tblProjects.row(row -1).nodes().to$().css('color', 'red').animate({color: 'black'}, 1000);
+            },2000);
+        }
+        function refresh_summary(data, row=undefined) {
+            $('.summary-project-open').html(data.open_projects+" Open Projects");
+            $('.summary-project-open-date').html("Since "+data.date_open);
+            $('.summary-project-process').html(data.inprocess_project+" My Projects In Process");
+            $('.summary-project-process-date').html("Since "+data.date_inprocess);
+            $('.summary-unpaid').html(data.invoice_unpaid + " Unpaid Invoices");
+            if(data.new_projects){
+                $('.summary-project-new').html("("+data.new_projects+" New )");
+                $('#open-projects').addClass('status-indicator-pulse');
+                $(row).addClass('new-projects');
+            }else{
+                $('.summary-project-new').html("");
+                $('#open-projects').removeClass('status-indicator-pulse');
+            }
+        }
+        {% if status == 'InProcess'%}
+            setInterval(function (){
+                sendForm('/Procedure/summary_projects/1', {}, '{{ csrf_token }}')
+                    .then(data=>{
+                        refresh_summary(data);
+                        tblProjects.ajax.reload();
+                        tblProjects.rows().nodes().to$().css('color', 'red').animate({color: 'black'}, 2000);
+                    });
+            }, 180000);
+        {% endif %}
+        tblProjects.columns.adjust().draw();
+    </script>
+{% endblock %}

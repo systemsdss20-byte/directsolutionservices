@@ -1,0 +1,70 @@
+{% extends 'Procedure/Customers/Invoices/invoices.html' %}
+{% block title-page %} Invoice {% endblock %}
+{% block customers %}{% endblock %}
+{% block invoices %}active-mh{% endblock %}
+{% block row-right %}
+<div class="col-md-10">
+    <div class="card card-info">
+        <div class="card-header">
+            <div class="row row-ext">
+                <div class="col-sm-11">
+                    <h5 class="card-title">{{invoice.cusname}}</h5>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <a href="/Procedure/invoices/{{customer_id}}" class="btn btn-block btn-sm btn-pill btn-dark">
+					<li class="fa fa-reply"> </li>&nbsp;Back
+				</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="tbpaids" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Id Payment</th>
+                        <th>Payment Date</th>
+                        <th>Payment Type</th>
+                        <th>Paid</th>
+                        <th>Due</th>
+                        <th>Comment</th>
+                        {% if perms.Procedure.change_invoice_paid %}
+                        <th></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for paid in paids %}
+                        <tr>
+                            <td>{{ paid.idpaid }}</td>
+                            <td>{{ paid.datepaid | date:"m/d/Y" }}</td>
+                            <td>{{ paid.typepaid }}</td>
+                            <td>{{ paid.paid | floatformat:2}}</td>
+                            <td>{{ paid.deu | floatformat:2}}</td>
+                            <td>{{ paid.comment }}</td>
+                            {% if perms.Procedure.change_invoice_paid %}
+                            <td>
+                                <button id="btn_edit_paid" class="btn btn-sm btn-pill btn-warning editar" onclick="load_model({{paid.idpaid}})" ><li class="fas fa-edit"></li>&nbsp;Edit</button>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+<script>
+    $("#tbpaids").DataTable({
+        "order":[[ 0, "desc" ]],
+        "orderCellsTop": true,
+    });
+    function load_model(idpaid){
+        $("#modal-load").load("/Procedure/edit_paid/"+idpaid,function(){
+	        $("#modal-paid").modal("show");
+	    });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block index%}{% endblock %}
+{% block Customers %}active{% endblock %}
+{% block CustomersList %}active{% endblock %}
+{% block title-page %} Customers {% endblock %}
+{% block container-fluid %}
+	<div class="row row-ext" ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
+		<div class="col-md-12">
+			<div class="card card-info">
+				<div class="card-header">
+					<h3 class="card-title"> Customers </h3>
+				</div>
+				<div class="card-body">
+					<table id="tbcustomers" class="table table-bordered table-striped table-vcenter"></table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="modal-danger">
+        <div class="modal-dialog">
+          <div class="modal-content modal-danger">
+            <div class="modal-header">
+              <h4 class="modal-title">Delete Customer</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+				<form id="delete_form">
+					{% csrf_token %}
+					<input id="idcustomer" hidden type="number" name='idcustomer' >
+				</form>
+              <p id="message-text">One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-danger" onclick="delete_customer();">Accept</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+{% endblock %}
+{% block script %}
+
+	<script>
+		function delete_message(id, name){
+			$('#idcustomer').attr('value', id);
+			$('#message-text').html('Are you sure you want to delete the '+name+' customer?');
+		}
+
+	    function delete_customer(){
+	    	$.ajax({
+				type:'POST',
+				url:'/Procedure/customers/delete/',
+				dataType:'json',
+                data: $('#delete_form').serialize(),
+				success:function(response){
+					var content = response.message.description;
+					var type = response.message.type;
+					notification(content, type);
+					$('#modal-danger').modal('hide');
+					setTimeout(function(){location.reload();},2000);
+				},
+                error: function (response){
+				    notification(response.responseJSON.message, 'error');
+                }
+			});
+	    };
+
+	    $(document).ready(function() {
+            //DataTables
+            AjaxDatatableViewUtils.initialize_table(
+                $("#tbcustomers"),
+                '/Procedure/customer_datatable/',
+                {
+                    processing: false,
+                    scrollX: false,
+                    autoWidth: false,
+                    full_row_select: false,
+                },
+            );
+         });
+	</script>
+{% endblock %}

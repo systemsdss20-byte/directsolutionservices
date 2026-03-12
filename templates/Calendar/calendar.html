@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static '/site/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" />
+{% endblock %}
+{% block title-page %}Event Calendar{% endblock title-page %}
+
+{% block container-fluid %}
+<style>
+    #calendar {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    .holidays-ec {
+        background: rgba(255, 189, 0, 0.78);
+        border-color: rgba(255, 189, 0,1);
+    }
+    .holidays-usa {
+        background: rgba(0, 196, 255, 0.3);
+        border-color: rgba(0, 196, 255, 0.3);
+    }
+    input[name="group1"]{
+        accent-color: #023e8a;
+    }
+    input[name="group2"]{
+        accent-color: #28a745;
+    }
+    input[name="group3"]{
+        accent-color: #347474;
+    }
+    #calendars{
+        position: sticky;
+        top: 10px;
+    }
+    .fc-event{
+        border-radius: 10px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile row">
+            <div class="col-md-3">
+                <div id="external-events">
+                    <!-- Running Events -->
+                    <div class="card card-stacked card-warning">
+                        <div class="card-status-left bg-warning"></div>
+                        <div class="card-header">
+                            <h3 class="card-title">Running Events</h3>
+                            <div class="card-options">
+                                <button type="button" class="btn btn-sm btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" id="running-events">
+                            {% include 'Calendar/running_events.html' %}
+                        </div>
+                    </div>
+                    <!-- End Running Events -->
+
+                    <!-- Tasks -->
+                    <div class="card card-stacked">
+                        <div class="card-status-left bg-warning"></div>
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ion ion-clipboard mr-1"></i> Tasks
+                            </h3>
+                            <div class="card-options">
+                                <button type="button" class="btn btn-sm btn-tool" onclick="add_task('/Procedure/tasks/add/');"><i class="fas fa-plus-circle"></i>&nbsp;Add</button>
+                                <button type="button" class="btn btn-sm btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <div class="card-body" id="tasks">
+                            {% include 'Procedure/Tasks/list.html' with is_calendar=1 %}
+                        </div>
+                    </div>
+                    <!-- End Tasks -->
+                </div>
+                <!-- Show / hide events -->
+                <div class="card" id="calendars">
+                    <div class="card-status-left bg-warning"></div>
+                    <div class="card-body">
+                        <div id="event-filters">
+                            <label><input type="checkbox" name="group1" value="group1" checked> Public</label>
+                            <label><input type="checkbox" name="group2" value="group2" checked> My Calendar</label>
+                            <label><input type="checkbox" name="group3" value="group3" checked> Tasks</label>
+                            <label><input type="checkbox" name="group0" value="group0" id="mostrar-eventos-google" checked> Holidays </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Calendar -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-body">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Show modal -->
+            <div id="load-modal"></div>
+        </div>
+    </div>
+</div>
+{% endblock container-fluid %}
+{% block script %}
+  <script src="{% static '/site/plugins/jquery/jquery.serializejson.min.js' %}"></script>
+  <script src="{% static '/site/plugins/fullcalendar-6.1.6/dist/index.global.js' %}"></script>
+  <script src="{% static '/site/plugins/fullcalendar-6.1.6/packages/google-calendar/index.global.js' %}"></script>
+  <script src="{% static '/site/plugins/moment/moment-with-locales.js' %}"></script>
+  <script src="{% static '/site/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
+  <script type="application/javascript">
+    var calendar;
+    var is_calendar = true;
+    const config = {
+        "allowInputToggle": true,
+        "showClose": true,
+        "showClear": true,
+        "showTodayButton": true,
+        "format": "MM/DD/YYYY HH:mm:ss",
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        total_notifications();
+        const calendarEl = document.getElementById('calendar');
+        const today = new Date();
+        const holidays_google = [
+            {
+                googleCalendarId: 'en.usa#holiday@group.v.calendar.google.com',
+                className: "holidays-usa",
+                resourceEditable: false,
+                editable: false,
+                url:'#',
+                id:'google-usa',
+                groups:["groups0"],
+                textColor: "#000000"
+            },
+            {
+                googleCalendarId: 'en.ec#holiday@group.v.calendar.google.com',
+                className: 'holidays-ec',
+                resourceEditable: false,
+                editable: false,
+                url:'#',
+                id:'google-ec',
+                groups:["groups0"]
+            }
+        ];
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,list'
+            },
+            initialDate: today,
+            navLinks: false, // can click day/week names to navigate views
+            selectable: true,
+            selectMirror: true,
+            editable: false,
+            select: function(arg) {
+                $('#load-modal').load(`/calendar/event-add/`, () => {
+                    $('#eventModal').modal('show');
+                    const start_time = document.querySelector('#id_start_time');
+                    start_time.value = formatDate(arg.start);
+
+                    const end_time = document.querySelector('#id_end_time');
+                    end_time.value = formatDate(arg.end);
+                });
+                calendar.unselect();
+            },
+            eventClick: function(arg) {
+                let object_id = arg.event.id;
+                let url = `/calendar/event-details/${object_id}`;
+                let object_name = 'event';
+                if (arg.event.id.includes('T')){
+                    object_id = arg.event.id.substring(2);
+                    url = `/Procedure/tasks/details/${object_id}`;
+                    object_name = 'task';
+                }
+                $('#load-modal').load(url, () => {
+                    $(`#${object_name}-details`).modal('show');
+                });
+            },
+            dayMaxEvents: true, // allow "more" link when too many events
+            googleCalendarApiKey: 'AIzaSyDuJcctKcnVwosNh9yD6PimhelGtMNkS54',
+            eventSources: holidays_google,
+            events: {{ events|safe }},
+        });
+
+        //Función para filtrar eventos
+        function filterEvents() {
+            let checkedGroups = Array.from(document.querySelectorAll('#event-filters input:checked')).map(function(input) {
+                return input.value;
+            });
+
+            calendar.getEvents().forEach(function(event) {
+                let groups = event.extendedProps.groups;
+                if(groups){
+                    if (groups.some(function(group) { return checkedGroups.indexOf(group) === -1 })) {
+                        event.setProp('display', 'none');
+                    } else {
+                        event.setProp('display', '');
+                    }
+                }
+            });
+        }
+        //Añadimos un listener para los checkboxes
+        var checkboxInputs = document.querySelectorAll('#event-filters input');
+        checkboxInputs.forEach(function(input) {
+            input.addEventListener('change', filterEvents);
+        });
+
+        // Obtener el estado inicial del checkbox
+        var checkbox = document.getElementById('mostrar-eventos-google');
+        var estadoCheckbox = checkbox.checked;
+
+        // Agregar un evento change al checkbox para detectar cambios en su estado
+        checkbox.addEventListener('change', function() {
+            // Obtener el nuevo estado del checkbox
+            estadoCheckbox = checkbox.checked;
+
+            // Agregar o eliminar el evento de Google Calendar según el nuevo estado del checkbox
+            if (estadoCheckbox) {
+                holidays_google.forEach(function (item) {
+                    calendar.addEventSource(item);
+                });
+            } else {
+                calendar.getEventSourceById('google-ec').remove();
+                calendar.getEventSourceById('google-usa').remove();
+            }
+        });
+        calendar.render();
+    });
+
+    function formatDate( datestr ) {
+        let month = addZero(datestr.getMonth()+1);
+        let day = addZero(datestr.getDate());
+        let hour = addZero(datestr.getHours());
+        let minutes = addZero(datestr.getMinutes());
+        return `${ month }/${ day }/${ datestr.getFullYear() } ${ hour }:${ minutes }`;
+    }
+
+    function addZero(i) {
+      if (i < 10) {i = "0" + i}
+      return i;
+    }
+    function add_task(url) {
+        $("#load-modal").load(url, function(){
+            if(document.getElementById('task-modal') == null){
+                location.href = '/Procedure/login/'
+            }else{
+                $("#task-modal").modal("show");
+            }
+        });
+    }
+  </script>
+{% endblock script %}

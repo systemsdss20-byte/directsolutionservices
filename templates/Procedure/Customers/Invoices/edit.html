@@ -1,0 +1,165 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %} Invoice {% endblock %}
+{% block customers %}{% endblock %}
+{% block invoices %}active-mh{% endblock %}
+{% block cards %}
+    <li class="nav-item">
+		<a class="nav-link" href="#" onclick="credit_card();">
+			<span class="fa fa-credit-card"> </span>
+			<div class="nav-text">Cards</div>
+		</a>
+    </li>
+{% endblock %}
+{% block row-right %}
+		<div class="col-md-10">
+			<div id="card-customers" class="card card-info">
+				<form id="addInvoice" role="form" method="post">
+					{% csrf_token %}
+					<div class="card-header">
+						<div class="col-md-8">
+							<div class="row">
+								<h3 class="card-title">{{ customer.cusname }}</h3>
+								<input type="text" name="cusname" value="{{ customer.cusname }}" hidden>
+								<input type="text" name="idcustomer" value="{{ customer.idcustomer }}" hidden>
+                                <input type="text" name="iduser" value="{{ user.id }}" hidden>
+                                <input type="text" name="status" value="Unpaid" hidden>
+							</div>
+							<div class="row">
+								<h3 class="card-title">{{ customer.address }}</h3>
+								<input type="text" name="address" value="{{ customer.address }}" hidden>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group row">
+								<label for="{{ form.idinvoice.id_for_label }}" class="col-sm-2 col-form-label">No:</label>
+								<div class="col-sm-10">
+								  <label class="form-control" id="idfactura">{{ idinvoice }}</label>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="{{ form.invdate.id_for_label }}" class="col-sm-2 col-form-label">Date</label>
+								<div class="col-sm-10">
+									{{ form.invdate.errors }}
+								  	<input type="text" id="invdate" name="invdate" value="{{ invdate | date:'m/d/Y' }}" class="form-control datepicker" disabled>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="alert alert-warning" role="alert">You can only edit services comments</div>
+						<table id="tblinvoice" class="table table-sm table-bordered" style="text-align:center">
+							<thead>
+								<tr>
+									<th>Code</th>
+									<th>Service</th>
+									<th>Quantity</th>
+									<th>Cost</th>
+									<th>Rate</th>
+									<th>Discount</th>
+									<th>Amount</th>
+									<th>Comment</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							{% for detail in invoice_details %}
+								<tr>
+									<td>{{detail.code.idservice}}</td>
+									<td>{{detail.service}}</td>
+									<td>{{detail.quantity}}</td>
+									<td>{{detail.cost}}</td>
+									<td>{{detail.rate}}</td>
+									<td>{{detail.discount | default:'' }} {{detail.discountype | default:''}}</td>
+									<td>{{detail.amount}}</td>
+									<td><textarea  name="comment" class="comment form-control" rows="1" readonly>{{detail.coments}}</textarea></td>
+									<td>
+                                        <button class="edit btn btn-primary col"><i class="fa fa-edit"></i></button>
+                                        <div class="row edit-actions" hidden>
+                                            <button class="save btn btn-success col" value="{{ detail.idinvoicedet }}">Save</button>
+                                            <button class="cancel btn btn-danger col">Cancel</button>
+                                        </div>
+                                    </td>
+								</tr>
+							{% endfor %}
+						</table>
+						<div class="row">
+							<div class="col">
+								<div class="form-group row">
+									<label for="{{ form.coments.id_for_label }}" class="col-sm-3 col-form-label">Comments:</label>
+									<div class="col-sm-9">
+									  {{ form.coments }}
+									</div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="form-group row">
+									<label for="{{ form.amount.id_for_label }}" class="col-sm-3 col-form-label">Total:</label>
+									<div class="col-sm-9">
+									  {{ form.amount }}
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="{{ form.deu.id_for_label }}" class="col-sm-3 col-form-label">Paid:</label>
+									<div class="col-sm">
+									  <input class="form-control form-control-sm" type="number" value="{{ paid }}" readonly>
+									</div>
+									<label for="due" class="col-sm-1 col-form-label">Due:</label>
+									<div class="col-sm">
+									  {{ form.deu }}
+									</div>
+								</div>
+							</div>
+						</div>
+                        <div class="row">
+                            <div class="col">
+								<a href="/Procedure/invoices/{{customer.idcustomer}}" class="btn btn-warning"> <li class="fa fa-reply"> </li> </a>
+                            </div>
+                        </div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+<script>
+$(document).ready(function(){
+	$('#tblinvoice tbody').on('click', '.edit', function(e){
+		e.preventDefault();
+		var comment = $(this).parents('tr').find('.comment');
+		var edit_actions = $(this).parent('td').find('.edit-actions');
+		$(this).prop('hidden', 'true');
+		comment.removeAttr('readonly');
+		edit_actions.removeAttr('hidden');
+	});
+	$('#tblinvoice tbody').on('click', '.cancel', function(e){
+		e.preventDefault();
+		var comment = $(this).parents('tr').find('.comment');
+		var edit = $(this).parents('tr').find('.edit');
+		var edit_actions = $(this).parents('tr').find('.edit-actions');
+		edit.removeAttr('hidden');
+		edit_actions.prop('hidden', 'true');
+		comment.prop('readonly', 'false');
+		edit.show();
+	});
+
+	$('#tblinvoice tbody').on('click', '.save', function(e){
+		console.log('save');
+		e.preventDefault();
+		var comment = $(this).parents('tr').find('.comment');
+		console.log(comment);
+		var edit_actions = $(this).parents('tr').find('.edit-actions');
+		var edit = $(this).parents('tr').find('.edit');
+		var url = '/Procedure/edit_invoice/{{ idinvoice }}';
+		var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+		var data = { 'idinvoicedet': $(this).val(), 'comment': comment.val(), 'csrfmiddlewaretoken': csrf_token};
+		$.post(url, data, function(response){
+			notification(response.message.description, response.message.type);
+			comment.val(response.comment);
+			comment.prop('readonly', 'true');
+			edit_actions.prop('hidden', 'true');
+			edit.removeAttr('hidden');
+		}, 'json');
+	});
+});
+</script>
+{% endblock %}

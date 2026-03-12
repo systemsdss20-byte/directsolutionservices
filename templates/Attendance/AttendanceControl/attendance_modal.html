@@ -1,0 +1,109 @@
+<div class="modal fade" id="attendance_modal" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v2m0 4v.01"></path><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path></svg>
+                <div class="modal-title">Are you registering the {{ register_event }} ?</div>
+                <div class="text-muted">
+                    {% if register_event == "Clock-Out"%}
+                        <div class="text-bold text-center h3 mb-2">Your hours worked will be {{ workedhours }}</div>
+                    {% endif %}
+                    <div class="input-group">
+                        If this is not correct, change here
+                        <select class="form-select form-select-sm" name="select_register_event" id="select_register_event">
+                            <option>--Select--</option>
+                            <option value="Clock-In">Clock-In</option>
+                            <option value="Lunch-In">Lunch-In</option>
+                            <option value="Lunch-Out">Lunch-Out</option>
+                            <option value="Clock-Out">Clock-Out</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-auto" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-register-event">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="message-success" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-status bg-success"></div>
+            <div class="modal-body text-center">
+                <button class="close btn-close-modal" type="button" data-dismiss="modal" aria-label="close"><span aria-hidden="true">x</span></button>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="12" r="9"></circle><path d="M9 12l2 2l4 -4"></path></svg>
+                <div class="modal-title"><span id="last-event"></span> succeeded</div>
+                <div class="text-muted">You registered the <span class="text-bold text-msg-attendance" id="text-label"></span> </div>
+                <div class="text-muted" id="additional-information"></div>
+                <div id="counter-timer" class="text-muted mt-4 h1"></div>
+            </div>
+            <div id="btn-footer" class="modal-footer align-self-center">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+    $('#select_register_event').on('change select', function () {
+        if($(this).val() != '--Select--'){
+            $('#btn-register-event').html('Save');
+        }
+    });
+
+    $('#btn-register-event').on('click', function (e) {
+        e.preventDefault();
+        data = $('#select_register_event').val() == '--Select--' ? $('#control-access').text() : $('#select_register_event').val();
+        AttendanceControl(data);
+    });
+
+    function AttendanceControl(data) {
+        var url = '/Attendance/control/';
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: {'register_event': data},
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            beforeSend: function () {
+                HoldOn.open({ message: "Please wait"});
+            },
+            success:function (response) {
+                HoldOn.close();
+                if(response.save){
+                    $("#message-success").modal("show");
+                    if (response.class_name != 'checkout') {
+                        $('#clock').removeClass('checkout').addClass('checkin');
+                    } else {
+                        $('#clock').removeClass('checkin').addClass('checkout');
+                    }
+                    if(response.additional_information){
+                        $('#text-label').html(response.text_label)
+                        $('#hoursworked').html(response.additional_information );
+                        $('#additional-information').html(response.additional_information );
+                    }else {
+                        $('#hoursworked').html(response.text_label);
+                        $('#text-label').html(response.text_label);
+
+                    }
+                    $('#last-event').html(response.last_event);
+                    if(response.last_event == "Lunch-In"){
+                        start_interval();
+                        $("#message-success").modal({backdrop: 'static', keyboard: false});
+                    }
+                    if(response.last_event == "Lunch-Out"){
+                        const btn_footer = document.getElementById("btn-footer");
+                        btn_footer.innerHTML = "<button class='btn btn-danger' data-dismiss='modal' type='button'>Close</button>";
+                        notification(response.text_label, 'success');
+                    }
+                    $('#control-access').html(response.register_event)
+                }else{
+                    notification(response.error, 'error');
+                }
+            }
+        })
+    }
+</script>

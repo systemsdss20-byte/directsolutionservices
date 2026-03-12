@@ -1,0 +1,539 @@
+<!-- /.modal -->
+{% load static %}
+{% block style %}
+    <link href="{% static '/site/plugins/yearpicker/yearpicker.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+<style>
+.yearpicker-container{
+    z-index:1999;
+}
+#first-month thead th, #second-month thead th, #third-month thead th{
+    padding:0;
+    marging:0;
+    background:rgba(61, 181, 62, 0.6);
+    font-size:15px;
+    color:rgba(255,255,255,1);
+    font-weight:bold;
+    text-align: center;
+}
+</style>
+<div class="modal fade" id="modal-recives" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Millage Calculator</h4>
+                    <button class="btn btn-sm btn-info" onclick="ImprimeDiv();"><i class="fas fa-print"></i>&nbsp;Print</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="frmAdd" role="form" method="post">
+                    {% csrf_token %}
+                    <div id="DivIdToPrint" class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table id="tblmillages" class="table table-bordered tabled-striped">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col" colspan="6" style="text-align: center;">RECIVES CALCULATOR</th>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                {{ form.idunit.errors }}
+                                                {{ form.idunit.label_tag }}
+                                            </th>
+                                            <th>
+                                                <select id="id_unit" name="idunit" class="form-select form-select-sm">
+                                                    <option value="No">--Select--</option>
+                                                    {%for u in unit%}
+                                                        <option value="{{u.nounit}}">{{u.nounit}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </th>
+                                            <th>
+                                                {{ form.year.errors }}
+                                                {{ form.year.label_tag }}
+                                            </th>
+                                            <th>{{ form.year }}</th>
+                                            <th>
+                                                {{ form.quarter.errors }}
+                                                {{ form.quarter.label_tag }}
+                                            </th>
+                                            <th>
+                                                {{ form.quarter }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td width="100px">
+                                                {{ form.date.errors }}
+                                                {{ form.date.label_tag }}
+                                            </td>
+                                            <td width="100px">
+                                                {{ form.zip.errors }}
+                                                {{ form.zip.label_tag }}
+                                            </td>
+                                            <td width="100px">
+                                                {{ form.state.errors }}
+                                                {{ form.state.label_tag }}
+                                            </td>
+                                            <td width="100px">
+                                                {{ form.gallons.errors }}
+                                                {{ form.gallons.label_tag }}
+                                            </td>
+                                            <td width="100px">
+                                                {{ form.miles.errors }}
+                                                {{ form.miles.label_tag }}
+                                            </td>
+                                            <td width="100px"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>{{ form.date }}</td>
+                                            <td>{{ form.zip }}</td>
+                                            <td>{{ form.state }}</td>
+                                            <td>{{ form.gallons }}</td>
+                                            <td>{{ form.miles }}</td>
+                                            <td class="justify-content-center"><button value="Add" onclick="" class="btn btn-sm btn-info"><li class="fa fa-plus"></li>&nbsp;Add</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <table id="first-month" class="table table-bordered tabled-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">
+                                                <div style="text-align: center;">
+                                                    <label id="first-title">January</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Zipcode</th>
+                                            <th>State</th>
+                                            <th>Gallons</th>
+                                            <th>Miles</th>
+                                            <th>&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <table id="second-month" class="table table-bordered tabled-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">
+                                                <div style="text-align: center;">
+                                                    <label id="second-title">February</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Zipcode</th>
+                                            <th>State</th>
+                                            <th>Gallons</th>
+                                            <th>Miles</th>
+                                            <th>&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <table id="third-month" class="table table-bordered tabled-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">
+                                                <div style="text-align: center;">
+                                                    <label id="third-title">March</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Zipcode</th>
+                                            <th>State</th>
+                                            <th>Gallons</th>
+                                            <th>Miles</th>
+                                            <th>&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 id="first-card" class="card-title">January</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <table id="first-table" class="table table-sm table-bordered tabled-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Gallons</th>
+                                                    <th>Miles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 id="second-card" class="card-title">February</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <table id="second-table" class="table table-sm table-bordered tabled-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Gallons</th>
+                                                    <th>Miles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 id="third-card" class="card-title">First Month</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <table id="third-table" class="table table-sm table-bordered tabled-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Gallons</th>
+                                                    <th>Miles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <input name="idcustomer" value="{{customer_id}}" required hidden/>
+                    </div>
+                 </form>
+            </div>
+            <!-- /.modal-content -->
+
+    </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<script type="text/javascript" src="{% static 'site/plugins/yearpicker/yearpicker.js' %}"></script>
+<script type="text/javascript">
+$('#id_zip').autocomplete({
+    source: function (request, response) {
+        $.ajax({
+            url:'/Procedure/get_state_zipcode/',
+            data: {'zipcode':$('#id_zip').val()},
+            datatype:'JSON',
+            type:'GET'
+        }).done(function (data) {
+            if(data.status){
+                $('#id_state').val(data.postalcode.state);
+            }else{
+                notification(data.error, 'error');
+                $('#id_state').val('--');
+            }
+        });
+    },
+    delay: 200,
+    minLength:5,
+    classes: {
+        "ui-autocomplete": "highlight"
+    }
+});
+var first_table = $("#first-month").DataTable({'paging': false, 'info': false, 'searching': false});
+var second_table = $("#second-month").DataTable({'paging': false, 'info': false, 'searching': false});
+var third_table = $("#third-month").DataTable({'paging': false, 'info': false, 'searching': false});
+
+$('.yearpicker').yearpicker({
+    autoHide: true,
+    hide: function(){
+        list_months();
+        list_months_summary();
+    }
+});
+$('.datepicker').datepicker({
+      dateFormat: 'mm/dd/yy',
+      changeMonth:true,
+	  changeYear:true,
+	  showButtonPanel: true
+});
+
+$("#id_unit").on("change", function(){
+    var idunit = $(this).val();
+    if(idunit != "No"){
+        $("#id_year").prop("disabled",false);
+        $("#id_quarter").prop("disabled", false);
+    }
+});
+$("#id_gallons").on("keyup", function(){
+    var miles = $("#id_miles").val();
+    var gallons = $(this).val();
+    var total = parseFloat(gallons*5).toFixed(3);
+    $("#id_miles").val(total);
+});
+$("#frmAdd").submit(function(e){
+  e.preventDefault();
+  if(validate()){
+    var date = $("#id_date").val();
+    var month = parseInt(date.substring(0,2));
+    var form = $(this).serialize();
+    var url = "/Procedure/add_recives/{{customer_id}}";
+    var response=RequestPost_data(form, url);
+    if(month == 1 | month == 4 | month == 7 | month == 10){
+        addRow("first-month", response, first_table);
+    }else if(month == 2 | month == 5 | month == 8 | month == 11){
+        addRow("second-month", response, second_table);
+    }else{
+        addRow("third-month", response, third_table);
+    }
+  }
+});
+
+function addRow(name, data, table){
+    data = JSON.parse(data);
+    var date = formate_date(data[0].fields.date);
+    var zip = data[0].fields.zip ? data[0].fields.zip : ' ';
+    var state = data[0].fields.state;
+    var gallons = data[0].fields.gallons.toFixed(3);
+    var miles = data[0].fields.miles.toFixed(3);
+    var idrecive = data[0].pk;
+    var button = "<button class='btn btn-sm btn-danger delete' type='button' onclick='removeRow(this,\""+name+"\","+idrecive+")'><i class='fas fa-trash'>\tRemove</i></button>";
+    var rowNode = table.row.add([date, zip, state, gallons, miles, button]).draw(false).node();
+    table.order([0, 'asc']).draw();
+    $(rowNode).css('color', 'red').animate({color: 'black'}, 3000);
+    //------ Clean data --------------
+    $("#id_date").val("");
+    $("#id_zip").val("");
+    $("#id_gallons").val("");
+    $("#id_miles").val("");
+    list_months_summary();
+}
+function removeRow(row, tableName, idrecive){
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    data={"csrfmiddlewaretoken":csrfmiddlewaretoken, "idrecive": idrecive}
+    $.ajax({
+        url: "/Procedure/delete_recives/",
+        dataType: "json",
+        type:"POST",
+        data:data,
+        beforeSend: function(){
+   			HoldOn.open({ message: "Please wait"});
+   		},
+        success:function(response, status){
+            HoldOn.close();
+   		    notification(response.message.description, response.message.type);
+   		    var table = document.getElementById(tableName);
+            table.deleteRow(row.parentNode.parentNode.rowIndex);
+            list_months_summary();
+        },
+        error:function (response) {
+   			HoldOn.close();
+   			var message = response.responseJSON.message;
+   			notification(message.description, message.type);
+   		}
+    });
+}
+$("#id_quarter").on("change click", function(){
+  list_months();
+  list_months_summary();
+  var month = $(this).val();
+  switch (month){
+    case "1":
+        $("#first-title").html("January");
+        $("#second-title").html("February");
+        $("#third-title").html("March");
+        $("#first-card").html("January");
+        $("#second-card").html("February");
+        $("#third-card").html("March");
+        break;
+    case "2":
+        $("#first-title").html("April");
+        $("#second-title").html("May");
+        $("#third-title").html("June");
+        $("#first-card").html("April");
+        $("#second-card").html("May");
+        $("#third-card").html("June");;
+        break;
+    case "3":
+        $("#first-title").html("July");
+        $("#second-title").html("August");
+        $("#third-title").html("September");
+        $("#first-card").html("July");
+        $("#second-card").html("August");
+        $("#third-card").html("September");
+        break;
+    case "4":
+        $("#first-title").html("October");
+        $("#second-title").html("November");
+        $("#third-title").html("December");
+        $("#first-card").html("October");
+        $("#second-card").html("November");
+        $("#third-card").html("December");
+        break;
+  }
+});
+
+function validate(){
+  var date = $("#id_date").val();
+  var month = parseInt(date.substring(0,2));
+  var quarter = $("#id_quarter").val();
+  if(date.substring(date.length-4) != $('#id_year').val()){
+    notification('Check the year', 'error');
+    return false;
+  }
+  switch(quarter){
+    case "1":
+        if(month >3){
+            notification("Date out range", "error");
+            return false;
+        }
+        break;
+    case "2":
+        if(month >6 | month<=3){
+            notification("Date out range", "error");
+            return false;
+        }
+        break;
+    case "3":
+        if(month >9 | month<=6){
+            notification("Date out range", "error");
+            return false;
+        }
+        break;
+    case "4":
+        if(month<=9){
+            notification("Date out range", "error");
+            return false;
+        }
+        break;
+  }
+  return true;
+}
+
+function list_months(){
+    var idcustomer = {{customer_id}};
+    var idunit = $("#id_unit").val();
+    var year = $("#id_year").val();
+    var quarter = $("#id_quarter").val();
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    var data = {"csrfmiddlewaretoken":csrfmiddlewaretoken, "idcustomer":idcustomer, "idunit":idunit, "year":year, "quarter":quarter};
+    $.ajax({
+      url:"/Procedure/list_recives/",
+      dataType: "json",
+      type:"POST",
+      data:data,
+      success:function(Response, status){
+        var data = Response[0];
+        var first_month = JSON.parse(data);
+        createTable("first-month", first_month, first_table);
+        var second_month = JSON.parse(Response[1]);
+        createTable("second-month", second_month, second_table);
+        var third_month = JSON.parse(Response[2]);
+        createTable("third-month", third_month, third_table);
+      }
+    });
+}
+function createTable(name,data, table){
+    table.clear().draw();
+    for(let item of data){
+        if(item.fields.gallons){
+            var button = "<button class='btn btn-sm btn-danger delete' type='button' onclick='removeRow(this,\""+name+"\","+item.pk+")'><i class='fas fa-trash'>\tRemove</i></button>";
+            var rowNode = table.row.add([
+                formate_date(item.fields.date),
+                item.fields.zip ? item.fields.zip : ' ',
+                item.fields.state,
+                item.fields.gallons.toFixed(3), item.fields.miles.toFixed(3), button]
+            ).draw(false).node();
+            table.order([0, 'asc']).draw();
+            $(rowNode).css('color', 'blue').animate({color: 'black'}, 2000);
+        }
+    }
+}
+
+function list_months_summary(){
+    var idcustomer = {{customer_id}};
+    var idunit = $("#id_unit").val();
+    var year = $("#id_year").val();
+    var quarter = $("#id_quarter").val();
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    var data = {"csrfmiddlewaretoken":csrfmiddlewaretoken, "idcustomer":idcustomer, "idunit":idunit, "year":year, "quarter":quarter};
+    $.ajax({
+      url:"/Procedure/list_recives_summary/",
+      dataType: "json",
+      type:"POST",
+      data:data,
+      success:function(Response, status){
+        var data = Response[0];
+        var first_month = JSON.parse(data);
+        createTable_summary("first-table", first_month);
+        var second_month = JSON.parse(Response[1]);
+        createTable_summary("second-table", second_month);
+        var third_month = JSON.parse(Response[2]);
+        createTable_summary("third-table", third_month);
+      }
+    });
+}
+function createTable_summary(table,data){
+    var tbody = document.createElement("tbody");
+    for(let item of data){
+        if(item.gallon) {
+            var tr = document.createElement("tr");
+            var td = document.createElement("td");
+            td.appendChild(document.createTextNode(item.state));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            var gallons = item.gallon;
+            td.appendChild(document.createTextNode(gallons.toFixed(3)));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            var mile = item.mile;
+            td.appendChild(document.createTextNode(mile.toFixed(3)));
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+    }
+   $("#"+table+" tbody").remove();
+   $("#"+table).append(tbody);
+}
+
+function formate_date(date){
+    var array = date.split("-");
+    var fecha= {'year':array[0],'month': array[1], 'day': array[2]}
+    var new_date = fecha.month+"/"+fecha.day+"/"+fecha.year;
+    return new_date;
+}
+
+function ImprimeDiv() {
+    var idcustomer = {{customer_id}};
+    var idunit = $("#id_unit").val();
+    var year = $("#id_year").val();
+    var quarter = $("#id_quarter").val();
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    jQuery.post('/Procedure/pdf_recive/',
+        { idcustomer: idcustomer, idunit: idunit, year:year, quarter:quarter, csrfmiddlewaretoken:csrfmiddlewaretoken},
+        function(data) {
+            var pdfbase = 'data:application/pdf,'+escape(data.toString());
+            var newtab = window.open('','_blank');
+            newtab.document.open();
+            newtab.document.write("<html>" +
+                "<body>" +
+                    '<iframe style="border:1px solid #666CCC" title="recive{{ customer_id }}" src="'+pdfbase+'" frameborder="1" scrolling="auto" width="100%" height="100%"></iframe>'+
+                "</body>" +
+                "</html>");
+            newtab.document.close();
+    });
+}
+</script>

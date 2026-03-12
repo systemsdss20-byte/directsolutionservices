@@ -1,0 +1,140 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="form">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">CERTIFICATE OF TITLE</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frm" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Customer:</h3></div>
+                        <div class="col"><span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2"><h3 class="card-title">Owner:</h3></div>
+                        <div class="col-sm-4">
+                            <select name="name" class="form-control form-control-sm" required>
+                                <option>--Select--</option>
+                                <option value="company">Company Name</option>
+                                <option value="owner">Owner Name</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-text"><h3 class="card-title">Units</h3></div>
+                    <div class="row justify-content-center">
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="unit">Vehicle/Unit: </label>
+                                <select name="unit" id="unit" class="form-select form-select-sm">
+                                    <option>--Select--</option>
+                                    {% for unit in units %}
+                                    <option value="{{ unit.idunit }}">{{ unit.vin }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="date">Date:</label>
+                                <input type="text" class="form-control datepicker" id="date" name="date" value="{{ today }}">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label class="form-label inline-label" for="application-type">Application Type:</label>
+                                <select name="Application-Type" id="application-type" class="form-select form-select-sm">
+                                    <option value="Original" selected>Original</option>
+                                    <option value="Transfer">Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="vin">VIN:</label>
+                                <input name="vin" id="vin" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="make">Make:</label>
+                                <input name="make" id="make" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="color">Color:</label>
+                                <input name="color" id="color" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="gross">Groos Weight:</label>
+                                <input name="gross" id="gross" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="title">Title:</label>
+                                <input name="title" id="title" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="year">Year:</label>
+                                <input name="year" id="year" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="empty">Empty Weight:</label>
+                                <input name="empty" id="empty" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="nounit">Unit No:</label>
+                                <input name="nounit" id="nounit" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="type">Type:</label>
+                                <input name="type" id="type" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="fuel">Fuel:</label>
+                                <input name="fuel" id="fuel" class="form-control form-control-sm" type="text" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('.datepicker').datepicker({
+        dateFormat: 'mm/dd/yy',
+        changeMonth: true,
+        changeYear: true,
+
+    });
+    $('#unit').on('change', function () {
+        $.get('/Procedure/get_unit/', {'unit': $(this).val()}, function (response) {
+            $('#vin').val(response.vin);
+            $('#title').val(response.title);
+            $('#nounit').val(response.nounit);
+            $('#make').val(response.make);
+            $('#year').val(response.year);
+            $('#type').val(response.type);
+            $('#color').val(response.color);
+            $('#empty').val(response.empty);
+            $('#gross').val(response.gross);
+            $('#fuel').val(response.fuel);
+        });
+    });
+    post_showPDF('/Procedure/crttitle/{{ customer.idcustomer }}', '#frm');
+</script>

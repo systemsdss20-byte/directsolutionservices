@@ -1,0 +1,363 @@
+{% extends 'Procedure/Customers/customer_edit.html' %}
+{% block title-page %} Update Unit {% endblock %}
+{% block customers %}{% endblock %}
+{% block units %}active-mh{% endblock %}
+{% block row-right %}
+		<div class="col-md-10">
+			<div id="card-customers" class="card card-info">
+				<form id="edit_unit" role="form" method="post">
+					{% csrf_token %}
+					<div class="card-header">
+						<h3 class="card-title">{{ cusname }}</h3>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							{{ form.non_field_errors }}
+						</div>
+						<table class="table table-responsive table-sm table-bordered" style="background:rgba(222,222,222,0.6)">
+							<tr style="display:none">
+								<td>{{ form.idcustomer }}</td>
+								<td>{{ form.iduser }}</td>
+								<td>{{ form.status }}</td>
+							</tr>
+							<tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.nounit.errors }}
+											{{ form.nounit.label_tag }}
+											{{ form.nounit.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.nounit }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.irp.errors }}
+											{{ form.irp.label_tag }}
+											{{ form.irp.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.irp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.irpexp.errors }}
+											{{ form.irpexp.label_tag }}
+											{{ form.irpexp.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												<div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.irpexp }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-text text-dark text-sm">
+                                                    Road Tax Category
+                                                </div>
+                                                {{ form.road_taxes }}
+                                        </div>
+                                    </div>
+                                </td>
+							</tr>
+                            <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.year.errors }}
+											{{ form.year.label_tag }}
+											{{ form.year.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.year }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.make.errors }}
+											{{ form.make.label_tag }}
+											{{ form.make.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.make }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.type.errors }}
+											{{ form.type.label_tag }}
+											{{ form.type.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.type }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.expiration_date.errors }}
+                                                {{ form.expiration_date.label_tag }}
+                                                {{ form.expiration_date.help_text }}
+                                                <div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+                                                {{ form.expiration_date }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+							</tr>
+                            <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.vin.errors }}
+											{{ form.vin.label_tag }}
+											{{ form.vin.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.vin }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.title.errors }}
+											{{ form.title.label_tag }}
+											{{ form.title.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.title }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.state.errors }}
+											{{ form.state.label_tag }}
+											{{ form.state.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.state }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+                            <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.fuel.errors }}
+											{{ form.fuel.label_tag }}
+											{{ form.fuel.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.fuel }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.gross.errors }}
+											{{ form.gross.label_tag }}
+											{{ form.gross.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.gross }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.empty.errors }}
+											{{ form.empty.label_tag }}
+											{{ form.empty.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.empty }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+                            <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.color.errors }}
+											{{ form.color.label_tag }}
+											{{ form.color.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.color }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.date.errors }}
+											{{ form.date.label_tag }}
+											{{ form.date.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+                                                <div class="input-group-prepend">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</div>
+												{{ form.date }}
+											</div>
+										</div>
+									</div>
+								</td>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.price.errors }}
+											{{ form.price.label_tag }}
+											{{ form.price.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                    <!--
+                                                    <span class="input-group-text">0.00</span> -->
+                                                </div>
+												{{ form.price }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+                    <div class="card-footer">
+                        <a href="/Procedure/units/{{customer_id}}" class="btn btn-warning mb-6">
+                            <i class="fa fa-reply">&nbsp;Back</i>
+                        </a>
+                    </div>
+				</form>
+			</div>
+		</div>
+{% endblock %}
+{% block script %}
+	<script>
+		$(document).ready(function(){
+            $('#edit_unit input').prop("readonly", true);
+            $('#edit_unit select').prop("disabled", true);
+		});
+	</script>
+{% endblock %}

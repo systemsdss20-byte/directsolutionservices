@@ -1,0 +1,53 @@
+
+{% load static %}
+<link rel="icon" href="{% static '/site/favicon.ico' %}" type="image/x-icon"/>
+<link rel="shortcut icon" href="{% static '/site/favicon.ico' %}" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="{% static '/admin/css/login.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static '/admin/css/base.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static '/site/plugins/HoldOn.js/HoldOn.min.css' %}" />
+<script type="text/javascript" src="{% static '/site/plugins/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static '/site/plugins/HoldOn.js/HoldOn.min.js' %}"></script>
+<body class="login" data-admin-utc.offset="-18000">
+
+	<div id="container">
+		<div id="header">
+			<div id="branding">
+				<h1 id="site-name">Login</h1>
+			</div>
+		</div>
+		<div id="content" class="colM">
+			{% if messages %}
+				<p class="messages">
+				    {% for message in messages %}
+				    <li{% if message.tags %} class="{{ message.tags }}note"{% endif %}>{{ message }}</li>
+				    {% endfor %}
+				</p>
+			{% endif %}
+			<div id="content-main">
+			    <form id="login-form" method="POST" action="/Procedure/login/">
+			    {% csrf_token %}
+					<div class="form-row">
+						<label class="required">Username</label>
+						<input id="id_username" type="text" name="username" required="true"  />
+					</div>
+					<div class="form-row">
+						<label class="required">Password</label>
+						<input id="id_password" type="password" name="password" required="true"  />
+					</div>
+					<div class="submit-row">
+						<input name="enviar" type="submit" value="Send" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+var msj = false;
+{% if msj %}
+	msj ={{msj}};
+{% endif %}
+if(msj === true){
+	location.reload();
+}
+</script>

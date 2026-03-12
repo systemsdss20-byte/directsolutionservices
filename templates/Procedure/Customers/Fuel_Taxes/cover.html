@@ -1,0 +1,118 @@
+<!-- /.modal -->
+{% load static %}
+{% block style %}
+    <link href="{% static '/site/plugins/yearpicker/yearpicker.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+<style>
+.yearpicker-container{
+    z-index:1999;
+}
+</style>
+<div class="modal fade" id="modal-cover" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Cover Page</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="GeneratePDF" role="form" method="post">
+                    {% csrf_token %}
+                    <div id="DivIdToPrint" class="modal-body">
+                            <table class="table table-striped">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th colspan="4">Customer: {{customer_id}}-{{customer.cusname}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Year:</td>
+                                        <td>
+                                            <input id="id_iftaid" name="iftaid" type="text" value="{{ customer.iftaid }}" hidden>
+                                            <input id="id_year" name="year" type="text" class="form-control-sm yearpicker" maxlength="4" required>
+                                        </td>
+                                        <td>Quarter</td>
+                                        <td>
+                                            <select name="quarter" class="form-control form-control-sm" id="id_quarter">
+                                              <option value="1" selected>1St Quarter(Jan-Mar)</option>
+                                              <option value="2">2Nd Quarter(Apr-Jun)</option>
+                                              <option value="3">3Rd Quarter(Jul-Sep)</option>
+                                              <option value="4">4Th Quarter(Oct-Dec)</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>IFTA AMOUNT</td>
+                                        <td>
+                                            <input id="id_iftatotal" class="form-control form-control-sm" name="iftatotal" type="number" value="0.0" required min="0.0" step="any">
+                                        </td>
+                                        <td>IFTA PENALTY</td>
+                                        <td>
+                                            <input id="id_penalty" class="form-control form-control-sm" name="penalty" type="number" value="0.0" min="0.0" required step="any">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kentucky</td>
+                                        <td>
+                                            <input id="id_kentucky" class="form-control form-control-sm" name="kentucky" type="number" value="0.0" min="0.0" required step="any">
+                                        </td>
+                                        <td colspan="2">&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>New Mexico</td>
+                                        <td>
+                                            <input id="id_new_mexico" class="form-control form-control-sm" name="new_mexico" type="number" value="0.0" min="0.0" required step="any">
+                                        </td>
+                                        <td colspan="2">&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>New York</td>
+                                        <td>
+                                            <input id="id_new_york" class="form-control form-control-sm" name="new_york" type="number" value="0.0" min="0.0" required step="any">
+                                        </td>
+                                        <td colspan="2">
+                                            <input type="text" name="cusname" value="{{ customer.cusname }}" hidden>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-info">View</button>
+                    </div>
+                 </form>
+            </div>
+            <!-- /.modal-content -->
+    </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<script type="text/javascript" src="{% static 'site/plugins/yearpicker/yearpicker.js' %}"></script>
+<script type="text/javascript">
+$('.yearpicker').yearpicker({
+    autoHide: true,
+});
+
+$('#GeneratePDF').on('submit', function (e) {
+    e.preventDefault();
+    HoldOn.open({message:'Please wait...'});
+    jQuery.post('/Procedure/GenerateCoverPDF/{{ customer_id }}', $(this).serialize(), function (data) {
+            HoldOn.close();
+            var pdfbase = 'data:application/pdf;base64,'+data;
+            var newtab = window.open('','_blank');
+            newtab.document.open();
+            newtab.document.write("<html>" +
+                "<body>" +
+                    '<iframe style="border:1px solid #666CCC" title="cover{{ customer_id }}" src="'+pdfbase+'" width="100%" height="100%"></iframe>'+
+                "</body>" +
+                "</html>");
+            newtab.document.close();
+    }).fail(function(data) {
+        notification(data.responseJSON.message, data.responseJSON.type);
+        HoldOn.close();
+    });
+})
+</script>

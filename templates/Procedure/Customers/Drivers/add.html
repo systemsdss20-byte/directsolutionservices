@@ -1,0 +1,281 @@
+<style>
+    .ui-datepicker {
+      z-index: 1700 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div id="modal-driver" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="frmdriver" role="form" method="post">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Driver</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+						{{ form.non_field_errors }}
+					</div>
+					<table class="table table-responsive table-sm table-bordered" style="background:rgba(222,222,222,0.6)">
+						<tr>
+                            <td>Customer:</td>
+							<td>
+                               {{ customer.cusname }}
+                               <input id="idcustomer" name="idcustomer" value="{{ customer.idcustomer }}" hidden>
+                               <input id="status" type="text" name="status" value="Active" hidden>
+                            </td>
+                        </tr>
+						<tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.nombre.errors }}
+											{{ form.nombre.label_tag }}
+											{{ form.nombre.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.nombre }}
+											</div>
+										</div>
+									</div>
+								</td>
+                            </tr>
+                        <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.phone.errors }}
+											{{ form.phone.label_tag }}
+											{{ form.phone.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.phone }}
+											</div>
+										</div>
+									</div>
+								</td>
+                            </tr>
+                        <tr>
+								<td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.ssn.errors }}
+											{{ form.ssn.label_tag }}
+											{{ form.ssn.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+                                    <div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.ssn }}
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        {{ form.queries.errors }}
+                                        {{ form.queries.label_tag }}
+                                        {{ form.queries.help_text }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                            </div>
+                                            {{ form.queries }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.cdl.errors }}
+											{{ form.cdl.label_tag }}
+											{{ form.cdl.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.cdl }}
+											</div>
+										</div>
+									</div>
+								</td>
+                        </tr>
+                        <tr>
+								<td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											{{ form.cdl_state.errors }}
+											{{ form.cdl_state.label_tag }}
+											{{ form.cdl_state.help_text }}
+										</div>
+									</div>
+								</td>
+                                <td>
+									<div class="form-group">
+										<div class="fieldWrapper">
+											<div class="input-group">
+												{{ form.cdl_state }}
+											</div>
+										</div>
+									</div>
+								</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                    {{ form.date_of_birth.label_tag }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    {{ form.date_of_birth }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">{{ form.email.label_tag }}</div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-envelope"></i> </span>
+                                    </div>
+                                    {{ form.email }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                    {{ form.medical_card_expiration_date.label_tag }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    {{ form.medical_card_expiration_date }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                    {{ form.username_clearinghouse.label_tag }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-user-circle"></i></span>
+                                    </div>
+                                    {{ form.username_clearinghouse }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                    {{ form.password_clearinghouse.label_tag }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-lock-open"></i></span>
+                                    </div>
+                                    {{ form.password_clearinghouse }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="form-group">
+                                    <div class="fieldWrapper">
+                                        <label class="form-check form-check-inline">
+                                            <span class="form-check-label">{{ form.preemp.label_tag }}</span>
+                                            {{ form.preemp }}
+                                        </label>
+                                        <label class="form-check form-check-inline">
+                                            <span class="form-check-label">{{ form.random_test.label_tag }}</span>
+                                            {{ form.random_test }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Close</button>
+                    <input type="submit" id="btnadd_driver" type="submit" class="btn btn-pill btn-info" value="Save"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('.datepicker').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth:true,
+            changeYear:true,
+            showButtonPanel: true
+        });
+
+		$('#frmdriver').on('submit',function(e){
+		    e.preventDefault();
+		    var form = $(this).serialize();
+            var url = "/Procedure/add_driver/{{ customer_id }}";
+            try{
+                if(sumoselect){
+                    var data = RequestPost_data(form, url);
+                    data = JSON.parse(data);
+                    sumoselect.sumo.add(data[0].pk, data[0].fields.nombre,0);
+                    if(data[0].fields.random_test === true){
+                        sumoselect.sumo.selectItem(0);
+                    }
+                    $("#modal-driver").modal('hide');
+                }
+            } catch (e) {
+                RequestPostGeneric(form, url,"modal-driver", true);
+            }
+            //RequestPostGeneric(form, url,idModal, true);
+        });
+    });
+</script>

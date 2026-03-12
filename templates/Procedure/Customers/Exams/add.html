@@ -1,0 +1,289 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div id="modal-exam" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+        <form id="frmExam" role="form" method="post">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Exam</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+						{{ form.non_field_errors }}
+					</div>
+					<table class="table table-responsive table-sm table-bordered" style="background:rgba(222,222,222,0.6)">
+						<thead style="background: rgba(7,154,222,0.8);">
+                            <tr>
+                                <th style="color: rgba(255, 255, 255, 1)" colspan="2">
+                                    <span>Customer:</span>
+                                </th>
+                                <th style="color: rgba(255, 255, 255, 1)" colspan="2">
+                                    {{ driver.idcustomer.cusname }}
+                                </th>
+                            </tr>
+                            <tr>
+                                <th style="color: rgba(255, 255, 255, 1)" colspan="2">
+                                    <span>Driver:</span>
+                                </th>
+                                <th  style="color: rgba(255, 255, 255, 1)" colspan="2">
+                                   {{ driver.nombre }}
+                                   <input id="iddriver" name="iddriver" value="{{ driver.iddriver }}" hidden>
+                                </th>
+                            </tr>
+                        </thead>
+						<tbody>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.type.errors }}
+                                            {{ form.type.label_tag }}
+                                            {{ form.type.help_text }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.type }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.dateexam.errors }}
+                                            {{ form.dateexam.label_tag }}
+                                            {{ form.dateexam.help_text }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                            {{ form.dateexam }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.result.errors }}
+                                            {{ form.result.label_tag }}
+                                            {{ form.result.help_text }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.result }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.dateresult.errors }}
+                                            {{ form.dateresult.label_tag }}
+                                            {{ form.dateresult.help_text }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                            {{ form.dateresult }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.lote_number.errors }}
+                                            {{ form.lote_number.label_tag }}
+                                            {{ form.lote_number.help_text }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <div class="input-group">
+                                                {{ form.lote_number }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            {{ form.lote_expiration.errors }}
+                                            {{ form.lote_expiration.label_tag }}
+                                            {{ form.lote_expiration.help_text }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                            {{ form.lote_expiration }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="fieldWrapper">
+                                            <label for="id_path">Field:</label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            {{ form.path }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td style="text-align: center" colspan="2">
+                                    <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Close</button>
+                                </td>
+                                <td style="text-align: center" colspan="2">
+                                    <input type="submit" id="btnadd_driver" type="submit" class="btn btn-pill btn-info" value="Save"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <table id="tbexams" class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Exam Date</th>
+                                <th>Result</th>
+                                <th>Result Date</th>
+                                <th>Lote Number</th>
+                                <th>Lote Expiration</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exam in exams %}
+                                <tr>
+                                    <td>{{ exam.idexam }}</td>
+                                    <td>{{ exam.type }}</td>
+                                    <td>{{ exam.dateexam | date:"m/d/Y"}}</td>
+                                    <td>{{ exam.result }}</td>
+                                    <td>{{ exam.dateresult | date:"m/d/Y"}}</td>
+                                    <td>{{ exam.lote_number}}</td>
+                                    <td>{{ exam.lote_expiration | date:"m/d/Y"}}</td>
+                                    <td>{% if  exam.filename is not none %}<a href="/media/{{ exam.path }}" target="_blank"> {{ exam.filename }} </a>{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('.datepicker').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth:true,
+            changeYear:true,
+            showButtonPanel: true
+        });
+	    let tbexams = $("#tbexams").dataTable({
+            "order": [[ 0, "desc" ]],
+            "scrollCollapse": true
+        });
+		$('#frmExam').on('submit',function(e){
+		    e.preventDefault();
+		    let data = new FormData(this);
+            sendForm(
+                "/Procedure/add_exams/{{ driver.iddriver }}",
+                data,
+                '{{ csrf_token }}',
+                "POST",
+                true
+            ).then(response => {
+                const {message, data} = response;
+                notification(message.description, message.type);
+                let path = data.filename ?`<a href="/media/${data.path}" target="_blank">${data.filename}</a>` : '';
+                tbexams.fnAddData([
+                    data.idexam,
+                    data.type,
+                    data.dateexam,
+                    data.result,
+                    data.dateresult,
+                    data.lote_number,
+                    data.lote_expiration,
+                    path,
+                ]);
+                $('#frmExam')[0].reset();
+            }).catch(result => {
+                let message = result.message;
+                notification(message.description, message.type);
+            });
+        });
+    });
+    function addRow(tableName, data){
+        if(data !== [] | data != undefined){
+            let table = document.getElementById(tableName).getElementsByTagName('tbody')[0];
+            let tr = table.insertRow(-1);
+            let td = document.createElement("td");
+            td = tr.insertCell(0);
+            td.appendChild(document.createTextNode(data.type));
+            td = document.createElement("td");
+            td = tr.insertCell(1);
+            td.appendChild(document.createTextNode(data.dateexam));
+            td = document.createElement("td");
+            td = tr.insertCell(2);
+            td.appendChild(document.createTextNode(data.result));
+            td = document.createElement("td");
+            td = tr.insertCell(3);
+            td.appendChild(document.createTextNode(data.dateresult));
+        }
+    }
+    function formate_date(date){
+        var array = date.split("-");
+        var new_date = new Date(array[0], array[1], array[2]);
+        var day = new_date.getDate();
+        if(day <10){
+            day = "0"+day;
+        }
+        var month = new_date.getMonth();
+        if(month <10){
+            month = "0"+month;
+        }
+        var year = new_date.getFullYear();
+        new_date = month+"/"+day+"/"+year;
+        return new_date;
+    }
+</script>

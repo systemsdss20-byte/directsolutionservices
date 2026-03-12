@@ -1,0 +1,87 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal modal-blur fade" id="modal-show" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">CLEARING HOUSE ACCOUNT</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frmData" role="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <h3 class="card-title">Customer:</h3>
+                        </div>
+                        <div class="col">
+                            <span class="text-danger"> {{ customer.idcustomer }} </span>- {{ customer.cusname }}
+                        </div>
+                    </div>
+                    <div class="hr-text-spaceless"> </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <label class="form-label custom-control-inline" for="account_type">Account:</label>
+                                <select class="form-select form-select-sm" id="account_type" name="account_type" required>
+                                    <option>--Select--</option>
+                                    <option value="customer">Customer</option>
+                                    <option value="driver">Driver</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <label class="form-label custom-control-inline" for="driver"> Driver:</label>
+                                <select class="form-select form-select-sm" id="driver" name="driver" disabled>
+                                    <option>--Select--</option>
+                                    {% for driver in drivers %}
+                                        <option value="{{ driver.iddriver }}"> {{ driver.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="showPDF" type="button" class="btn btn-pill btn-primary">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#account_type').on('change', function () {
+        if($(this).val() === 'driver') {
+            $('#driver').removeAttr('disabled');
+        } else {
+            $('#driver').attr('disabled', 'disabled');
+        }
+    });
+
+    $('#showPDF').on('click', function (e) {
+        e.preventDefault();
+        var account_type = $('#account_type').val();
+        if (account_type == 'customer') {
+            $('#account_type').removeClass('is-invalid');
+            post_function('/Procedure/clearing_house_account/{{ customer.idcustomer }}', '#frmData');
+        } else {
+            if (account_type === 'driver') {
+                if ($('#driver').val() !== '--Select--') {
+                    $('#driver').removeClass('is-invalid');
+                    post_function('/Procedure/clearing_house_account/{{ customer.idcustomer }}', '#frmData');
+                } else {
+                    $('#driver').addClass('is-invalid');
+                }
+            } else {
+                $('#account_type').addClass('is-invalid');
+            }
+        }
+    });
+</script>

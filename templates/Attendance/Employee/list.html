@@ -1,0 +1,111 @@
+{% extends 'Attendance/index.html' %}
+{% block title-page %}Attendance{% endblock %}
+{% block attendance %}active{% endblock %}
+{% block employees%}active{%endblock%}
+{% block title %}Employees{% endblock %}
+{% block card-title %}Employees{% endblock %}
+{% load static%}
+{% block card-body %}
+    <div class="row-deck">
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter" id="Employee"></table>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+    <div class="modal fade" id="modal-danger">
+        <div class="modal-dialog">
+            <div class="modal-content modal-danger">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Employee</h4>
+                    <button type="button" class="btn btn-white close " data-dismiss="modal" aria-label="Close"><span aria-hidden="true">X</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="frmdelete">
+                        {% csrf_token %}
+                        <input id="id" hidden type="number" name="id" value="">
+                    </form>
+                    <p id="message-text">One fine body&hellip;</p>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="employee_delete();">Accept</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra-script %}
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="application/javascript">
+        function delete_modal(id, description) {
+            $('#id').attr('value', id);
+            $('#message-text').html('Are you sure that you want to delete to:'+description+'?');
+            $('#modal-danger').modal('show');
+        }
+        function employee_delete() {
+            $.ajax({
+                type: 'POST',
+                url: '/Attendance/delete-employee/',
+                data: $('#frmdelete').serialize(),
+                dataType: 'json',
+                beforeSend: function () {
+                    HoldOn.open({message: 'Please wait...'})
+                },
+                success: function (response, status) {
+                    HoldOn.close();
+                    notification(response.description, response.type);
+                    table = $('#Employee').closest('table.dataTable');
+                    table.DataTable().ajax.reload(null, false);
+                    $('#modal-danger').modal('hide');
+                },
+                error: function (response) {
+                    HoldOn.close();
+                    try{
+                        message = response.responseJSON;
+                        notification(message.description, message.type);
+                    } catch (e){
+                        location.reload();
+                    }
+                }
+            })
+        }
+
+        let table = AjaxDatatableViewUtils.initialize_table(
+            $('#Employee'),
+            '{% url 'datatable_employees' %}',
+            {
+                dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+                buttons: [
+                    { text: "<i class='fa fa-plus-circle'></i>&nbsp;New Employee", className:'btn btn-pill btn-info btn-outline-blue btn-sm', action: function (e) {
+                        e.preventDefault();
+                        $("#modal-load").load('/Attendance/new-employee', function (data) {
+                            try{
+                                $("#modal-employee").modal("show");
+                            } catch(error){
+                                location.reload();
+                            }
+                        });
+                    }}
+                ],
+                processing: false,
+                autoWidth: false,
+                full_row_select: false,
+                scrollX: false,
+            }
+        );
+        function update(id) {
+            $("#modal-load").load('/Attendance/edit-employee/'+id, function (){
+                try{
+                    $("#modal-employee").modal("show");
+                } catch (e) {
+                    location.reload();
+                }
+            });
+        }
+    </script>
+{% endblock %}

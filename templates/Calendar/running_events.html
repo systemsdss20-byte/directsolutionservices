@@ -1,0 +1,14 @@
+{% for event in events_month %}
+    <div class="fc-event {{ event.background }} p-1 mb-2 text-white">
+        <h3 class="m-0 pl-2">{{ event.title }}</h3>
+        <span class="d-block pl-2 p-0 text-white">From: {{ event.start_time }}</span>
+        <span class="d-block pl-2 p-0 text-white">To: {{ event.end_time }}</span>
+        {% if event.background == 'bg-warning' %}
+            <span class="d-block pr-2 text-white text-right">Tomorrow</span>
+        {% elif event.background == 'bg-danger' %}
+            <span class="d-block pr-2 text-white text-right">Today</span>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p>No Running Events Found</p>
+{% endfor %}

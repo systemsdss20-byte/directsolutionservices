@@ -1,0 +1,72 @@
+<style>
+    .card-comment {
+        /*border: 1px solid #e9ecef;*/
+        margin-bottom: 5px;
+        background: rgba(46, 39, 39, 0.41);
+        border-radius: 16px;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(46, 39, 39, 0.06);
+        padding: 8px;
+        background: #e9ecef;
+    }
+    .card-comment-danger{
+        border: 1px solid rgba(255, 0, 0, 0.4);
+    }
+    .card-comment img {
+        height: 1.875rem;
+        width: 1.875rem;
+        float: left;
+        box-shadow: 0px 1px 4px rgba(255,255,255,0.1);
+    }
+
+    .comment-text {
+        color: "#78838e";
+        margin-left: 40px;
+    }
+
+    .username {
+        color: "#495057";
+        display: block;
+        font-weight: 600;
+    }
+
+    .text-muted {
+        font-size: 12px;
+        font-weight: 400;
+    }
+    .title-popup {
+        margin-top: 5px;
+    }
+</style>
+<div class="modal fade" id="notes-modal" role="dialog">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-header">
+                <div class="row modal-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v2m0 4v.01"></path><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path></svg>
+                    <div class="title-popup"> Customer Notes</div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="list list-row list-hoverable">
+                    {% for notes in customer_notes %}
+                    <div class="card-comment {% if notes.highlight %} card-comment-danger{% endif %} ">
+                        <img class="img-circle img-sm avatar" src="/media/{{ notes.iduser.avatar }}">
+                        <div class="comment-text">
+                            <span class="username">
+                                {{ notes.fullname }}
+                                <span class="text-muted float-right">{{ notes.created_at }}</span>
+                            </span>
+                            {{ notes.note }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer align-self-center">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

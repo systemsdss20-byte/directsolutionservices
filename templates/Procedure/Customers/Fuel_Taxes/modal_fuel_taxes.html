@@ -1,0 +1,29 @@
+{% load static %}
+<div class="modal modal-blur fade" id="fuel-taxes" tabindex="-1" style="display: none;" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="modal-title text-center"> Does customer file fuel taxes?</div>
+                <div class="text-center">
+                    <img src="{% static 'site/img/gas_station.jpg' %}" class="avatar avatar-lg avatar-rounded">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-pill btn-danger" onclick="option_no();">No</button>
+                <button type="button" class="btn btn-pill btn-success" onclick="option_yes();">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function option_yes (){
+        $("#id_fuel_taxes").prop('checked', true);
+        $("#fuel-taxes").modal('hide');
+        save_customer();
+    }
+    function option_no() {
+        $("#id_fuel_taxes").prop('checked', false);
+        $("#fuel-taxes").modal('hide');
+        save_customer();
+    }
+</script>

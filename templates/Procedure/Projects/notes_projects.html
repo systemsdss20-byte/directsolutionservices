@@ -1,0 +1,197 @@
+<!-- /.modal -->
+{% load static %}
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+    .type-msg{
+        width: auto;
+    }
+    #add{
+        border-radius: 0 15px 15px 0 !important;
+        background-color: rgb(0, 165, 255) !important;
+        border: 0 !important;
+        color: white !important;
+        cursor: pointer;
+    }
+   .comment-box .comment-author{
+        background: #03658c;
+        color: #FFF;
+        font-size: 12px;
+        padding: 3px 5px;
+        font-weight: 700;
+        margin-left: 10px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+    }
+   .comment-box .comment-footer{
+       text-transform: capitalize;
+       color: rgba(90,90,90,0.4);
+       font-size: 10px;
+       background: #FFFFFF;
+       padding: 12px;
+   }
+   .comment-footer > div {
+      display: flex;
+      /*font-family: "Courier New", "Lucida Console", monospace;*/
+   }
+   .modal-footer{
+    padding: 0px;
+   }
+   .modal-content{
+       box-shadow: 2px 2px 12px 3px rgba(3, 101, 140, 0.5);
+   }
+</style>
+      <div class="modal fade" id="modal-notes" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable  modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><a href="/Procedure/projects/{{ idcustomer }}/0">{{ customer }}/ {{ services }} </a>(Notes)</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding-right: 5%; background: #dee1e3;">
+                    <div id="comments" class="comments-container">
+                        <ul id="comments-list" class="comments-list">
+                            {% for note in notes %}
+                            <li>
+                                <div class="comment-main-level">
+                                    <div class="comment-avatar">
+                                        <img src="{{ media }}{{ note.iduser.avatar }}" alt="">
+                                    </div>
+                                    <div class="comment-box">
+                                        <div class="comment-head">
+                                            <input id="idnote"  type="number" readonly value="{{ note.id }}" hidden>
+                                            <h6 class="comment-name comment-author text">{{ note.iduser.fullname | upper }}</h6>
+                                            {% if note.iduser.id == request.user.id %}
+                                                <i class="fa fa-pencil edit"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="comment-content">
+                                            <div class="comment-text input-group" id="{{ note.id }}">
+                                                    {{ note.comments | linebreaks }}
+                                            </div>
+                                            <div class="button"></div>
+                                        </div>
+                                        <div class="comment-footer justify-content-between">
+                                            <div class="row">
+                                                <div class="col">Created: {{ note.date_comment | date:'b d,Y H:i'}}</div>
+                                                <div class="col-4"></div>
+                                                <div class="col date-update">
+                                                    {% if note.date_update_comment %}
+                                                        Updated: {{ note.date_update_comment | date:'b d,Y H:i'}}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <form id="comment" method="post">
+                    <div class="modal-footer">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <textarea id="message" rows="1" name="comments" placeholder="Comment..." class="form-control form-control-sm type-msg" required/>
+                            <input type="text" name="date_comment" value="{{ notedate }}" hidden>
+                            <input type="text" name="iduser" value="{{ user.id }}" hidden>
+                            <input type="text" name="project" value="{{ idproject }}" hidden>
+                            <span class="input-group-append">
+                                <button type="submit" class="btn btn-outline-pink btn-primary" id="add">
+                                     <i class="fas fa-location-arrow"></i>&nbsp;Send
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+<!-- /.modal -->
+<script type="text/javascript">
+    $("form").submit(function(e){
+        e.preventDefault();
+        let form = $(this).serialize();
+        let url = "/Procedure/notes_projects/{{idproject}}/0";
+        let data = RequestPost_data(form, url);
+        new_comment(data);
+    });
+    $('.edit').on('click', function (e) {
+
+        addbuttons($(this));
+    });
+    function addbuttons(element){
+        var idnote = element.parent('div.comment-head').find('#idnote');
+        var text_comment = element.parent('div.comment-head').parent('div.comment-box').find('.comment-content');
+        $.get('/Procedure/edit_notes_projects/'+idnote.val(),{}, function(response){
+            var comment_html = "<textarea id='comment-message' class='form-control form-control-sm type-msg'>"+response.comment+"</textarea>";
+            var new_comment = text_comment.find('.comment-text').html(comment_html);
+            text_comment.find('div.button').html("<div class='row justify-content-end'>" +
+                "<button type='button' class='save btn btn-sm btn-pill btn-success' onclick='edit("+idnote.val()+")'><i class='fa fa-check'></i></button>" +
+                "<button class='btn btn-sm btn-pill btn-danger' onclick='cancel("+idnote.val()+")'>X</button>" +
+                "</div>");
+        });
+    };
+    function cancel(idnote) {
+        var comment_msg = $('#comment-message').val();
+        $('#'+idnote).html(comment_msg.replace('\n','</br>'));
+        $('#'+idnote).parent('div.comment-content').find('div.button').html('');
+    }
+    function edit(idnote){
+        var comment_msg = $('#comment-message').val();
+        var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            url:'/Procedure/edit_notes_projects/'+idnote,
+            dataType: 'JSON',
+            data:{'comment':comment_msg},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type:'POST',
+            beforeSend: function (){
+                HoldOn.open('Processing...');
+            },
+            success:function (response, status){
+                HoldOn.close();
+                $('#'+idnote).html(response.comment.replace('\n','</br>'));
+                $('#'+idnote).parent('div.comment-content').find('div.button').html('');
+                $('#'+idnote).parent('div.comment-content').parent('div.comment-box').find('div.date-update').html('Updated: '+response.date_update);
+            }
+        });
+    }
+    function new_comment(data) {
+        var html = "<li>"
+                       +"<div class='comment-main-level'>"
+                         +"<div class='comment-avatar'>"
+                            +"<img src='/media/"+data.avatar+"' alt=''>"
+                         +"</div>"
+                         +"<div class='comment-box'>"
+                            +"<div class='comment-head'>"
+                                +"<input id='idnote'  type='number' readonly value='"+data.id+"' hidden>"
+                                +"<h6 class='comment-name by-author'>"+data.user+"</h6>"
+                                +"<i class='fa fa-pencil edit' onclick='addbuttons($(this));'></i>"
+                            +"</div>"
+                            +"<div class='comment-content'>"
+                                +"<div id='"+data.id+"' class='comment-text input-group'>"+ data.comments.replace('\n', '<br>') + "</div>"
+                                +"<div class='button'></div>"
+                            +"</div>"
+                            +"<div class='comment-footer justify-content-between'>"
+                                +"<div class='row'>"
+                                    +"<div class='col'>Created: "+data.date_comment+"</div>"
+                                    +"<div class='col-4'></div>"
+                                    +"<div class='col date-update'></div>"
+                                +"</div>"
+                            +"</div>"
+                         +"</div>"
+                       +"</div>"
+                    +"</li>";
+        $("#comments-list").append(html);
+        $("#comment")[0].reset();
+        table.ajax.reload();
+    }
+</script>

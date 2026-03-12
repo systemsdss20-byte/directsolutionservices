@@ -1,0 +1,32 @@
+<table id="history_log" class="table table-primary tab table-bordered">
+    <thead>
+        <tr>
+            <th>Field</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+            <th>Changed By</th>
+            <th>Action</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for detail in details %}
+            <tr>
+                <td>{{ detail.field }}</td>
+                <td>{{ detail.old_value }}</td>
+                <td>{{ detail.new_value }}</td>
+                <td>{{ detail.changed_by }}</td>
+                <td>{{ detail.action }}</td>
+                <td>{{ detail.history_date | date:'m/d/Y H:i:s'}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script type="application/javascript">
+    {% if details %}
+    $('#history_log').dataTable({
+        "order": [[ 5, "desc" ]],
+        "orderCellsTop": true,
+    });
+    {% endif %}
+</script>

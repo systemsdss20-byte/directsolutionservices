@@ -1,0 +1,202 @@
+{% load static %}
+{% block style %}
+    <style>
+        .selectize-dropdown .option{
+            cursor: pointer;
+        }
+        #id-photo {
+            opacity: 0;
+        }
+
+        #id-photo-label {
+            position: absolute;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+        }
+
+        .image-area {
+            border: 2px dashed rgba(144, 144, 144, 0.7);
+            padding: 1rem;
+            position: relative;
+        }
+
+        .image-area::before {
+            content: 'Uploaded image';
+            color: #cccccc;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            z-index: 1;
+        }
+
+        .image-area img {
+            z-index: 2;
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+{% endblock %}
+{% block card-body %}
+    <div class="modal fade" id="modal-employee" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="post" id="NewEmployee" role="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                    <div class="modal-header">
+                        <h4 class="modal-title">New Employee</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="select-people">Select User:</label>
+                                <select id="select-people" name="user" class="form-select icon-menu" required>
+                                    <option value="0" data-data='{"avatar": "<span class=\"form-control avatar avatar-sm rounded mr-2 ml-n1\" style=\"background-image: url({% static 'site/img/user.png' %})\"></span>"}'>Select User</option>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}" data-data='{"avatar": "<span class=\"form-control avatar avatar-sm rounded mr-2 ml-n1\" style=\"background-image: url(/media/{{ user.avatar }})\"></span>"}'>
+                                            {{ user.fullname }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.names.label_tag }}
+                                {{ form.names }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.surnames.label_tag }}
+                                {{ form.surnames }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form.timezone.label_tag }}
+                                {{ form.timezone }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group form-file ">
+                                <input id="id-photo" class="form-control border-0" name="photo" title="Upload Image" type="file" onchange="readURL(this)">
+                                <label id="id-photo-label" for="id-photo" class="font-weight-light text-muted">Photo</label>
+                                <div class="input-group-append">
+                                    <label for="id-photo" class="btn btn-light m-0 rounded-pill px-4">
+                                        <i class="fa fa-cloud-upload mr-2 text-muted">
+                                            <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                        </i>
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="font-italic text-black-50 text-center">The image uploaded will be rendered inside the box below</p>
+                            <div class="image-area mt-4">
+                                <img id="imageResult" src="#" alt="" class="img-fluid rounded shadow-sm mx-auto d-block">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button class="btn btn-danger btn-pill" type="button" data-dismiss="modal">Close</button>
+                        <input id="save" class="btn btn-primary btn-pill" type="submit" value="Save">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#select-people').selectize({
+                render: {
+                    option: function (data, escape) {
+                        return '<div class="option">' + data.avatar + '' + escape(data.text) + '</div>';
+                    },
+                    item: function (data, escape) {
+                        return '<div class="d-flex align-items-center">' + data.avatar + '' + escape(data.text) + '</div>';
+                    }
+                },
+                onChange:function (value) {
+                    if(value != 0){
+                        $.get('/Attendance/getUser/'+value, function (data){
+                            $("#id_names").val(data.first_name);
+                            $("#id_surnames").val(data.last_name);
+                            $("#imageResult").attr('src', '/media/'+data.photo);
+                        });
+                    }
+                }
+            });
+            $('#NewEmployee').submit(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Attendance/new-employee',
+                    data:new FormData(this),
+                    dataType: 'json',
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    beforeSend: function (){
+                        HoldOn.open({message: 'Please wait'})
+                    },
+                    success:function (response, status){
+                        HoldOn.close();
+                        notification(response.description, response.type);
+                        table = $('#Employee').closest('table.dataTable');
+                        table.DataTable().ajax.reload(null, false);
+                        $('#NewEmployee')[0].reset();
+                        $('#imageResult').attr('src', '');
+                        $("#modal-employee").modal("hide");
+                    },
+                    error:function (response){
+                        HoldOn.close();
+                        var message = response.responseJSON;
+                        notification(message.description, message.type);
+                    }
+                });
+            });
+
+        });
+        /*  ==========================================
+            SHOW UPLOADED IMAGE
+        * ========================================== */
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imageResult')
+                        .attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $(function () {
+            $('#id-photo').on('change', function () {
+                readURL(input);
+            });
+        });
+
+        /*  ==========================================
+            SHOW UPLOADED IMAGE NAME
+        * ========================================== */
+        var input = document.getElementById( 'id-photo' );
+        var infoArea = document.getElementById( 'id-photo-label' );
+
+        input.addEventListener( 'change', showFileName );
+        function showFileName( event ) {
+          var input = event.srcElement;
+          var fileName = input.files[0].name;
+          infoArea.textContent = 'File name: ' + fileName;
+        }
+    </script>
+{% endblock %}

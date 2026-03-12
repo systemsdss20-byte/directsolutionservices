@@ -1,0 +1,146 @@
+<style>
+    .ui-datepicker {
+      z-index: 1600 !important; /* has to be larger than 1050 */
+    }
+</style>
+<div class="modal fade" id="modal-invoice" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-full-width"  role="document">
+        <div class="modal-content">
+            <div id="card-customers" class="card card-info">
+            {% if customer.clientstatus == 'Active' %}
+				<form id="addInvoice" role="form" method="post">
+					{% csrf_token %}
+					<div class="card-header">
+						<div class="col-md-8">
+							<div class="row">
+								<h3 class="card-title">{{ customer.cusname }}</h3>
+								<input type="text" name="cusname" value="{{ customer.cusname }}" hidden>
+								<input type="text" name="idcustomer" value="{{ customer.idcustomer }}" hidden>
+                                <input type="text" name="iduser" value="{{ user.id }}" hidden>
+                                <input type="text" name="status" value="Unpaid" hidden>
+							</div>
+							<div class="row">
+								<h3 class="card-title">{{ customer.address }}</h3>
+								<input type="text" name="address" value="{{ customer.address }}" hidden>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group row">
+								<label for="{{ form.idinvoice.id_for_label }}" class="col-sm-2 col-form-label">No:</label>
+								<div class="col-sm-10">
+								  <label class="form-control" id="idfactura">{{ idinvoice }}</label>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="{{ form.invdate.id_for_label }}" class="col-sm-2 col-form-label">Date</label>
+								<div class="col-sm-10">
+									{{ form.sender.errors }}
+								  	<!--{{ form.invdate }}-->
+									<input id="id_invdate" class="form-control datepicker hasDatepicker" type="text" name="invdate" value="{{ datetoday }}" required>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<table id="tblinvoice" class="table table-sm table-bordered">
+							{{ formset.management_form }}
+                            {% for form in formset %}
+                            <thead>
+                                <tr>
+                                    <th>{{ form.code.label|capfirst }}</th>
+                                    <th>{{ form.service.label|capfirst }}</th>
+                                    <th>{{ form.quantity.label|capfirst }}</th>
+                                    <th>{{ form.cost.label|capfirst }}</th>
+                                    <th>{{ form.rate.label|capfirst }}</th>
+                                    <th>{{ form.discount.label|capfirst }}</th>
+                                    <th>{{ form.discountype.label|capfirst }}</th>
+                                    <th>{{ form.amount.label|capfirst }}</th>
+                                    <th>{{ form.coments.label|capfirst }}</th>
+                                    <th>DELETE</th>
+                                </tr>
+                            </thead>
+                            <tr class="formset_row">
+                                <td>{{ form.code }}</td>
+                                <td>{{ form.service }}</td>
+                                <td>{{ form.quantity }}</td>
+                                <td>{{ form.cost }}</td>
+                                <td>{{ form.rate }}</td>
+                                <td>{{ form.discount }}</td>
+                                <td>{{ form.discountype }}</td>
+                                <td>{{ form.amount }}</td>
+                                <td>{{ form.coments }}</td>
+                                <td>
+                                    {% if formset.can_delete %}
+                                        {{ form.DELETE }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+							{% endfor %}
+						</table>
+						<div class="row">
+							<div class="col">
+								<div class="form-group row">
+									<label for="{{ form.coments.id_for_label }}" class="col-sm-3 col-form-label">Comments:</label>
+									<div class="col-sm-9">
+									  {{ form.coments }}
+									</div>
+								</div>
+							</div>
+							<div class="col">
+								<div class="form-group row">
+									<label for="{{ form.amount.id_for_label }}" class="col-sm-3 col-form-label">Total:</label>
+									<div class="col-sm-9">
+									  {{ form.amount }}
+									</div>
+								</div>
+								<div class="form-group row">
+									<label for="{{ form.deu.id_for_label }}" class="col-sm-3 col-form-label">Paid:</label>
+									<div class="col-sm-9">
+									  {{ form.deu }}
+									</div>
+								</div>
+							</div>
+						</div>
+                        <div class="row">
+                            <div class="col">
+                                <input id="btnsave" type="submit" value="Save" class="btn btn-info">
+								<button id="btnpaid" class="btn btn-success float-right" type="button" value="" hidden>
+									<i class="far fa-credit-card"> </i>
+									Submit Payment
+								</button>
+                                <button class="btn btn-danger" type="button" data-dismiss="modal">Close</button>
+                                <input id="pdf-refresh" type="number" value="0" hidden readonly>
+                            </div>
+                        </div>
+					</div>
+				</form>
+            {% else %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <div class="d-flex">
+                        <div>
+                            <!-- Download SVG icon from http://tabler-icons.io/i/alert-circle -->
+                            <!-- SVG icon code with class="alert-icon" -->
+                        </div>
+                        <div>
+                            <h4 class="alert-title">I'm so sorry&hellip;</h4>
+                            <div class="text-muted">You cannot create new invoices because this customer is inactive.</div>
+                        </div>
+                    </div>
+                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                </div>
+            {% endif %}
+			</div>
+        </div>
+    </div>
+</div>
+<div id="modal-load2"></div>
+<script type="text/javascript">
+    $('#addInvoice').on('submit',function(e){
+        e.preventDefault();
+        addInvoice(
+            '/Procedure/invoice_add/{{customer_id}}/{{ project_id }}/',
+            $(this).serialize(),
+            '{{ csrf_token }}'
+        )
+    });
+</script>

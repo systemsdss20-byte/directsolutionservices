@@ -1,0 +1,50 @@
+<div class="modal fade" id="modal-assign" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col col-md-8">
+                        {% csrf_token %}
+                        <div class="form-group input-group">
+                            <label for="Users" class="form-label inline_label">Users: </label>
+                            <select class="form-control form-select form-select-sm" id="Users" name="Users">
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.fullname | upper }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="assign_project" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $("#assign_project").click(function (evt) {
+        evt.preventDefault();
+        let selectedProjects = [];
+        const url = "{% url 'Procedure:assign_project' %}";
+        let user = $("#Users").val();
+        let csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+        $('#tblProjects').find('input[name="project_id[]"]:checked').each(function() {
+                selectedProjects.push($(this).val());
+        });
+        if(selectedProjects.length === 0){
+            notification('Please select at least one project', 'warning');
+            return;
+        }
+        let data = {'user':user, 'projects':selectedProjects, 'csrfmiddlewaretoken':csrf_token};
+        RequestPostGeneric(data, url, "modal-assign", true);
+    });
+</script>

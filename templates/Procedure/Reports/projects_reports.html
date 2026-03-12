@@ -1,0 +1,317 @@
+{% extends 'Procedure/index.html' %}
+{% load static %}
+{% block title-text %}
+    <a href="/Procedure/index"><i class="fa fa-reply"></i></a>
+{% endblock %}
+{% block title-page %}Consortium{% endblock %}
+{% block index %} {% endblock %}
+{% block report %}active{% endblock %}
+{% block projects_reports %}active{% endblock %}
+{% block body-content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-status-top bg-orange"></div>
+                <div class="card-header text-center">
+                    <h3 class="card-title">Projects by Status</h3>
+                </div>
+                <div class="card-body">
+                    <form class="form" role="form" id="frmSearch">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col col-2">
+                                <div class="form-group">
+                                    <div>
+                                        <label class="form-label inline_label" for="lastuser">Users:</label>
+                                        <select class="form-select form-select-sm" id="lastuser" name="lastuser">
+                                            <option value="0" selected>All Users</option>
+                                            {% for user in users %}
+                                                <option value="{{ user.id }}">{{ user.fullname | upper }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col col-2">
+                                <div class="form-group">
+                                    <div>
+                                        <label class="form-label inline_label" for="status">Status:</label>
+                                        <select class="form-select form-select-sm" id="status" name="status">
+                                            <option value="0" selected>All Status</option>
+                                            <option value="1">Opened & Process</option>
+                                            <option value="2">Opened</option>
+                                            <option value="3">In Process</option>
+                                            <option value="4">Closed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="form-label inline_label" for="customer">Customers:</label>
+                                    <select class="form-select form-select-sm" name="customer" id="customer">
+                                        <option value="0" selected>All Customers</option>
+                                        {% for customer in customers %}
+                                            <option value="{{ customer.idcustomer }}">{{ customer.idcustomer }}-{{ customer.cusname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="">
+                                    <label class="form-label inline_label" for="customer">Services:</label>
+                                    <select class="form-select form-select-sm" name="services" id="services">
+                                        <option value="0" selected>--Select--</option>
+                                        {% for service in services %}
+                                            <option value="{{service.idservice}}"> {{ service.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-1">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="form-label inline_label">Date:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-1"></div>
+                            <div class="col col-1">
+                                <div class="input-group">
+                                    <label class="form-label inline_label" for="all_date">
+                                        All:
+                                        <input class="form-check-input" name="all_date" id="all_date" type="checkbox" >
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col col-2">
+                                <div class="input-group">
+                                    <label class="form-label inline_label" for="from_date">From:</label>
+                                    <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                    <input class="form-control form-control-sm datepicker" name="from_date" id="from_date" type="text" value="{{ last_seven_days }}">
+                                </div>
+                            </div>
+                            <div class="col col-2">
+                                <div class="input-group">
+                                    <label class="form-label inline_label" for="to_date">To:</label>
+                                    <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                    <input class="form-control datepicker form-control-sm" name="to_date" id="to_date" type="text">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-pill btn-sm btn-primary" id="btnSearch">Search</button>
+                                <button class="btn btn-pill btn-sm btn-danger" id="btnReset">Reset</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="hr-text"></div>
+                    <table class="table table-bordered table-striped table-center" id="tblProjects">
+                        <thead>
+                            <tr>
+                                {% if perms.Procedure.assign_project %}
+                                <th>&nbsp;</th>
+                                {% endif %}
+                                <th>#Project</th>
+                                <th>Customer</th>
+                                <th>Services</th>
+                                <th>Comments</th>
+                                <th>Request</th>
+                                <th>Invoice</th>
+                                <th>Representative</th>
+                                <th>Last Representative</th>
+                                <th width="11%">Status</th>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="text/javascript" src="{% static 'site/plugins/monthpicker/MonthPicker.js' %}"></script>
+    <script type="application/javascript">
+        $('#btnReset').on('click', function (e) {
+            e.preventDefault();
+            $('#frmSearch select').val(0).trigger('chosen:updated');
+        });
+
+        let load_modal = function (idproject) {
+            $("#modal-load").load("/Procedure/notes_projects/" + idproject +'/0', function () {
+                $("#modal-notes").modal("show");
+            });
+        };
+
+        var d = new Date();
+        var currMonth = (d.getMonth()+1) < 10 ? '0'+(d.getMonth()+1) : (d.getMonth()+1);
+        var currYear = d.getFullYear();
+        $('#from_date').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true
+        });
+        var today = currMonth+'/'+d.getDate()+'/'+currYear;
+        $("#to_date").val(today);
+        $('#to_date').datepicker({
+            dateFormat: 'mm/dd/yy',
+            changeMonth: true,
+            changeYear: true,
+            setDate: today
+        });
+        $('#customer').chosen();
+        $('#services').chosen();
+        let table= $('#tblProjects').DataTable({
+            dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+            processing: true,
+            serverSide: false,
+            paging: true,
+            searching: true,
+            pageLength: 10,
+            length: 10,
+            buttons:[
+                {% if perms.Procedure.assign_project %}
+                { 
+                    text: '<i class="fa fa-user"></i> Assign to', className:'btn btn-primary', 
+                    action: function ( e, dt, node, config ) {
+                        $("#modal-load").load("/Procedure/assign_project/", function () {
+                            $("#modal-assign").modal("show");
+                        });
+                    }
+                },
+                {% endif %}
+                { text: '<i class="fa fa-files-o"></i>', className:'btn btn-info', extend: 'copyHtml5', titleAttr: 'Copy'},
+                { text: '<i class="fa fa-print"></i>', className:'btn btn-dark', extend: 'print', titleAttr: 'Print'},
+                { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel'},
+                { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF'},
+                { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV'},
+            ],
+            ajax:{
+                url:"/Procedure/projects_reports/",
+                type:"POST",
+                dataType:"JSON",
+                cache: true,
+                data: function(d){
+                    d.customer = $('#customer').val();
+                    d.status = $('#status').val();
+                    d.from_date = $('#from_date').val();
+                    d.to_date = $('#to_date').val();
+                    d.csrfmiddlewaretoken = $('input[name=csrfmiddlewaretoken]').val();
+                    d.service = $('#services').val();
+                    d.lastuser = $('#lastuser').val();
+                    d.all_date = $('#all_date').prop('checked');
+                },
+            },
+            deferRender: true,
+            columns:[
+                {% if perms.Procedure.assign_project %}
+                {'data': 'id', 
+                    render: function (data, type, row) {
+                        return `<input type='checkbox' name='project_id[]' value='${data}' class='project-checkbox'/>`
+                    }
+                },
+                {% endif %}
+                {'data': 'id'},
+                {'data': 'customers', render:function (data, type, row) {
+                        return "<a href='/Procedure/projects/"+data.idcustomer+"/0'>"+data.idcustomer +"-"+ data.cusname +"</a>";
+                    }
+                },
+                {'data': 'services'},
+                {'data': 'comments'},
+                {'data': 'request'},
+                {'data': 'invoice', render:function (data, type, row) {
+                        if(data == 'Paid'){
+                            return "<span class='status-icon bg-success'></span>"+data;
+                        } else if(data == 'Unpaid'){
+                            return "<span class='status-icon bg-danger'></span>"+data;
+                        } else {
+                            return "<span class='status-icon bg-warning'></span>"+data;
+                        }
+                    }
+                },
+                {'data': 'representative'},
+                {'data': 'userlast'},
+                {'data': 'status', render:function (data, type, row) {
+                    var list_status = ['Opened', 'In Process', 'Closed'];
+                    var input_status = "<div class='input-group-append'><select name='status' class='status form-select form-select-sm' >";
+                    for (var value of list_status){
+                        var isSelect = value == data ? "selected" : "";
+                        input_status += "<option value='"+value+"'  "+isSelect+">"+value+"</option>";
+                    }
+                    input_status += "</select><button class='btn btn-sm btn-warning save' value='"+row.id+"'><i class='fa fa-save'></i></button></div>";
+                    return input_status;}
+                },
+                {'data': 'id', render:function (data, type,row) {
+                        var num_notes = "";
+                        if (row.num_notes !=0){
+                            num_notes = "<span class='badge bg-red'>"+row.num_notes+"</span>";
+                        }
+                        return "<button class='btn btn-sm btn-pill btn-info' onclick='load_modal("+data+")'><li class='fa fa-file-text-o'></li>&nbsp;Notes&nbsp;"+num_notes+"</button>"
+                    }
+                },
+                {'data': 'id', render: function (data, type, row) {
+                        return "<a class='btn btn-sm btn-pill btn-info' href='/Procedure/detail_project/"+data+"'><li class='fa fa-folder-open-o'></li>&nbsp;Open</a>"
+                    }
+                }
+            ],
+        });
+        $('#btnSearch').on('click', function (env) {
+            env.preventDefault();
+            table.ajax.reload();
+        });
+
+        $('#all_date').on('change', function (env) {
+            env.preventDefault();
+            if($(this).prop('checked') == true){
+                $('#from_date').attr('disabled', true);
+                $('#to_date').attr('disabled', true);
+            } else {
+                $('#from_date').attr('disabled', false);
+                $('#to_date').attr('disabled', false);
+            }
+        });
+
+        $("#tblProjects tbody").on('click', '.save', function (){
+            var row = $(this).parents('tr');
+            var status = $(this).parents('tr').find('.status');
+            var url = '/Procedure/edit_project/';
+            var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+            var data = {'idproject':$(this).val(), 'status': status.val(), 'csrfmiddlewaretoken': csrf_token};
+            var lastuser = $(row).find('td')[6];
+            $.post(url, data, function (response) {
+                notification(response.message.description, response.message.type);
+                $('.summary-project-open').html(response.open_projects+" Open Projects");
+                $('.summary-project-open-date').html("Since "+response.date_open);
+                $('.summary-project-process').html(response.inprocess_project+" My Projects In Process");
+                $('.summary-project-process-date').html("Since "+response.date_inprocess);
+                $('.summary-project-new').html(response.new_projects+" New Projects");
+                lastuser.textContent = response.data.lastuser;
+                switch (response.data.status) {
+                    case 'In Process':
+                        return $(row).css('background', '#f2e869');
+                        break;
+                    case 'Opened':
+                        $(row).css('background', 'white').animate({color:'black'}, 2000);
+                        break;
+                    case 'Closed':
+                        $(row).css('background', 'rgba(113,188,37,0.5)');
+                        break;
+                    default: break;
+                }
+            }, 'json');
+        });
+    </script>
+{% endblock %}

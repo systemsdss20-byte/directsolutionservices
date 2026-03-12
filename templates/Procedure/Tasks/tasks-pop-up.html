@@ -1,0 +1,30 @@
+{% for task in tasks %}
+    <div class="list-group-item">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="badge bg-red"></span>
+            </div>
+            <div class="col text-truncate">
+                <a class="text-body d-block" href="/Procedure/user_tasks/{{ task.id }}">{{ task.title | title }}</a>
+                <div class="d-block text-muted text-truncate mt-n1">{{ task.description }}</div>
+            </div>
+            {% if task.priority %}
+                <div class="col-auto">
+                    <a class="list-group-item-actions show" href="#">
+                        <span class="badge badge-pill bg-red priority-task">Priority</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+<script type="text/javascript">
+    if(document.getElementById('total-tasks')){
+        document.getElementById('total-tasks').innerHTML = `{{ request.session.total_tasks }}`;
+        {% if request.session.total_tasks %}
+            document.getElementById('alert-notification').classList.add('active');
+        {% else %}
+            document.getElementById('alert-notification').classList.remove('active')
+        {% endif %}
+    }
+</script>

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title-page %}Invoices{% endblock %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'site/plugins/monthpicker/MonthPicker.css' %}">
+{% endblock %}
+{% block index %} {% endblock %}
+{% block report %}active{% endblock %}
+{% block invoices %}active{% endblock %}
+{% block container-fluid %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Reports & Invoices List
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="frmSearch">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col col-sm-1">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="customer">Customer:</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <select id="customer" name="customer" class="form-select form-select-sm">
+                                <option value="0" selected>--Select--</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.idcustomer }}">{{ customer.idcustomer }}-{{ customer.cusname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col col-2">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="from_date">From:</label>
+                                <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+                                <input class="form-control form-control-sm datepicker" name="from_date" id="from_date" type="text" value="{{ last_seven_days }}">
+                            </div>
+                        </div>
+                        <div class="col col-2">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="to_date">To:</label>
+                                <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>                                    <input class="form-control datepicker form-control-sm" name="to_date" id="to_date" type="text">
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="input-group">
+                                <label class="form-label inline_label" for="status">Status:</label>
+                                <select id="status" name="status" class="form-select form-select-sm">   
+                                    <option value="0" selected>--Select--</option>
+                                    <option value="Paid">PAID</option>
+                                    <option value="Unpaid">UNPAID</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="table-responsive mt-4">
+                    <table class="table card-table table-vcenter" id="tbl-invoices"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+    $("#customer").chosen( {width: "100%"} );
+    AjaxDatatableViewUtils.initialize_table(
+        $('#tbl-invoices'),
+        '/Reports/invoices_table/',
+        {
+            processing: false,
+            autoWidth: false,
+            full_row_select: false
+        }
+    )    
+</script>
+{% endblock %}

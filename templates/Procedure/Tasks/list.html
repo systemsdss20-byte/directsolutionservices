@@ -1,0 +1,63 @@
+{% load static %}
+<style>
+    .showme {
+        display: none;
+    }
+    .task:hover .showme{
+        display: inline;
+    }
+    .expiration-date{
+        background: #ff922b8f;
+        padding-top: 4px;
+        padding-left: 4px;
+        border-radius: 5px;
+    }
+</style>
+<script src="{% static '/site/js/tasks_action.js' %}" type="text/javascript"></script>
+{% for task in tasks %}
+<div class="row mb-2 border-bottom task {% if task.id == task_id %}task-select{% endif %} {% if task.due_date|date:"m/d/Y" == today %}expiration-date{% endif %}" id="task-{{ task.id }}">
+    <div class="icon">
+        <label class="form-colorinput">
+            <input name="is_completed" onclick="task_completed_check($(this){% if project_id %}, 0 {% else %}, 1 {% endif %} );" type="checkbox" class="form-colorinput-input" {% if task.is_completed %} checked {% endif %} value="{{ task.id }}">
+            <span class="form-colorinput-color bg-cyan"></span>
+        </label>
+    </div>
+    <div class="col">
+        <div class="title font-weight-bold">{{ task.title }}{% if task.project %} <a href="/Procedure/customer_edit/{{ task.project.idcustomer_id }}"> ({{ task.project.idcustomer }}) {% endif %}</a></div>
+        <div class="text-muted">
+            {{ task.description }}
+        </div>
+        {% if is_calendar == 0 %}
+        <div class="direct-chat-infos clearfix">
+            {% if task.created_by %} <span class="badge bg-info badge-pill">Created By: {{ task.created_by.fullname}}</span> {% endif %}
+            {% if task.assigned_to.all %} <span class="badge bg-teal badge-pill">Assigned to:{% for user_tasks in task.assigned_to.all %} {{ user_tasks.fullname}} {% endfor %}</span> {% endif %}
+            {% if task.created_at %} <span class="badge bg-cyan badge-pill float-right">Created at: {{ task.created_at }}</span> {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="col col-sm-2 mb-5 tools">
+        {% if task.priority %} <span class="badge badge-pill bg-red priority-task">Priority</span>{% endif %}
+        <button class="btn btn-sm btn-danger showme" data-toggle="modal" data-placement="right" title="Archive" data-target="#archive-modal" onclick="$('#id-task').attr('value', '{{ task.id }}');"><i class="fas fa-trash"></i></button>
+    </div>
+</div>
+{% endfor %}
+<div id="archive-modal" class="modal fade">
+    <div class="modal-dialog modal-sm">
+        <form id="delete-form">
+            <div class="modal-content">
+                <div class="modal-status bg-danger"></div>
+                <div class="modal-body text-center">
+                    {% csrf_token %}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v2m0 4v.01"></path><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path></svg>
+                    <div class="modal-title">Are you sure you want to delete?</div>
+                    <label for="id-task"></label>
+                    <input id="id-task" hidden type="number" name='id' value="" >
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-pill btn-secondary mr-auto" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-pill btn-danger" id="btn-register-event" onclick="archive_task('/Procedure/tasks/{% if project_id %}project/{{ project_id }}{% else %}list/{{ is_calendar }}{% endif %}', {{ is_calendar }});">Yes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,150 @@
+{% extends 'Procedure/index.html' %}
+{% block title %}{% endblock %}
+{% load static %}
+{% block body-content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-status-top bg-orange"></div>
+                <div class="card-header text-center">
+                    <h3 class="card-title">{% if status == 'InProcess'%}Projects in process {% else %}{{ status }} Projects{% endif %}</h3>
+                    {% csrf_token %}
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped table-center" id="tblProjects">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Customer</th>
+                                <th>Quantity</th>
+                                <th>Services</th>
+                                <th>Comments</th>
+                                <th>Request</th>
+                                <th>Invoice</th>
+                                <th>Agent</th>
+                                <th>Last Agent</th>
+                                <th width="11%">Status</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal-load"></div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/jszip/jszip.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/datatables-buttons/js/buttons.print.js' %}"></script>
+    <script type="text/javascript" src="{% static '/site/plugins/monthpicker/MonthPicker.js' %}"></script>
+    <script type="application/javascript">
+        let load_modal = function (idproject) {
+            $("#modal-load").load("/Procedure/notes_projects/" + idproject, function () {
+                $("#modal-notes").modal("show");
+            });
+        };
+        var title_datatable = $('.card-title').text();
+        let table= $('#tblProjects').DataTable({
+            dom: '<"#buttons.row row-cards justify-content-between"lfB><tr><ip>',
+            processing: true,
+            serverSide: false,
+            paging: true,
+            searching: true,
+            pageLength: 10,
+            length: 10,
+            buttons:[
+                { text: '<i class="fa fa-files-o"></i>', className:'btn btn-secondary', extend: 'copyHtml5', titleAttr: 'Copy', title: title_datatable, filename:title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-print"></i>', className:'btn btn-light', extend: 'print', titleAttr: 'Print', title: title_datatable, filename:title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-file-excel-o"></i>', className:'btn btn-success', extend: 'excelHtml5', titleAttr: 'Excel', title: title_datatable, sheetName: title_datatable, filename: title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-file-pdf-o"></i>', className:'btn btn-danger', extend: 'pdfHtml5', titleAttr: 'PDF', title: title_datatable, filename: title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+                { text: '<i class="fa fa-file-text-o"></i>', className:'btn btn-success', extend: 'csvHtml5', titleAttr: 'CSV', title: title_datatable, filename: title_datatable, exportOptions: {columns:[0,1,2,3,4,5,6,7]}},
+            ],
+            ajax:{
+                url:"/Procedure/projects/{{ status }}",
+                type:"POST",
+                dataType:"JSON",
+                cache: true,
+                data: function (d) {
+                    d.csrfmiddlewaretoken = $('input[name=csrfmiddlewaretoken]').val();
+                }
+            },
+            deferRender: true,
+            columns:[
+                {'data': 'id'},
+                {'data': 'customers', render:function (data, type, row) {
+                        return "<a href='/Procedure/projects/"+data.idcustomer+"/0'>"+data.idcustomer +"-"+ data.cusname +"</a>";
+                    }
+                },
+                {'data': 'quantity'},
+                {'data': 'services'},
+                {'data': 'comments'},
+                {'data': 'request'},
+                {'data': 'invoice', render:function (data, type, row) {
+                        if(data == 'Paid'){
+                            return "<span class='status-icon bg-success'></span>"+data;
+                        }else{
+                            return "<span class='status-icon bg-danger'></span>"+data;
+                        }
+                    }
+                },
+                {'data': 'representative'},
+                {'data': 'userlast'},
+                {'data': 'status', render:function (data, type, row) {
+                    var list_status = ['Opened', 'In Process', 'Closed'];
+                    var input_status = "<div class='input-group-append'><select name='status' class='status form-select form-select-sm' >";
+                    for (var value of list_status){
+                        var isSelect = value == data ? "selected" : "";
+                        input_status += "<option value='"+value+"'  "+isSelect+">"+value+"</option>";
+                    }
+                    input_status += "</select><button class='btn btn-sm btn-warning save' value='"+row.id+"'><i class='fa fa-save'></i></button></div>";
+                    return input_status;}
+                },
+                {'data': 'id', render:function (data, type,row) {
+                        var num_notes = "";
+                        if (row.num_notes !=0){
+                            num_notes = "<span class='badge bg-red'>"+row.num_notes+"</span>";
+                        }
+                        return "<button class='btn btn-sm btn-pill btn-info' onclick='load_modal("+data+")'><li class='fa fa-file-text-o'></li>&nbsp;Notes&nbsp;"+num_notes+"</button>"
+                    }
+                }
+            ],
+        });
+        $("#tblProjects tbody").on('click', '.save', function (){
+            var row = $(this).parents('tr');
+            var status = $(this).parents('tr').find('.status');
+            var url = '/Procedure/edit_project/';
+            var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+            var data = {'idproject':$(this).val(), 'status': status.val(), 'csrfmiddlewaretoken': csrf_token};
+            var lastuser = $(row).find('td')[6];
+            $.post(url, data, function (response) {
+                notification(response.message.description, response.message.type);
+                $('.summary-project-open').html(response.open_projects+" Open Projects");
+                $('.summary-project-open-date').html("Since "+response.date_open);
+                $('.summary-project-process').html(response.inprocess_project+" My Projects In Process");
+                $('.summary-project-process-date').html("Since "+response.date_inprocess);
+                $('.summary-project-new').html(response.new_projects+" New Projects");
+                lastuser.textContent = response.data.lastuser;
+                switch (response.data.status) {
+                    case 'In Process':
+                        return $(row).css('background', '#f2e869');
+                        break;
+                    case 'Opened':
+                        $(row).css('background', 'white').animate({color:'black'}, 2000);
+                        break;
+                    case 'Closed':
+                        $(row).css('background', 'rgba(113,188,37,0.5)');
+                        break;
+                    default: break;
+                }
+
+            }, 'json');
+        });
+        table.columns.adjust().draw();
+    </script>
+{% endblock %}

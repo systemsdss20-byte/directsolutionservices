@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title-page %}Configuration{% endblock %}
+{% block index %}{% endblock %}
+{% block Configuration %}active{% endblock %}
+{% block News %}active{% endblock %}
+{% block container-fluid %}
+    <div class="container">
+        <div class="page-header align-items-center">
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="page-title col-6"><i class="fa fa-newspaper-o"></i>&nbsp;News List</div>
+                <div class="col-3"></div>
+            </div>
+        </div>
+        <div class="row row-cards row-deck">
+            <div class="card row row-ext">
+                <div class="card-header">
+                    <h4 class="card-title"><i class="fa fa-newspaper-o"></i>&nbsp;News List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter" id="tblNews"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="application/javascript">
+        let table = AjaxDatatableViewUtils.initialize_table(
+            $('#tblNews'),
+            '/Procedure/datatable_news/',
+            {
+                processing: false,
+                autoWidth: false,
+                full_row_select:false,
+            }, {
+                customer_id: '{{ customer_id }}',
+            }
+        );
+    </script>
+{% endblock %}

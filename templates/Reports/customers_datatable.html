@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title-page %}Create Report Customers{% endblock %}
+{% block index %}{% endblock %}
+{% block container-fluid %}
+
+<div class="container">
+    <div class="page-header align-items-center">
+        <div class="row">
+            <div class="col-4"></div>
+            <div class="page-title col-6"><i class="fa fa-newspaper-o"></i>&nbsp;Create Report Customers</div>
+            <div class="col-2"></div>
+        </div>
+    </div>
+    <div class="row row-cards row-deck">
+        <div class="col-12">
+            <div class="card row-ext">
+                <div class="card-header">
+                    <h4 class="card-title"><i class="fa fa-newspaper-o"></i>&nbsp;Create Report Customers</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div id="queryBuilder" class="col-8"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <button id="addGroup" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>&nbsp;
+                                Group</button>
+                            <button id="search" class="btn btn-sm btn-primary"><i class="fa fa-search"></i>&nbsp;
+                                Search</button>
+                            <button id="export" class="btn btn-sm btn-success"><i class="fa fa-file-excel"></i>&nbsp;
+                                Export
+                                CSV</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table id="customersTable" class="table table-vcenter table-hover card-table"
+                            style="width: 100%">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Contact</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>State</th>
+                                    <th>Client Status</th>
+                                    <th>Client Since</th>
+                                    <th>Credit Hold</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    // ================= CONFIG FROM BACKEND =================
+    const FILTER_FIELDS = JSON.parse('{{ filter_fields|escapejs }}');
+    const OPERATORS = JSON.parse('{{ operators|escapejs }}');
+    $('#addGroup').on('click', function () { addGroup() });
+    // ================= STATE =================
+    let groups = [];
+
+    // ================= HELPERS =================
+    function getDefaultRule(field) {
+        const type = FILTER_FIELDS[field].type;
+        let defaultValue = '';
+        if (type === 'boolean') {
+            defaultValue = 'True';
+        }
+
+        if (type === 'choice') {
+            defaultValue = FILTER_FIELDS[field].choices[0];
+        }
+
+        return {
+            field: field,
+            operator: OPERATORS[type][0][0],
+            value: defaultValue
+        };
+    }
+
+    function createValueInput(rule, gi, ri) {
+        const fieldCfg = FILTER_FIELDS[rule.field];
+
+        if (fieldCfg.type === 'boolean') {
+            return `<select class="form-select" onchange="groups[${gi}].rules[${ri}].value=this.value">
+                    <option value="True" ${rule.value === 'True' ? 'selected' : ''}>Yes</option>
+                    <option value="False" ${rule.value === 'False' ? 'selected' : ''}>No</option>
+                </select>`;
+        }
+
+        if (fieldCfg.type === 'choice') {
+            return `<select class="form-select" onchange="groups[${gi}].rules[${ri}].value=this.value">
+            ${fieldCfg.choices.map(c => `<option value="${c}" ${c === rule.value ? 'selected' : ''}>${c}</option>`).join('')}\
+        </select>`;
+        }
+
+        if (fieldCfg.type === 'date') {
+            return `<input class="form-control" type=\"date\" value=\"${rule.value}\" onchange=\"groups[${gi}].rules[${ri}].value=this.value\">`;
+        }
+
+        return `<input class="form-control text-black" value=\"${rule.value}\" onchange=\"groups[${gi}].rules[${ri}].value=this.value\">`;
+    }
+
+    // ================= RENDER =================
+    function render() {
+        let html = '';
+
+        groups.forEach((group, gi) => {
+            html += `<div class=\"group card \">\
+                <div class="card-header">\
+                    <div class="row col">\
+                        <h5 class="card-title">Group ${gi + 1}</h5>\
+                    </div> \
+                    <div class="row">\
+                        <div class="card-tools">\
+                            <div class="input-group">\
+                                <select class="form-select form-select-sm" onchange=\"groups[${gi}].connector=this.value\">\
+                                    <option value=\"AND\" ${group.connector === 'AND' ? 'selected' : ''}>AND</option>\
+                                    <option value=\"OR\" ${group.connector === 'OR' ? 'selected' : ''}>OR</option>\
+                                </select>\
+                                <button class="btn btn-sm btn-primary ml-1" onclick=\"addRule(${gi})\"><i class="fa fa-plus"></i>&nbsp; Rule</button>\
+                                <button class="btn btn-sm btn-danger ml-1" onclick=\"groups.splice(${gi},1);render()\"><i class="fa fa-close"></i></button>\
+                            </div>\
+                        </div>
+                    </div> \
+            </div>`;
+            html += `<div class="card-body">`;
+            group.rules.forEach((rule, ri) => {
+                const type = FILTER_FIELDS[rule.field].type;
+                html += `<div class=\"rule mt-2\">\
+                    <div class="row"> \
+                        <div class="col input-group">\
+                            <select class="form-select mr-2" onchange=\"groups[${gi}].rules[${ri}]=getDefaultRule(this.value);render()\">\
+                                ${Object.entries(FILTER_FIELDS).map(([k, v]) =>
+                    `<option value=\"${k}\" ${k === rule.field ? 'selected' : ''}>${v.label}</option>`
+                ).join('')}\
+                            </select>\
+
+                            <select class="form-select mr-2" onchange=\"groups[${gi}].rules[${ri}].operator=this.value\">\
+                                ${OPERATORS[type].map(o =>
+                    `<option value=\"${o[0]}\" ${o[0] === rule.operator ? 'selected' : ''}>${o[1]}</option>`
+                ).join('')}\
+                            </select>\
+                            ${createValueInput(rule, gi, ri)}\
+                            <button class="btn btn-sm btn-danger" onclick=\"groups[${gi}].rules.splice(${ri},1);render()\"><i class="fa fa-close"></i></button>\
+                        </div>\
+                </div>\
+            </div>`;
+            });
+
+            html += '</div></div>';
+        });
+
+        $('#queryBuilder').html(html);
+    }
+
+    // ================= ACTIONS =================
+    function addGroup() {
+        groups.push({ connector: 'AND', rules: [getDefaultRule('cusname')] });
+        render();
+    }
+
+    function addRule(groupIndex) {
+        groups[groupIndex].rules.push(getDefaultRule('cusname'));
+        render();
+    }
+
+    // ================= DATATABLE =================
+    const table = $('#customersTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{% url 'customers_data' %}",
+            type: "POST",
+            data: function (d) {
+                d.filters = JSON.stringify(groups);
+                d.csrfmiddlewaretoken = '{{ csrf_token }}';
+            }
+        },
+        dataSrc: function (json) {
+            if (json.data && json.data.length && json.data[0]._error) {
+                alert("Filter error" + json.data[0]._error)
+                return [];
+            }
+            return json.data;
+        },
+        columns: [
+            { data: 'pk' },
+            { data: 'cusname' },
+            { data: 'contact1' },
+            { data: 'mobile1' },
+            { data: 'email' },
+            { data: 'state' },
+            { data: 'clientstatus' },
+            { data: 'since' },
+            { data: 'credithold' }
+        ]
+    });
+
+    $('#search').on('click', () => table.ajax.reload());
+
+    $('#export').on('click', () => {
+        let formData = new FormData();
+        formData.append('filters', JSON.stringify(groups));
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch("{% url 'customers_export' %}", {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => r.blob())
+            .then(b => window.open(URL.createObjectURL(b)));
+    });
+
+    // INIT
+    addGroup();
+</script>
+{% endblock %}

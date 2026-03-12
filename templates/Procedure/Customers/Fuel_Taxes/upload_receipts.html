@@ -1,0 +1,489 @@
+<!-- /.modal -->
+{% load static %}
+{% block style %}
+    <link href="{% static '/site/plugins/yearpicker/yearpicker.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+<style>
+.yearpicker-container{
+    z-index:1999;
+}
+#first-month thead th, #second-month thead th, #third-month thead th{
+    padding:0;
+    marging:0;
+    background:rgba(61, 181, 62, 0.6);
+    font-size:15px;
+    color:rgba(255,255,255,1);
+    font-weight:bold;
+}
+</style>
+<div class="modal fade" id="modal-recives" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Millage Calculator</h4>
+                    <button class="btn btn-sm btn-info" onclick="ImprimeDiv();"><i class="fas fa-print"></i>&nbsp;Print</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="frmAdd" role="form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div id="DivIdToPrint" class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table id="tblmillages" class="table table-bordered tabled-striped">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col" colspan="6" style="text-align: center;">RECIVES CALCULATOR</th>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Unit:
+                                            </th>
+                                            <th>
+                                                <select id="id_unit" name="idunit" class="form-select-sm">
+                                                    <option value="No">--Select--</option>
+                                                    {%for u in unit%}
+                                                        <option value="{{u.nounit}}">{{u.nounit}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </th>
+                                            <th>
+                                                {{ form.year.errors }}
+                                                {{ form.year.label_tag }}
+                                            </th>
+                                            <th>{{ form.year }}</th>
+                                            <th>
+                                                {{ form.quarter.errors }}
+                                                {{ form.quarter.label_tag }}
+                                            </th>
+                                            <th>
+                                                {{ form.quarter }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Upload Excel File </td>
+                                            <td colspan="3">
+                                                <div class="input-group">
+                                                    <div class="col-sm-8 form-file">
+                                                        <input id="id_excel_file" class="form-file-input" name="excel_file" title="Upload excel File" type="file">
+                                                        <label for="id_excel_file" class="form-file-label">
+                                                            <span class="form-file-text">Choose file...</span>
+                                                            <span class="form-file-button">Browse</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="input-group-append">
+                                                        <input id="btnupload" class="btn btn-info" type="submit" value="Upload" />
+                                                        <a href="/Procedure/get_excel_template/Template.xlsx" class="btn btn-success"><i class="fa fa-file-excel-o"> Template</i></a>
+                                                        <a href="#" onclick="post_showExcel('/Procedure/export_summary/', '#frmAdd')" class="btn btn-outline-warning"><i class="fa fa-file-excel-o"> Download Summary</i></a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td colspan="2">
+                                                <div id="content-message-error" class="alert alert-danger alert-dismissible" role="alert" hidden>
+                                                    <a href="#" class="close" style="margin: 0; padding: 0; width: 12px;" data-dismiss="alert" aria-label="close">&times;</a>
+                                                    <div id="message-error"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <table id="first-month" class="table table-bordered tabled-striped">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">
+                                                <div style="text-align: center;">
+                                                    <label id="first-title">January</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <table id="second-month" class="table table-bordered tabled-striped">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">
+                                                <div style="text-align: center;">
+                                                    <label id="second-title">February</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <table id="third-month" class="table table-bordered tabled-striped">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="6">
+                                                <div style="text-align: center;">
+                                                    <label id="third-title">March</label>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 id="first-card" class="card-title">January</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <table id="first-table" class="table table-sm table-bordered tabled-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Gallons</th>
+                                                    <th>Miles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 id="second-card" class="card-title">February</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <table id="second-table" class="table table-sm table-bordered tabled-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Gallons</th>
+                                                    <th>Miles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 id="third-card" class="card-title">First Month</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <table id="third-table" class="table table-sm table-bordered tabled-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Gallons</th>
+                                                    <th>Miles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <input name="idcustomer" value="{{customer_id}}" required hidden/>
+                    </div>
+                 </form>
+            </div>
+            <!-- /.modal-content -->
+    </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<script type="text/javascript" src="{% static 'site/plugins/yearpicker/yearpicker.js' %}"></script>
+<script type="text/javascript">
+$(".form-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  if(fileName){
+      $(this).removeClass('is-invalid');
+  }
+  $('.form-file-text').html(fileName);
+});
+
+$('.yearpicker').yearpicker({
+    autoHide: true,
+    hide: function(){
+        list_months();
+        list_months_summary();
+    }
+});
+
+$("#id_unit").on("change", function(){
+    var idunit = $(this).val();
+    if(idunit != "No"){
+        $("#id_year").prop("disabled",false);
+        $("#id_quarter").prop("disabled", false);
+    }
+});
+
+$("#frmAdd").submit(function(e){
+  e.preventDefault();
+  const url = '/Procedure/upload_receipts/{{ customer_id }}';
+  $.ajax({
+    type: 'POST',
+    url : url,
+    data: new FormData(this),
+    dataType: 'json',
+    contentType: false,
+    cache: false,
+    processData: false,
+    beforeSend: function(){
+   		HoldOn.open({ message: "Please wait"});
+   	},
+    success: function(response){
+        if(response.status){
+            list_months();
+            list_months_summary();
+            var errors = response.errors;
+            if(errors){
+                var content = '';
+                $.each(errors, function(index, value){
+                    content += value + '<br>';
+                    $('#content-message-error').removeAttr('hidden');
+                    $('#message-error').html(content);
+                });
+            }
+            HoldOn.close();
+            $('form')[0].reset;
+        }
+    },
+    error: function(response){
+        var errors = JSON.parse(response.responseJSON.errors);
+        $.each(errors, function (key, value) {
+            console.log(key);
+            $('#id_'+key).addClass('is-invalid');
+            var content = key + ':'+ value[0].message;
+            notification2(content,'danger');
+        })
+        HoldOn.close();
+    }
+  });
+});
+
+function removeRow(row, tableName, idrecive){
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    data={"csrfmiddlewaretoken":csrfmiddlewaretoken, "idrecive": idrecive}
+    $.ajax({
+        url: "/Procedure/delete_recives/",
+        dataType: "json",
+        type:"POST",
+        data:data,
+        beforeSend: function(){
+   			HoldOn.open({ message: "Please wait"});
+   		},
+        success:function(response, status){
+            HoldOn.close();
+   		    notification(response.message.description, response.message.type);
+   		    var table = document.getElementById(tableName);
+            table.deleteRow(row.parentNode.parentNode.rowIndex);
+            list_months_summary();
+        },
+        error:function (response) {
+   			HoldOn.close();
+   			var message = response.responseJSON.message;
+   			notification(message.description, message.type);
+   		}
+    });
+}
+$("#id_quarter").on("change click", function(){
+  list_months();
+  list_months_summary();
+  var month = $(this).val();
+  switch (month){
+    case "1":
+        $("#first-title").html("January");
+        $("#second-title").html("February");
+        $("#third-title").html("March");
+        $("#first-card").html("January");
+        $("#second-card").html("February");
+        $("#third-card").html("March");
+        break;
+    case "2":
+        $("#first-title").html("April");
+        $("#second-title").html("May");
+        $("#third-title").html("June");
+        $("#first-card").html("April");
+        $("#second-card").html("May");
+        $("#third-card").html("June");;
+        break;
+    case "3":
+        $("#first-title").html("July");
+        $("#second-title").html("August");
+        $("#third-title").html("September");
+        $("#first-card").html("July");
+        $("#second-card").html("August");
+        $("#third-card").html("September");
+        break;
+    case "4":
+        $("#first-title").html("October");
+        $("#second-title").html("November");
+        $("#third-title").html("December");
+        $("#first-card").html("October");
+        $("#second-card").html("November");
+        $("#third-card").html("December");
+        break;
+  }
+});
+
+function list_months(){
+    var idcustomer = {{customer_id}};
+    var idunit = $("#id_unit").val();
+    var year = $("#id_year").val();
+    var quarter = $("#id_quarter").val();
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    var data = {"csrfmiddlewaretoken":csrfmiddlewaretoken, "idcustomer":idcustomer, "idunit":idunit, "year":year, "quarter":quarter};
+    $.ajax({
+      url:"/Procedure/list_recives/",
+      dataType: "json",
+      type:"POST",
+      data:data,
+      success:function(Response, status){
+        var data = Response[0];
+        var first_month = JSON.parse(data);
+        createTable("first-month", first_month);
+        var second_month = JSON.parse(Response[1]);
+        createTable("second-month", second_month);
+        var third_month = JSON.parse(Response[2]);
+        createTable("third-month", third_month);
+      }
+    });
+}
+function createTable(table,data){
+    var tbody = document.createElement("tbody");
+    for(let item of data){
+        if (item.fields.gallons) {
+            var idrecive = item.pk;
+            var tr = document.createElement("tr");
+            var td = document.createElement("td");
+            td.appendChild(document.createTextNode(formate_date(item.fields.date)));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.appendChild(document.createTextNode(item.fields.zip ? item.fields.zip : ' '));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.appendChild(document.createTextNode(item.fields.state));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.appendChild(document.createTextNode(item.fields.gallons.toFixed(3)));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.appendChild(document.createTextNode(item.fields.miles.toFixed(3)));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            var button = document.createElement("button");
+            button.setAttribute("type", "button");
+            button.setAttribute("class", "btn btn-small btn-danger delete");
+            button.setAttribute('onclick', 'removeRow(this,"' + table + '", ' + idrecive + ')');
+            trash = document.createElement("li");
+            trash.setAttribute("class", "fas fa-trash");
+            trash.append('\tRemove');
+            button.appendChild(trash);
+            td.appendChild(button);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+    }
+   $("#"+table+" tbody").remove();
+   $("#"+table).append(tbody);
+}
+
+function list_months_summary(){
+    var idcustomer = {{customer_id}};
+    var idunit = $("#id_unit").val();
+    var year = $("#id_year").val();
+    var quarter = $("#id_quarter").val();
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    var data = {"csrfmiddlewaretoken":csrfmiddlewaretoken, "idcustomer":idcustomer, "idunit":idunit, "year":year, "quarter":quarter};
+    $.ajax({
+      url:"/Procedure/list_recives_summary/",
+      dataType: "json",
+      type:"POST",
+      data:data,
+      success:function(Response, status){
+        var data = Response[0];
+        var first_month = JSON.parse(data);
+        createTable_summary("first-table", first_month);
+        var second_month = JSON.parse(Response[1]);
+        createTable_summary("second-table", second_month);
+        var third_month = JSON.parse(Response[2]);
+        createTable_summary("third-table", third_month);
+      }
+    });
+}
+function createTable_summary(table,data){
+    var tbody = document.createElement("tbody");
+    for(let item of data){
+        if(item.gallon){
+            var tr = document.createElement("tr");
+            var td = document.createElement("td");
+            td.appendChild(document.createTextNode(item.state));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            var gallons = item.gallon;
+            td.appendChild(document.createTextNode(gallons.toFixed(3)));
+            tr.appendChild(td);
+            td = document.createElement("td");
+            var mile = item.mile;
+            td.appendChild(document.createTextNode(mile.toFixed(3)));
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+    }
+   $("#"+table+" tbody").remove();
+   $("#"+table).append(tbody);
+}
+
+function formate_date(date){
+    var array = date.split("-");
+    var fecha= {'year':array[0],'month': array[1], 'day': array[2]}
+    var new_date = fecha.month+"/"+fecha.day+"/"+fecha.year;
+    return new_date;
+}
+
+function ImprimeDiv() {
+    var idcustomer = {{customer_id}};
+    var idunit = $("#id_unit").val();
+    var year = $("#id_year").val();
+    var quarter = $("#id_quarter").val();
+    var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
+    jQuery.post('/Procedure/pdf_recive/',
+        { idcustomer: idcustomer, idunit: idunit, year:year, quarter:quarter, csrfmiddlewaretoken:csrfmiddlewaretoken},
+        function(data) {
+            var pdfbase = 'data:application/pdf,'+escape(data.toString());
+            var newtab = window.open('','_blank');
+            newtab.document.open();
+            newtab.document.write("<html>" +
+                "<body>" +
+                    '<iframe style="border:1px solid #666CCC" title="recive{{ customer_id }}" src="'+pdfbase+'" frameborder="1" scrolling="auto" width="100%" height="100%"></iframe>'+
+                "</body>" +
+                "</html>");
+            newtab.document.close();
+    });
+}
+
+var notification2 = function(content, type){
+    $.notify({message: content,},{type: type,offset:{x:0,y:0}, z_index: 9000,});
+}
+
+function post_showExcel(url, form){
+    var frm = $(form).serialize();
+    HoldOn.open({ message: "Please wait"});
+    $.post(url, frm, function (data) {
+        HoldOn.close();
+        window.open('/Procedure/get_file/'+data.filename,'_blank');
+    }).fail(function (response) {
+        HoldOn.close();
+        if(response.responseJSON.description){
+            notification(response.responseJSON.description, 'error');
+        } else {
+            notification('Error while making the Excel file', 'error');
+        }
+    });
+}
+</script>

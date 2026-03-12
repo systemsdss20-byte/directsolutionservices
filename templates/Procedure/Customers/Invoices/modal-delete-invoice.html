@@ -1,0 +1,30 @@
+<div class="modal fade" id="modal-danger">
+   <div class="modal-dialog">
+       <div class="modal-content modal-danger">
+          <div class="modal-header">
+              <h4 class="modal-title">Delete Invoices</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+			<form id="delete_form_invoice">
+		    	{% csrf_token %}
+				<input id="idinvoice" hidden type="number" name='idinvoice' value="" >
+				<p id="message-text">One fine body&hellip;</p>
+                <div class="form-group">
+					<label class="col-form-label" for="comment">Comment:</label>
+                	<textarea id="comment" class="form-control" name="comment" required></textarea>
+				</div>
+				<span id="msg" class="badge bg-danger">You have to add a comment more than 15 characters </span>
+			</form>
+          </div>
+          <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-outline-info" data-dismiss="modal">Close</button>
+              <button id="btndelete" type="button" class="btn btn-outline-danger" onclick="delete_customer_invoice();" hidden>Accept</button>
+          </div>
+       </div>
+   <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>

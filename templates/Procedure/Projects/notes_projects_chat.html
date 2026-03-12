@@ -1,0 +1,14 @@
+<div class="direct-chat-messages" id="messages">
+    {% for note in notes %}
+        <div class="direct-chat-msg {% if note.iduser.id == request.user.id %}right{% endif %}">
+            <div class="direct-chat-infos clearfix">
+                <span class="direct-chat-name {% if note.iduser.id == request.user.id %}float-right{% else %}float-left{% endif %}">{{ note.iduser.fullname | title }}</span>
+                <span class="direct-chat-timestamp {% if note.iduser.id == request.user.id %}float-left{% else %}float-right{% endif %}">{{ note.date_comment | date:'b d,Y H:i' | title }}</span>
+            </div>
+            <img class="direct-chat-img" src="{{ media }}{{ note.iduser.avatar }}" alt="message user image">
+            <div class="direct-chat-text" id="{{ note.id }}">
+                {{ note.comments | linebreaks }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
