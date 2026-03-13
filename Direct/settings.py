@@ -24,18 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'o3_j=iq$i)2-bth=)e!9ddiot5adt6-tf7btt16xe#b9rwq^jm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True if os.getenv('DEBUG') == 'True' else False
-DEBUG = False
-ALLOWED_HOSTS = ['10.1.10.200', 'app.directsolutionservices.com','directsolutions.redirectme.net', '127.0.0.1', '50.245.65.18']
-CSRF_TRUSTED_ORIGINS = [
-    'http://10.1.10.200',
-    'http://50.245.65.18:8085',
-    'http://app.directsolutionservices.com:8085',
-    'https://app.directsolutionservices.com:8085',
-    'http://directsolutions.redirectme.net:8085',
-    'http://127.0.0.1',
-    'http://127.0.0.1:8000'
-]
+DEBUG = True if os.getenv('DEBUG') == 'True' else False
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(',')
 # Application definition
 
 INSTALLED_APPS = [
@@ -178,7 +169,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 FILES_PDF = os.path.join(BASE_DIR, 'temp')
 TEMPLATE_EXCEL = os.path.join(BASE_DIR, 'ExcelTemplates')
 TEMPLATES_PDF = os.path.join(BASE_DIR, 'PDFTemplates')
-MEDIA_ROOT = os.path.join('D:/ProjectDSS/', 'media')
+MEDIA_ROOT = os.path.join(os.getenv('MEDIA_ROOT', 'D:/ProjectDSS/'), 'media')
 MEDIA_URL = '/media/'
 AJAX_DATATABLE_MAX_COLUMNS = 30
 AJAX_DATATABLE_TRACE_COLUMNDEFS = False  # enables debug tracing of applied column defs
@@ -197,3 +188,5 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
