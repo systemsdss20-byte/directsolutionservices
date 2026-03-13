@@ -24,3 +24,6 @@ Direct/.idea/
 #Static files and media
 temp/
 media/
+
+#.bat files
+EjecutarDSS.bat
