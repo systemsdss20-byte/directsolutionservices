@@ -24,7 +24,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'o3_j=iq$i)2-bth=)e!9ddiot5adt6-tf7btt16xe#b9rwq^jm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.getenv('DEBUG') == 'True' else False
+# DEBUG = True if os.getenv('DEBUG') == 'True' else False
+DEBUG = False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(',')
 # Application definition
@@ -169,7 +170,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 FILES_PDF = os.path.join(BASE_DIR, 'temp')
 TEMPLATE_EXCEL = os.path.join(BASE_DIR, 'ExcelTemplates')
 TEMPLATES_PDF = os.path.join(BASE_DIR, 'PDFTemplates')
-MEDIA_ROOT = os.path.join(os.getenv('MEDIA_ROOT', 'D:/ProjectDSS/'), 'media')
+MEDIA_ROOT = os.path.join(os.getenv('MEDIA_ROOT'), 'media')
 MEDIA_URL = '/media/'
 AJAX_DATATABLE_MAX_COLUMNS = 30
 AJAX_DATATABLE_TRACE_COLUMNDEFS = False  # enables debug tracing of applied column defs
