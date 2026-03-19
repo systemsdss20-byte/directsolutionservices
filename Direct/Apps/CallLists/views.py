@@ -33,7 +33,7 @@ class RandomListCallView(LoginRequiredMixin, View):
                 
             else:
                 random_list = random_list.exclude(status='negative')
-                   
+
             if table :
                 return render(request, 'Call_List/RandomList/table.html', {'group_customers': self.GroupCustomers(random_list), 'total_records': random_list.count()})
             if export:
@@ -267,7 +267,9 @@ class CommentsRandomList(LoginRequiredMixin, View):
                     'updated_at': comment.updated_at,
                     'user': comment.created_by.fullname, 'avatar': str(comment.created_by.avatar),
                     'detail_random_list_id': comment.detail_random_list.id,
-                    'total_comments': num_comments
+                    'total_comments': num_comments,
+                    # 'last_note': comment.comment,
+                    # 'last_note_at': comment.created_at.strftime('%d/%m %H:%M')
                 }
                 return MessageResponse(data=data, description='Comment added successfully').success()
             else:
@@ -288,7 +290,8 @@ class CommentsRandomList(LoginRequiredMixin, View):
             # comment = Comments.objects.filter(id=params['id']).update(comment=params['comment'], updated_at=datetime.datetime.now())
             data = {
                 "comment": comment.comment,
-                "date_update": comment.updated_at.strftime('%b %d, %Y %H:%M')
+                "date_update": comment.updated_at.strftime('%b %d, %Y %H:%M'),
+                "detail_random_list_id": comment.detail_random_list.id
             }
             return MessageResponse(data=data, description="Comment updated successfully").success()
         except Exception as e:

@@ -22,7 +22,8 @@
 <div class="row row-cards row-deck p-2">
     <script type="text/javascript">
         function load_modal(id) {
-            $('#load-modal').load("/CallLists/comments-random-test/"+id, function() {
+            if (!id) return;
+            $('#load-modal').load("/CallLists/comments-random-test/" + id, function() {
                 $('#modal-comments').modal('show');
             });
         }
@@ -79,7 +80,7 @@
                             <select id="filter-status" class="form-control">
                                 <option value=""> -- All Status -- </option>
                                 <option value="completed">Completed</option>
-                                <option value="contacted">Contacted</option>
+                                <option value="pending">Pending</option>
                                 <option value="negative">Negative</option>
                                 <option value="paid">Paid</option>
                                 <option value="scheduled">Scheduled</option>
@@ -112,37 +113,33 @@
 {% endblock %}
 {% block script %}
     <script type="text/javascript">
-        $(document).ready(function() {
-            
-            $('.btn-note').click(function() {
+        function bindRandomListActions() {
+            $(document).off('click', '.btn-note');
+            $(document).on('click', '.btn-note', function() {
                 const id = $(this).val();
                 load_modal(id);
             });
-            $('.btn-test').click(function() {
+
+            $(document).off('click', '.btn-test');
+            $(document).on('click', '.btn-test', function() {
                 const id = $(this).val();
-                $('#load-modal').load(
-                    "/CallLists/random-test-file/"+id,  
-                    function() {
-                        $('#modal-exam').modal('show');
-                    }
-                );
+                $('#load-modal').load("/CallLists/random-test-file/" + id, function() {
+                    $('#modal-exam').modal('show');
+                });
             });
-            // Inicializar DataTable
-            let table = $('#RandomList').DataTable({
-                "info": false,
-            });
-            
-            // Filtro de estado
+        }
+
+        $(document).ready(function() {
+            bindRandomListActions();
+            let table = $('#RandomList').DataTable({ info:false });
+
             $('#btn-filter-status').on('click', function(){
-                let url = "/CallLists/random-list-filter/true/";
-                url += '?status='+$('#filter-status').val();
-                $('#table-random-list').load(
-                    url,
-                    function() {
-                        table.destroy();
-                        table = $('#RandomList').DataTable({"info": false,});
-                    }
-                );
+                let url = "/CallLists/random-list-filter/true/?status=" + $('#filter-status').val();
+                $('#table-random-list').load(url, function() {
+                    table.destroy();
+                    table = $('#RandomList').DataTable({ info:false });
+                    bindRandomListActions(); 
+                });
             });
 
             // Exportar a Excel

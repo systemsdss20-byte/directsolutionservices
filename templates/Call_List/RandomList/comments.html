@@ -145,6 +145,21 @@
         $('#'+idnote).parent('div.comment-content').find('div.button').html('');
     }
 
+    function updateNoteCell(detailId, noteText, noteDate, totalComments) {
+        if (!detailId) return;
+        var cell = $('#btn-notes-' + detailId).closest('td');
+        var html = "<div class='small text-muted mt-1' style='max-width:180px; text-overflow:ellipsis; white-space:nowrap;'>";
+        html += noteText ? noteText : '';
+        html += noteDate ? ' (' + noteDate + ')' : '';
+        html += "&nbsp;<button id='btn-notes-" + detailId + "' class='btn btn-sm btn-pill p-1 btn-success btn-note' type='button' data-toggle='modal' data-target='#noteModal' value='" + detailId + "'>";
+        html += "<i class='fa fa-sm fa-plus'></i></button>";
+        if (totalComments) {
+            html += " <span class='badge badge-pill bg-danger'>" + totalComments + "</span>";
+        }
+        html += "</div>";
+        cell.html(html);
+    }
+
     function edit(idnote){
         var comment_msg = $('#comment-message').val();
         var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
@@ -163,6 +178,9 @@
                 $('#'+idnote).html(response.data.comment.replace('\n','</br>'));
                 $('#'+idnote).parent('div.comment-content').find('div.button').html('');
                 $('#'+idnote).parent('div.comment-content').parent('div.comment-box').find('div.date-update').html('Updated: '+response.data.date_update);
+
+                var detailRandomId = response.data.detail_random_list_id || $('#comment input[name="detail_random_list"]').val();
+                updateNoteCell(detailRandomId, response.data.comment, response.data.date_update);
             }
         });
     }
@@ -195,11 +213,7 @@
         $("#comments-list").append(html);
         $("#comment")[0].reset();
         if(data.total_comments > 0){
-            $('#btn-notes-'+data.detail_random_list_id).html(
-                "<i class='fa fa-sm fa-eye'></i>&nbsp;Note <span class='badge badge-pill bg-danger'>"+data.total_comments+"</span>" 
-            );
-            $('#btn-notes-'+data.detail_random_list_id).removeClass('btn-info');
-            $('#btn-notes-'+data.detail_random_list_id).addClass('btn-success');
+            updateNoteCell(data.detail_random_list_id, data.comment, data.created_at, data.total_comments);
         }
         //location.reload();
     }
