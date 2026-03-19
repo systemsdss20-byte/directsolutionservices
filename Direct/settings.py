@@ -24,8 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'o3_j=iq$i)2-bth=)e!9ddiot5adt6-tf7btt16xe#b9rwq^jm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True if os.getenv('DEBUG') == 'True' else False
-DEBUG = False
+DEBUG = True if os.getenv('DEBUG') == 'True' else False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(',')
 # Application definition

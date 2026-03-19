@@ -124,7 +124,12 @@ class RandomListCallView(LoginRequiredMixin, View):
             for selected in random_list:
                 test_file = ""
                 if selected.customer.idcustomer not in customers:
-                    comments = Comments.objects.filter(detail_random_list=selected).count()
+                    all_comments = Comments.objects.filter(detail_random_list=selected).order_by('-created_at')
+                    comments_count = all_comments.count()
+                    last_comment = all_comments.first()
+                    last_note = last_comment.comment if last_comment else ""
+                    last_note_at = last_comment.created_at.strftime('%d/%m %H:%M') if last_comment else ""
+
                     if selected.test_file is not None:
                         if hasattr(selected.test_file, 'path'):
                             test_file = selected.test_file.path.url
@@ -142,7 +147,9 @@ class RandomListCallView(LoginRequiredMixin, View):
                             'status': selected.status,
                             'color': color_status(selected.status),
                             'test_file': test_file,
-                            'count_notes': comments,
+                            'count_notes': comments_count,
+                            'last_note': last_note,
+                            'last_note_at': last_note_at,
                             'tests': [
                                 {
                                     'substances': selected.test_substances,
@@ -158,12 +165,20 @@ class RandomListCallView(LoginRequiredMixin, View):
                         'color': color_status(selected.status) if selected.driver is None else "",
                         'detail_id': selected.id,
                         'test_file': test_file,
-                        'count_notes': comments if selected.driver is None else ""
+                        'count_notes': comments_count if selected.driver is None else "",
+                        'last_note': last_note if selected.driver is None else "",
+                        'last_note_at': last_note_at if selected.driver is None else ""
 
                     }
                     customers[selected.customer.idcustomer] = customer
                 else:
                     if selected.driver:
+                        all_comments = Comments.objects.filter(detail_random_list=selected).order_by('-created_at')
+                        comments_count = all_comments.count()
+                        last_comment = all_comments.first()
+                        last_note = last_comment.comment if last_comment else ""
+                        last_note_at = last_comment.created_at.strftime('%d/%m %H:%M') if last_comment else ""
+
                         test_file = ""
                         if selected.test_file is not None:
                             if hasattr(selected.test_file, 'path'):
@@ -176,7 +191,9 @@ class RandomListCallView(LoginRequiredMixin, View):
                             'status': selected.status,
                             'color': color_status(selected.status),
                             'test_file': test_file,
-                            'count_notes': comments,
+                            'count_notes': comments_count,
+                            'last_note': last_note,
+                            'last_note_at': last_note_at,
                             'tests': [
                                 {
                                     'substances': selected.test_substances,
@@ -190,16 +207,19 @@ class RandomListCallView(LoginRequiredMixin, View):
             print("GroupCustomers",e)
 
 def color_status(status):
+    #Contacted - Pending
+    if status == 'pending':
+        return 'bg-red-lt'
     if status == 'uncontacted':
-        return 'btn-danger'
-    elif status == 'contacted':
-        return 'btn-info'
-    elif status == 'scheduled':
-        return 'btn-primary'
-    elif status == 'paid':
         return 'btn-warning'
-    elif status == 'completed':
+    if status == 'negative':
+        return 'bg-dark-lt'
+    elif status == 'scheduled':
+        return 'btn-info'
+    elif status == 'paid':
         return 'btn-success'
+    elif status == 'completed':
+        return 'btn-primary'
     return 'btn-dark'
 
 class CommentsRandomList(LoginRequiredMixin, View):

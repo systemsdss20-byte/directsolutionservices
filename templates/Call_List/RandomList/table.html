@@ -1,15 +1,13 @@
 {% if total_records %}
     <h4 class="text-center">Total Drivers Selected: {{ total_records }} </h4>
 {% endif %}
-<table class="table table-hover table-responsive" id="RandomList">
+<table class="table table-hover" id="RandomList">
     <thead>
         <tr>
             <th class="text-center">#Customer</th>
-            <th class="text-center">Customer</th>
             <th class="text-center">Contact</th>
             <th class="text-center">Customer Phone</th>
             <th class="text-center">Driver</th>
-            <th class="text-center">Driver Phone</th>
             <th class="text-center">Tests</th>
             <th class="text-center">Status</th>
             <th class="text-center">Note</th>
@@ -20,7 +18,7 @@
         {% for customer in group_customers %}
             <tr>
                 <td class="text-center customer_id"><a href="/Procedure/customer_edit/{{ customer.customer_id }}">{{ customer.customer_id }}</a></td>
-                <td class="text-left"> {{ customer.customer_name }} </td>
+                {% comment %} <td class="text-left"> {{ customer.customer_name }} </td> {% endcomment %}
                 <td class="text-left"> {{ customer.customer_contact }} </td>
                 <td class="text-left"> {{ customer.customer_phone }} </td>
                                         
@@ -38,151 +36,148 @@
                     </td>
                     <td class="text-center">
                         <table class="table table-hover">
-                             <tbody>
-                                                {% for driver in customer.drivers %}
-                                                    <tr>
-                                                        <td class="text-center"> {{ driver.driver_phone }} </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td class="text-center">
-                                            <table class="table table-hover">
-                                                <tbody>
-                                                {% for driver in customer.drivers %}
-                                                    <tr>
-                                                        <td class="text-center">
-                                                            {% for test in driver.tests %}
-                                                                {% if test.substances %} <span class="badge badge-pill bg-warning">Sustancias</span>{% endif %}
-                                                                {% if test.alcohol %} <span class="badge badge-pill bg-info">Alcohol</span>{% endif %}
-                                                            {% endfor%}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td class="text-center">
-                                            <table class="table table-hover">
-                                                <tbody>
-                                                {% for driver in customer.drivers %}
-                                                    <tr>
-                                                        <td class="text-center">
-                                                            <div class="input-group input-group-append">
-                                                                <select id="sl-status-{{driver.detail_id}}" class="form-control form-control-sm select-status" name="status" data-id="{{ driver.detail_id }}" {% if driver.test_file %}disabled{% endif %} class="form-control">
-                                                                    <option value="{{ driver.status|default:"Select" }}" selected>{{driver.status|default:"--Select--"|title}}</option>
-                                                                    <option value="negative">Negative</option>
-                                                                    <option value="uncontacted">Uncontacted</option>
-                                                                    <option value="contacted">Contacted</option>
-                                                                    <option value="scheduled">Scheduled</option>
-                                                                    <option value="paid">Paid</option>
-                                                                    <option value="completed" {%if driver.status != 'Completed'%}disabled{% endif %} >Completed</option>
-                                                                </select>
-                                                                <button id="btn-save-{{driver.detail_id}}" class="btn btn-sm {{driver.color}} btn-save" type="button" {%if driver.test_file%}disabled{% endif %}  onclick="saveStatus($(this), '{{driver.status}}')" value="{{driver.detail_id}}">
-                                                                    <i class="fa fa-save"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td class="text-center">
-                                            <table class="table table-hover">
-                                                <tbody>
-                                                {% for driver in customer.drivers %}
-                                                    <tr>
-                                                        <td class="text-center">
-                                                            {% if driver.count_notes  %} 
-                                                                <button id="btn-notes-{{driver.detail_id}}" 
-                                                                    class="btn btn-sm btn-pill p-1 btn-success btn-note" type="button" data-toggle="modal"
-                                                                    data-target="#noteModal" value="{{driver.detail_id}}"
-                                                                >
-                                                                    <i class="fa fa-sm fa-eye"></i>&nbsp;Note
-                                                                    <span class="badge badge-pill bg-danger">{{driver.count_notes}}</span>
-                                                                </button>
-                                                            {% else %}
-                                                                <button id="btn-notes-{{driver.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-note" type="button" data-toggle="modal" data-target="#noteModal" value="{{driver.detail_id}}">
-                                                                    <i class="fas fa-sm fa-plus"></i>&nbsp;Note
-                                                                </button>
-                                                            {% endif %}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td class="text-center">
-                                            <table class="table table-hover">
-                                                <tbody>
-                                                {% for driver in customer.drivers %}
-                                                    <tr>
-                                                        <td class="text-center">
-                                                            {% if driver.test_file %} 
-                                                                <a class="btn btn-sm btn-pill p-1 btn-success btn-test" href="{{driver.test_file}}" target="_blank">
-                                                                    <i class="fa fa-sm fa-folder-open-o"></i>File
-                                                                </a>
-                                                            {% else %}
-                                                                <button id="btn-test-{{driver.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-test" type="button"  value="{{driver.detail_id}}">
-                                                                    <i class="fas fa-sm fa-upload"></i>Upload
-                                                                </button>
-                                                            {% endif %}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        {% else %}
-                                        <td class="text-center">&nbsp;</td>  
-                                        <td class="text-center">&nbsp;</td>
-                                        <td class="text-center">
-                                            {% if customer.tests.substances %} <span class="badge badge-pill bg-warning">Sustancias</span>{% endif %}
-                                            {% if customer.tests.alcohol %} <span class="badge badge-pill bg-info">Alcohol</span>{% endif %}
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="input-group input-group-append">
-                                                <select id="select-status-{{customer.detail_id}}" class="form-control form-control-sm select-status" name="status" {% if customer.test_file %}disabled{% endif %} class="form-control">
-                                                    <option value="{{ customer.status|default:"Select" }}" select>{{customer.status|default:"--Select--"|title}}</option>
-                                                    <option value="negative">Negative</option>
-                                                    <option value="uncontacted">Uncontacted</option>
-                                                    <option value="contacted">Contacted</option>
-                                                    <option value="scheduled">Scheduled</option>
-                                                    <option value="paid">Paid</option>
-                                                    <option value="Completed" id="sl-completed-{{customer.detail_id}}" {%if customer.status == 'Completed'%}disabled{% endif %}>Completed</option>
-                                                </select>
-                                            <button id="btn-save-{{customer.detail_id}}" class="btn btn-sm btn-primary {{customer.color}} btn-save" type="button" {% if customer.test_file %}disabled{% endif %} onclick="saveStatus($(this), '{{customer.status}}')" value="{{customer.detail_id}}">
-                                                    <i class="fa fa-save"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            {% if customer.count_notes  %} 
-                                                <button id="btn-notes-{{customer.detail_id}}" class="btn btn-sm btn-pill p-1 btn-success btn-note" type="button" value="{{customer.detail_id}}">
-                                                    <i class="fa fa-sm fa-eye"></i>&nbsp;Note
-                                                    <span class="badge badge-pill bg-danger ">{{customer.count_notes}}</span>
-                                                </button>
-                                            {% else %}
-                                                <button id="btn-notes-{{customer.detail_id}}" value="{{customer.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-note" type="button">
-                                                    <i class="fas fa-sm fa-plus"></i>&nbsp;Note
-                                                </button>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-center">
-                                            {% if customer.test_file %} 
-                                                <a class="btn btn-sm btn-pill p-1 btn-success btn-test" href="{{customer.test_file}}" target="_blank">
-                                                    <i class="fa fa-sm fa-folder-open-o"></i>&nbsp;File
-                                                </a>
-                                            {% else %}
-                                                <button id="btn-test-{{customer.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-test" type="button"  value="{{customer.detail_id}}">
-                                                    <i class="fas fa-sm fa-upload"></i>&nbsp;Upload
-                                                </button>
-                                            {% endif %}
-                                        </td>                                                                                                      
-                                        {% endif %}
-                                    </tr>
-                                {% endfor%}
+                            <tbody>
+                                {% for driver in customer.drivers %}
+                                <tr>
+                                    <td class="text-center">
+                                        {% for test in driver.tests %}
+                                            {% if test.substances %} <span class="badge badge-pill bg-white text-dark">Sustancias</span>{% endif %}
+                                            {% if test.alcohol %} <span class="badge badge-pill bg-white text-dark">Alcohol</span>{% endif %}
+                                        {% endfor%}
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
+                    </td>
+                    <td class="text-center">
+                        <table class="table table-hover">
+                            <tbody>
+                                {% for driver in customer.drivers %}
+                                <tr>
+                                    <td class="text-center">
+                                        <div class="input-group input-group-append">
+                                            <select id="sl-status-{{driver.detail_id}}" class="form-control form-control-sm select-status" name="status" data-id="{{ driver.detail_id }}" {% if driver.test_file %}disabled{% endif %} class="form-control">
+                                                <option value="{{ driver.status|default:"Select" }}" selected>{{driver.status|default:"--Select--"|title}}</option>
+                                                <option value="negative">Negative</option>
+                                                <option value="uncontacted">Uncontacted</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="scheduled">Scheduled</option>
+                                                <option value="paid">Paid</option>
+                                                <option value="completed" {%if driver.status != 'Completed'%}disabled{% endif %} >Completed</option>
+                                            </select>
+                                            <button id="btn-save-{{driver.detail_id}}" class="btn btn-sm {{driver.color}} btn-save" type="button" {%if driver.test_file%}disabled{% endif %}  onclick="saveStatus($(this), '{{driver.status}}')" value="{{driver.detail_id}}">
+                                                <i class="fa fa-save"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="text-center">
+                        <table class="table table-hover">
+                            <tbody>
+                                {% for driver in customer.drivers %}
+                                <tr>
+                                    <td class="text-center">
+                                        
+                                        {% if driver.count_notes  %} 
+                                        <div class="small text-muted mt-1" style="max-width: 180px; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ driver.last_note }}{% if driver.last_note_at %} ({{ driver.last_note_at }}){% endif %}
+                                            &nbsp;
+                                            <button id="btn-notes-{{driver.detail_id}}" 
+                                                class="btn btn-sm btn-pill p-1 btn-success btn-note" type="button" data-toggle="modal"
+                                                data-target="#noteModal" value="{{driver.detail_id}}"
+                                                >
+                                                <i class="fa fa-sm fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        {% else %}
+                                        <button id="btn-notes-{{driver.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-note" type="button" data-toggle="modal" data-target="#noteModal" value="{{driver.detail_id}}">
+                                            <i class="fas fa-sm fa-plus"></i>&nbsp;Note
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                <td class="text-center">
+                    <table class="table table-hover">
+                        <tbody>
+                            {% for driver in customer.drivers %}
+                            <tr>
+                                <td class="text-center">
+                                    {% if driver.test_file %} 
+                                    <a class="btn btn-sm btn-pill p-1 btn-success btn-test" href="{{driver.test_file}}" target="_blank">
+                                        <i class="fa fa-sm fa-folder-open-o"></i>File
+                                    </a>
+                                    {% else %}
+                                    <button id="btn-test-{{driver.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-test" type="button"  value="{{driver.detail_id}}">
+                                        <i class="fas fa-sm fa-upload"></i>Upload
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                {% else %}
+                <td class="text-center">&nbsp;</td>  
+                <td class="text-center">&nbsp;</td>
+                <td class="text-center">
+                    {% if customer.tests.substances %} <span class="badge badge-pill bg-warning">Sustancias</span>{% endif %}
+                    {% if customer.tests.alcohol %} <span class="badge badge-pill bg-info">Alcohol</span>{% endif %}
+                </td>
+                <td class="text-center">
+                    <div class="input-group input-group-append">
+                        <select id="select-status-{{customer.detail_id}}" class="form-control form-control-sm select-status" name="status" {% if customer.test_file %}disabled{% endif %} class="form-control">
+                            <option value="{{ customer.status|default:"Select" }}" select>{{customer.status|default:"--Select--"|title}}</option>
+                            <option value="negative">Negative</option>
+                            <option value="uncontacted">Uncontacted</option>
+                            <option value="pending">Pending</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="paid">Paid</option>
+                            <option value="Completed" id="sl-completed-{{customer.detail_id}}" {%if customer.status == 'Completed'%}disabled{% endif %}>Completed</option>
+                        </select>
+                        <button id="btn-save-{{customer.detail_id}}" class="btn btn-sm btn-primary {{customer.color}} btn-save" type="button" {% if customer.test_file %}disabled{% endif %} onclick="saveStatus($(this), '{{customer.status}}')" value="{{customer.detail_id}}">
+                            <i class="fa fa-save"></i>
+                        </button>
+                    </div>
+                </td>
+                <td class="text-center">
+                    {% if customer.count_notes  %}
+                    <div class="small text-muted mt-1" style="max-width: 180px; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ customer.last_note }}{% if customer.last_note_at %} ({{ customer.last_note_at }}){% endif %}
+                        &nbsp;
+                        <button id="btn-notes-{{customer.detail_id}}" class="btn btn-sm btn-pill p-1 btn-success btn-note" type="button" value="{{customer.detail_id}}">
+                            <i class="fa fa-sm fa-eye"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    <button id="btn-notes-{{customer.detail_id}}" value="{{customer.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-note" type="button">
+                        <i class="fas fa-sm fa-plus"></i>&nbsp;Note
+                    </button>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if customer.test_file %} 
+                    <a class="btn btn-sm btn-pill p-1 btn-success btn-test" href="{{customer.test_file}}" target="_blank">
+                        <i class="fa fa-sm fa-folder-open-o"></i>&nbsp;File
+                    </a>
+                    {% else %}
+                    <button id="btn-test-{{customer.detail_id}}" class="btn btn-sm btn-pill p-1 btn-info btn-test" type="button"  value="{{customer.detail_id}}">
+                        <i class="fas fa-sm fa-upload"></i>&nbsp;Upload
+                    </button>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+        {% endfor%}
+    </tbody>
+</table>
+    
