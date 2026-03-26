@@ -34,7 +34,6 @@ from .models import User, Invoices, Services, Invoice_paid, Credits, Projects, I
 from ..Attendanceapp.views import verifyStatusAttendance
 from ..Calendar.models import Event
 from ..helpers.message import MessageResponse
-from ..helpers.utils import normalize_date
 from ..helpers.update_dot import queryDOT
 from ... import settings
 
@@ -61,8 +60,12 @@ def login_user(request):
 
 @login_required(login_url='Procedure:login')
 def user_logout(request):
+    permission_requested = request.GET.get('permission_requested')
     logout(request)
-    return render(request, 'login.html', {'msj': 'true'})
+    context = {'msj': 'true'}
+    if permission_requested == '1':
+        context['permission_requested'] = True
+    return render(request, 'login.html', context)
 
 
 @login_required(login_url='Procedure:login')
@@ -755,14 +758,12 @@ def edit_customer_unit(request, unit_id):
                 form = UnitForm(instance=unit)
                 unit_customer = Units.objects.select_related("idcustomer").get(idunit=unit_id)
                 url_action = '/Procedure/unit_edit/%s' % unit_id
-                return render(request, 'Procedure/Customers/Unit/unit.html',
-                              {'form': form, 'unit_id': unit.idunit, 'url_action': url_action,
-                               'customer_id': unit_customer.idcustomer_id, 'modal_title': 'Edit Unit'})
+                return render(request, 'Procedure/Customers/Unit/unit.html', {'form': form, 'unit_id': unit.idunit, 'url_action': url_action,'customer_id': unit_customer.idcustomer_id, 'modal_title': 'Edit Unit'})
         if request.method == 'POST':
             try:
                 form = UnitForm(request.POST, instance=unit)
                 if form.is_valid():
-                    user_login = request.user
+                    #user_login = request.user
                     unit_frm = form.save(commit=False)
                     # unit_frm.iduser = user_login.id
                     unit_frm.status = 'Active'

@@ -4,7 +4,7 @@ from pytz import timezone
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 from django.views.generic import View
 from ..helpers.message import MessageResponse
@@ -147,15 +147,25 @@ def verifyStatusAttendance(request):
             now_office = now_utc.astimezone(timezone(employee.timezone))
             attendance = Attendance.objects.filter(date=now_office.today(), employee=employee)
             if attendance:
-                #Show Lunch-In
-                if attendance[0].lunch_in_at is None and attendance[0].clock_out_at is None:
-                    data = {'register_event': 'Lunch-In', 'last_event': 'Clock-In', 'recorded_time': formatTime(attendance[0].clock_in_at, True), 'class_name': 'checkout'}
-                #show Lunch-Out
-                elif attendance[0].lunch_out_at is None and attendance[0].clock_out_at is None and attendance[0].lunch_in_at is not None:
-                    data = {'register_event': 'Lunch-Out', 'last_event': 'Lunch-In', 'recorded_time': formatTime(attendance[0].lunch_in_at, True), 'class_name': 'checkin'}
-                #show Clock-Out
-                elif attendance[0].clock_out_at is None and attendance[0].clock_in_at is not None:
-                    data = {'register_event': 'Clock-Out', 'last_event': 'Lunch-Out', 'recorded_time': formatTime(attendance[0].lunch_out_at, True), 'class_name': 'checkout'}
+                current = attendance[0]
+                # Show Lunch-In
+                if current.lunch_in_at is None and current.clock_out_at is None:
+                    data = {'register_event': 'Lunch-In', 'last_event': 'Clock-In', 'recorded_time': formatTime(current.clock_in_at, True), 'class_name': 'checkout'}
+                # Show Lunch-Out (after valid lunch in)
+                elif current.lunch_out_at is None and current.clock_out_at is None and current.lunch_in_at is not None:
+                    data = {'register_event': 'Lunch-Out', 'last_event': 'Lunch-In', 'recorded_time': formatTime(current.lunch_in_at, True), 'class_name': 'checkin'}
+                # Show Permission-Out allowed after lunch-out and before clock-out
+                elif current.permission_out_at is None and current.clock_out_at is None and current.lunch_out_at is not None:
+                    data = {'register_event': 'Permission-Out', 'last_event': 'Lunch-Out', 'recorded_time': formatTime(current.lunch_out_at, True), 'class_name': 'warning'}
+                # Show Permission-In when permission has been recorded
+                elif current.permission_out_at is not None and current.permission_in_at is None and current.clock_out_at is None:
+                    data = {'register_event': 'Permission-In', 'last_event': 'Permission-Out', 'recorded_time': formatTime(current.permission_out_at, True), 'class_name': 'checkin'}
+                # Show Clock-Out after lunch / permission completed or skipped
+                elif current.clock_out_at is None and current.clock_in_at is not None:
+                    if current.permission_out_at and current.permission_in_at is None:
+                        data = {'msg_attendance': 'Please finish permission before clock-out'}
+                        return data
+                    data = {'register_event': 'Clock-Out', 'last_event': 'Lunch-Out', 'recorded_time': formatTime(current.lunch_out_at, True) if current.lunch_out_at else formatTime(current.clock_in_at, True), 'class_name': 'checkout'}
                 else:
                     request.session['msg_attendance'] = '%s Hours Worked' % attendance[0].clock_out_at
                     request.session['register_event'] = 'Clock-In'
@@ -287,8 +297,37 @@ class AttendanceControl(View):
                     else:
                         return JsonResponse({'save': safe,
                                              'error': "Your check-in time is not recorded"})
+                elif registered_event == 'Permission-Out' and attendance.permission_out_at is None:
+                    if attendance.clock_out_at is None:
+                        attendance.permission_out_at = formatTime(now_office.time(), to_string=True)
+                        attendance.save()
+                        last_event = 'Permission-Out'
+                        register_event = 'Permission-In'
+                        class_name = 'checkin'
+                        recorded_time = attendance.permission_out_at
+                        text_label = 'Permission-Out at %s' % recorded_time
+                        safe = True
+                    else:
+                        return JsonResponse({'save': safe, 'error': 'Your clock-out is already registered'})
+                elif registered_event == 'Permission-In' and attendance.permission_out_at is not None and attendance.permission_in_at is None:
+                    if attendance.clock_out_at is None:
+                        attendance.permission_in_at = formatTime(now_office.time(), to_string=True)
+                        attendance.save()
+                        last_event = 'Permission-In'
+                        register_event = 'Clock-Out'
+                        class_name = 'checkout'
+                        recorded_time = attendance.permission_in_at
+                        text_label = 'Permission-In at %s' % recorded_time
+                        permission_duration = attendance.permission_hours
+                        if permission_duration is not None:
+                            additional_information = 'Permission Hours: %s' % permission_duration
+                        safe = True
+                    else:
+                        return JsonResponse({'save': safe, 'error': 'Your clock-out is already registered'})
                 elif registered_event == 'Clock-Out' and attendance.clock_out_at is None:
                     if attendance.clock_in_at is not None:
+                        if attendance.permission_out_at and attendance.permission_in_at is None:
+                            return JsonResponse({'save': False, 'error': 'Please complete permission return before clock-out'})
                         attendance.clock_out_at = formatTime(now_office.time(), to_string=True)
                         if attendance.lunch_in_at is not None:
                             if attendance.lunch_out_at is not None:
@@ -303,13 +342,20 @@ class AttendanceControl(View):
                             second_hour = formatTime(attendance.clock_out_at, is_string=True)
                             hours_worked = abs(second_hour - first_hour)
                         attendance.hours = hours_worked
+                        attendance.overtime = attendance.overtime_hours
+                        if attendance.overtime > timedelta(seconds=0):
+                            attendance.approved = False
                         attendance.save()
                         last_event = 'Clock-Out'
                         register_event = 'Clock-In'
                         class_name = 'checkin'
                         recorded_time = attendance.clock_out_at
-                        text_label = 'Clock-In at %s' % str(recorded_time)
+                        text_label = 'Clock-Out at %s' % str(recorded_time)
                         additional_information = '%s Hours Worked' % str(hours_worked)
+                        if attendance.permission_hours:
+                            additional_information += ' | Permission %s' % str(attendance.permission_hours)
+                        if attendance.overtime and attendance.overtime > timedelta(seconds=0):
+                            additional_information += ' | Overtime %s' % str(attendance.overtime)
                         safe = True
                     else:
                         return JsonResponse({'save': safe, 'error': "Your check-in time is not recorded"})

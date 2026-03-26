@@ -1,3 +1,4 @@
+from datetime import datetime, date, timedelta
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -45,7 +46,34 @@ class Attendance(models.Model):
     lunch_in_at = models.TimeField(null=True, blank=True)
     lunch_out_at = models.TimeField(null=True, blank=True)
     clock_out_at = models.TimeField(null=True, blank=True)
+    permission_in_at = models.TimeField(null=True, blank=True)
+    permission_out_at = models.TimeField(null=True, blank=True)
+    overtime = models.DurationField(null=True, blank=True)
+    approved = models.BooleanField(default=False, null=True, blank=True)
     hours = models.DurationField(null=True, blank=True)
+
+    @property
+    def worked_hours(self):
+        if self.clock_in_at and self.clock_out_at:
+            if self.lunch_in_at and self.lunch_out_at:
+                pre_lunch = datetime.combine(date.today(), self.lunch_in_at) - datetime.combine(date.today(), self.clock_in_at)
+                post_lunch = datetime.combine(date.today(), self.clock_out_at) - datetime.combine(date.today(), self.lunch_out_at)
+                return pre_lunch + post_lunch
+            return datetime.combine(date.today(), self.clock_out_at) - datetime.combine(date.today(), self.clock_in_at)
+        return None
+
+    @property
+    def permission_hours(self):
+        if self.permission_in_at and self.permission_out_at:
+            return datetime.combine(date.today(), self.permission_in_at) - datetime.combine(date.today(), self.permission_out_at)
+        return None
+
+    @property
+    def overtime_hours(self):
+        worked = self.worked_hours
+        if worked and worked > timedelta(hours=8):
+            return worked - timedelta(hours=8)
+        return timedelta(0)
 
     def __str__(self):
         return f'{self.employee.names}-{self.id}/{self.date}'
