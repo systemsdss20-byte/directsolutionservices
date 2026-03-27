@@ -1,6 +1,6 @@
 from django.db import models
-
-from ..Procedure.models import User, Customers, Drivers, Exams, Notes
+from simple_history.models import HistoricalRecords
+from ..Procedure.models import User, Customers, Drivers, Exams
 
 
 # Create your models here.
@@ -14,6 +14,7 @@ class RandomList(models.Model):
     alcohol_testing_rate = models.DecimalField(max_digits=6,decimal_places=2)
     show = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
+    history = HistoricalRecords()
 
 
 class Detail_RandomList(models.Model):
@@ -27,6 +28,7 @@ class Detail_RandomList(models.Model):
     # test_file = models.TextField(max_length=40, null=True, blank=True)
     test_file = models.OneToOneField(Exams, models.DO_NOTHING, null=True, blank=True)
     status = models.CharField(max_length=40, null=True, blank=True)
+    history = HistoricalRecords()
 
 
 class Comments(models.Model):
@@ -36,3 +38,4 @@ class Comments(models.Model):
     updated_at = models.DateTimeField(null=True, blank=True)
     detail_random_list = models.ForeignKey(Detail_RandomList, on_delete=models.CASCADE)
     is_deleted = models.BooleanField(default=False)
+    history = HistoricalRecords()

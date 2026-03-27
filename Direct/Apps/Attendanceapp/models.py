@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from simple_history.models import HistoricalRecords
 from django.utils.translation import gettext_lazy as _
 
 
@@ -29,7 +30,7 @@ class Employee(models.Model):
         default=settings.TIME_ZONE
     )
     active = models.BooleanField(default=True, null=True, blank=True)
-
+    history = HistoricalRecords()
     def __str__(self):
         return f'{self.names} {self.surnames}'
 
@@ -46,6 +47,7 @@ class Attendance(models.Model):
     lunch_out_at = models.TimeField(null=True, blank=True)
     clock_out_at = models.TimeField(null=True, blank=True)
     hours = models.DurationField(null=True, blank=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return f'{self.employee.names}-{self.id}/{self.date}'

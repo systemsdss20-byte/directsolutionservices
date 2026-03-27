@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from encrypted_fields import fields
-# Create your models here.
 from simple_history.models import HistoricalRecords
 
 
@@ -18,6 +17,7 @@ class User(AbstractUser):
     type = models.CharField(max_length=15)
     change_password = models.BooleanField(default=True, null=True, blank=True)
     avatar = models.ImageField(null=True, blank=True, upload_to=users_directory)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.username
@@ -30,12 +30,11 @@ class States(models.Model):
     idstate = models.BigAutoField(primary_key=True)
     codestate = models.CharField("Code State", max_length=2)
     state = models.CharField('State', max_length=60)
-
+    history = HistoricalRecords()
     class Meta:
         db_table = 'states'
 
     def __str__(self):
-        state = '{}'
         return '{0} {1}'.format(self.codestate, self.state)
 
 
@@ -47,8 +46,7 @@ class Services(models.Model):
     is_active = models.BooleanField(default=True)
     is_project = models.BooleanField(default=True)
     need_invoice = models.BooleanField(default=True)
-
-    # group: Manager = models.ManyToManyField(Group)
+    history = HistoricalRecords()
 
     class Meta:
         managed = True
@@ -137,7 +135,6 @@ class Customers(models.Model):
     bit = models.CharField('OR ID#', max_length=20, null=True, blank=True)
     bitexp = models.DateField('Random Test', blank=True, default='0001-01-01')
     boe = models.CharField('MC#/ UCR/ Year', max_length=20, null=True, blank=True)
-    # iduser = models.ForeignKey(User, on_delete=models.CASCADE, null=True, db_column='iduser')
     userid = models.CharField('State User', max_length=45, null=True, blank=True)
     passuserid = models.CharField('Password', max_length=45, null=True, blank=True)
     floridaexp = models.DateField('Client Type', blank=True, default='0001-01-01')
@@ -195,7 +192,7 @@ class Road_Taxes(models.Model):
     min_gross_weight = models.IntegerField('Min Gross Weight')
     max_gross_weight = models.IntegerField('Max Gross Weight')
     tax_value = models.DecimalField('Tax Value', decimal_places=2, max_digits=6)
-
+    history = HistoricalRecords()
     def __str__(self):
         return '{0} (${1})'.format(self.category, self.tax_value)
 
@@ -210,8 +207,7 @@ class Units(models.Model):
     road_taxes = models.ForeignKey(Road_Taxes, models.DO_NOTHING, blank=True, null=True)
     year = models.CharField("Year", max_length=5)
     make = models.CharField("Make", max_length=25)
-    list_type = (('AUTO', 'AUTO'), ('BS', 'BUS'), ('DP', 'DUMP TRUCK'), ('MC', 'MOTORCYCLE'), ('MH', 'MOBILE HOME'), ('PU', 'PICKUP'), ('TK', 'TRUCK'), ('TR', 'TRACTOR'), ('TL', 'TRAILER'), ('TT', 'TOWING'),
-                  ('VESSEL', 'VESSEL'))
+    list_type = (('AUTO', 'AUTO'), ('BS', 'BUS'), ('DP', 'DUMP TRUCK'), ('MC', 'MOTORCYCLE'), ('MH', 'MOBILE HOME'), ('PU', 'PICKUP'), ('TK', 'TRUCK'), ('TR', 'TRACTOR'), ('TL', 'TRAILER'), ('TT', 'TOWING'), ('VESSEL', 'VESSEL'))
     type = models.CharField("Type", max_length=25, choices=list_type)
     vin = models.CharField("VIN", max_length=40)
     title = models.CharField("No Title", max_length=25)
@@ -269,7 +265,7 @@ class Invoice_det(models.Model):
     coments = models.CharField('Comments', max_length=200)
     cost = models.FloatField()
     delete = models.IntegerField(default=False, blank=True, null=True)
-
+    history = HistoricalRecords()
     class Meta:
         db_table = "invoice_det"
 
@@ -294,7 +290,7 @@ class Invoice_paid(models.Model):
 
 
 class Log_Invoice_cancel(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    # id = models.BigAutoField(primary_key=True)
     invoice_id = models.BigIntegerField()
     user_id = models.BigIntegerField()
     date_cancel = models.DateField(auto_now=True)
@@ -323,6 +319,7 @@ class Projects(models.Model):
     tasks_number = models.IntegerField(default=0)
     tasks_completed = models.IntegerField(default=0)
     deleted = models.IntegerField(default=False, blank=True, null=True)
+    history = HistoricalRecords()
 
     class Meta:
         db_table = "projects"
@@ -334,7 +331,8 @@ class NotesProjects(models.Model):
     date_update_comment = models.DateTimeField(null=True, blank=True)
     iduser = models.ForeignKey(User, models.DO_NOTHING)
     project = models.ForeignKey(Projects, models.DO_NOTHING)
-
+    history = HistoricalRecords()
+    
 
 class Credits(models.Model):
     idcredit = models.BigAutoField(primary_key=True)
@@ -348,6 +346,7 @@ class Credits(models.Model):
     comment = models.CharField(max_length=200, null=True, blank=True)
     idinvoice = models.ForeignKey(Invoices, models.DO_NOTHING, db_column="idinvoice")
     status = models.CharField(max_length=45)
+    history = HistoricalRecords()
 
     class Meta:
         db_table = "credits"
@@ -421,8 +420,8 @@ class Millages(models.Model):
     sk = models.FloatField("SK-Saskatchewan", blank=True, null=True)
     yt = models.FloatField("YT-Yukon", blank=True, null=True)
     total = models.FloatField("Total")
-    # idcustomer = models.PositiveIntegerField()
     idcustomer = models.ForeignKey(Customers, models.DO_NOTHING, db_column="idcustomer")
+    history = HistoricalRecords()
 
     class Meta:
         managed = False
@@ -440,6 +439,7 @@ class Recive(models.Model):
     miles = models.FloatField("Miles", blank=True, null=True)
     quarter = models.CharField("Quarter", max_length=4)
     idunit = models.CharField("Unit", max_length=45, blank=True, null=True)
+    history = HistoricalRecords()
 
     class Meta:
         managed = False
@@ -483,6 +483,7 @@ class Exams(models.Model):
     lote_expiration = models.DateField('Lote Expiration', null=True, blank=True, default='0001-01-01')
     filename = models.CharField(max_length=200, null=True, blank=True)
     path = models.FileField(upload_to=exams_directory, validators=[FileExtensionValidator(['pdf'])], blank=True, null=True)
+    history = HistoricalRecords()
 
     class Meta:
         managed = True
@@ -500,6 +501,7 @@ class Notes(models.Model):
     highlight = models.BooleanField("Highlight", default=False)
     pin_up = models.BooleanField("Pin Up", default=False)
     status = models.CharField(max_length=15, default='Active', null=True, blank=True)
+    history = HistoricalRecords()
 
     class Meta:
         managed = True
@@ -518,6 +520,7 @@ class Payable(models.Model):
     typepayamount = models.CharField(max_length=45)
     iduser = models.PositiveIntegerField()
     typetrans = models.CharField(max_length=45)
+    history = HistoricalRecords()
 
     class Meta:
         managed = False
@@ -531,6 +534,7 @@ class Random(models.Model):
     quarter = models.IntegerField(default=0)
     type = models.CharField(max_length=45)
     iddriver = models.ForeignKey('Drivers', models.DO_NOTHING, db_column='iddriver')
+    history = HistoricalRecords()
 
     class Meta:
         managed = True
@@ -544,6 +548,7 @@ class RandomTest(models.Model):
     random_drivers = models.IntegerField()
     idcustomer = models.ForeignKey('Customers', models.DO_NOTHING)
     iddriver = models.ForeignKey('Drivers', models.DO_NOTHING, blank=True, null=True)
+    history = HistoricalRecords()
 
 
 class Cards(models.Model):
@@ -582,6 +587,7 @@ class Task(models.Model):
     archived_at = models.DateTimeField(blank=True, null=True)
     project = models.ForeignKey(Projects, models.DO_NOTHING, blank=True, null=True)
     due_date = models.DateTimeField(blank=True, null=True)
+    history = HistoricalRecords()
 
 
 def customer_directory(instance, filename):
@@ -598,6 +604,7 @@ class Customer_Files(models.Model):
     erased_by = models.ForeignKey(User, models.DO_NOTHING, related_name='erased_by_id', null=True, blank=True)
     erased = models.BooleanField(default=False)
     erased_file_date = models.DateTimeField(null=True, blank=True)
+    history = HistoricalRecords()
 
 
 class News(models.Model):
@@ -612,6 +619,7 @@ class News(models.Model):
     repeat_since = models.DateTimeField(auto_now=True)
     repeat_until = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    history = HistoricalRecords()
 
 
 class Email_Log(models.Model):
@@ -621,11 +629,13 @@ class Email_Log(models.Model):
     email = models.CharField(max_length=255)
     invoice = models.ForeignKey(Invoices, models.DO_NOTHING, blank=True, null=True)
     user = models.ForeignKey(User, models.DO_NOTHING, blank=True, null=True)
+    history = HistoricalRecords()
 
 
 class Florida_Tag(models.Model):
     classification_gvw = models.CharField(max_length=25)
     is_deleted = models.BooleanField(default=False)
+    history = HistoricalRecords()
 
 
 class Fl_Tag_Price_Month(models.Model):
@@ -633,3 +643,4 @@ class Fl_Tag_Price_Month(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     florida_tag = models.ForeignKey(Florida_Tag, on_delete=models.DO_NOTHING)
     is_deleted = models.BooleanField(default=False)
+    history = HistoricalRecords()

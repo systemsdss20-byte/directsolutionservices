@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-
+from simple_history.models import HistoricalRecords
 from ..Procedure.models import User
 
 
@@ -51,7 +51,7 @@ class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     public = models.BooleanField(default=False)
-
+    history = HistoricalRecords()
     objects = EventManager()
     def __str__(self):
         return self.title

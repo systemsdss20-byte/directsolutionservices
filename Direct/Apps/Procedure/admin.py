@@ -2,7 +2,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from simple_history.admin import SimpleHistoryAdmin
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import Services, User, Group, Invoice_paid, Cards
+from .models import Services, User, Group, Customers
 from django.contrib import admin
 
 
@@ -44,7 +44,7 @@ class ServicesAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.filter(is_active=True)
+        return queryset
 
 #admin.site.register(States)
 admin.site.register(Services, ServicesAdmin)
@@ -55,5 +55,5 @@ admin.site.unregister(Group)
 admin.site.register(Group,CustomGroupAdmin)
 # admin.site.register(Invoice_paid, SimpleHistoryAdmin)
 admin.site.register(Attendance)
-#admin.site.register(Customers, SimpleHistoryAdmin)
+admin.site.register(Customers, SimpleHistoryAdmin)
 #admin.site.register(Units, SimpleHistoryAdmin)

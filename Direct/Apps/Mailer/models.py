@@ -1,5 +1,5 @@
 from django.db import models
-
+from simple_history.models import HistoricalRecords
 # Create your models here.
 
 class EmailQueue(models.Model):
@@ -10,6 +10,7 @@ class EmailQueue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     error_message = models.TextField(blank=True, null=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Queued Email'
