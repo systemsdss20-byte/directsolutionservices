@@ -191,15 +191,20 @@ class InvoiceForm(forms.ModelForm):
 
 
 class InvoiceDetForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [('0', '--select--')]
+        choices.extend(
+            (s.description, "{0} {1}".format(s.idservice, s.description))
+            for s in Services.objects.filter(is_active=True).only('idservice', 'description')
+        )
+        self.fields['service'].widget.choices = choices
+
     class Meta:
         model = Invoice_det
-        choices = list()
-        choices.append(('0', '--select--'))
-        for s in Services.objects.filter(is_active=True):
-            choices.append((s.description, "{0} {1}".format(s.idservice, s.description)))
         widgets = {
             "code": NumberInput(attrs={'class': 'code form-control', 'readonly': 'True'}),
-            "service": Select(choices=choices,
+            "service": Select(choices=(('0', '--select--'),),
                               attrs={'class': 'services form-control', 'select': ' '}),
             "quantity": NumberInput(attrs={'class': 'qty form-control', 'required': 'true'}),
             "cost": NumberInput(attrs={'class': 'price form-control'}),
@@ -423,25 +428,45 @@ class TaskForm(forms.Form):
     title = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control form-control-sm text-black', 'required': 'True', 'required': 'required'}))
     priority = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}), required=False)
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'cols': 40, 'class': 'form-control form-control-sm text-black'}), required=False)
-    users = list()
-    users.append(('0', '--Select--'))
-    for user in User.objects.filter(is_active=True):
-        users.append((user.id, user.fullname))
     due_date = forms.DateTimeField(required=False, widget=forms.DateTimeInput(attrs={'class': 'form-control datepicker text-black', 'required': 'False'}))
-    to_assign = forms.ChoiceField(choices=users, required=False)
+    to_assign = forms.ChoiceField(choices=(('0', '--Select--'),), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        users = [('0', '--Select--')]
+        users.extend(
+            (user.id, user.fullname)
+            for user in User.objects.filter(is_active=True).only('id', 'fullname')
+        )
+        self.fields['to_assign'].choices = users
 
 
 class ProjectsForm(forms.Form):
-    customers = list()
-    customers.append(('', '------- Select ---------'))
-    for customer in Customers.objects.filter(clientstatus='Active').only('idcustomer', 'cusname'):
-        customers.append((customer.idcustomer,'{0}-{1}'.format(customer.idcustomer, customer.cusname)))
-    services = list()
-    services.append(('', '-------- Select ---------'))
-    for service in Services.objects.filter(is_active=True, is_project=True, need_invoice=False):
-        services.append((service.idservice,service.description))
-    customer = forms.ChoiceField(choices=customers, widget=forms.Select(attrs={'class': 'form-select form-select-lg selectize'}))
-    service = forms.ChoiceField(choices=services, widget=forms.Select(attrs={'class': 'form-select form-select-lg selectize'}))
+    customer = forms.ChoiceField(
+        choices=(('', '------- Select ---------'),),
+        widget=forms.Select(attrs={'class': 'form-select form-select-lg selectize'})
+    )
+    service = forms.ChoiceField(
+        choices=(('', '-------- Select ---------'),),
+        widget=forms.Select(attrs={'class': 'form-select form-select-lg selectize'})
+    )
     #service_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control form-control-sm'}))
     quantity = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'type': 'number'}))
     comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control form-control-sm', 'cols': 40, 'rows': 2}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        customers = [('', '------- Select ---------')]
+        customers.extend(
+            (customer.idcustomer, '{0}-{1}'.format(customer.idcustomer, customer.cusname))
+            for customer in Customers.objects.filter(clientstatus='Active').only('idcustomer', 'cusname')
+        )
+        services = [('', '-------- Select ---------')]
+        services.extend(
+            (service.idservice, service.description)
+            for service in Services.objects.filter(is_active=True, is_project=True, need_invoice=False).only(
+                'idservice', 'description'
+            )
+        )
+        self.fields['customer'].choices = customers
+        self.fields['service'].choices = services

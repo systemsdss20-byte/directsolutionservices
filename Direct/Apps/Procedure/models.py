@@ -39,13 +39,36 @@ class States(models.Model):
 
 
 class Services(models.Model):
+    
+    class RenewalFrequency(models.TextChoices):
+        MONTHLY = 'Monthly', 'Monthly'
+        YEARLY = 'Yearly', 'Yearly'
+        NONE = 'None', 'None'
+    class ExpirationType(models.TextChoices):
+        INTERNAL = 'Internal', 'Internal Calculation'
+        EXTERNAL = 'External', 'External Authority'
+        NONE = 'None', 'No Expiration'
+        
     idservice = models.BigAutoField(primary_key=True)
     description = models.CharField(max_length=200, blank=True, null=True)
     rate = models.FloatField(blank=True, null=True)
     cost = models.FloatField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
     is_project = models.BooleanField(default=True)
     need_invoice = models.BooleanField(default=True)
+    is_for_unit = models.BooleanField(default=False)
+    should_notify_client = models.BooleanField(default=False)
+    renewal_frequency = models.CharField(
+        max_length=10,
+        choices=RenewalFrequency.choices,
+        default=RenewalFrequency.NONE
+    )
+    expiration_type = models.CharField(
+        max_length=10,
+        choices=ExpirationType.choices,
+        default=ExpirationType.NONE
+    )
+
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -264,6 +287,7 @@ class Invoice_det(models.Model):
     discountype = models.CharField(max_length=20, null=True, blank=True)
     coments = models.CharField('Comments', max_length=200)
     cost = models.FloatField()
+    renewal_period = models.CharField(max_length=45, null=True, blank=True)
     delete = models.IntegerField(default=False, blank=True, null=True)
     history = HistoricalRecords()
     class Meta:
@@ -316,6 +340,7 @@ class Projects(models.Model):
     statuslast = models.DateField()
     iduserlast = models.ForeignKey(User, models.DO_NOTHING, db_column='iduserlast', related_name='iduserlast')
     idcustomer = models.ForeignKey('Customers', models.DO_NOTHING, db_column='idcustomer')
+    unit_id = models.ForeignKey('Units', models.DO_NOTHING, db_column='unit_id', null=True, blank=True)
     tasks_number = models.IntegerField(default=0)
     tasks_completed = models.IntegerField(default=0)
     deleted = models.IntegerField(default=False, blank=True, null=True)
