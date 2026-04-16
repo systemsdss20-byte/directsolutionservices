@@ -32,7 +32,7 @@ class CustomUserAdmin(UserAdmin):
     
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.filter(is_active=True)
+        return queryset
 
 
 class CustomGroupAdmin(GroupAdmin):
