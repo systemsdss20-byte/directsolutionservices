@@ -1,6 +1,7 @@
 import base64
 import os
 import shutil
+import time
 
 import pypdftk
 from django.contrib.auth.decorators import login_required
@@ -326,8 +327,8 @@ def iftaapp(request, customer_id):
             data[frmplate] = plates[count]
 
         file_name = 'iftaapp%s.pdf' % customer_id
-        generate_pdf_fill(template_path, data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill(template_path, data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -352,8 +353,8 @@ def ifta_licenses(request, customer_id):
         data = {'NAME': customer.cusname, 'IFTA': customer.iftaid, 'ISSUEDATE': issuedate.strftime('%m/%d/%Y'),
                 'EFFDATE': effdate.strftime('%m/%d/%Y'), 'EXPDATE': datefinal.strftime('%m/%d/%Y')}
         file_name = 'iftalicense{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IFTA/LICENSE.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IFTA/LICENSE.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -367,8 +368,8 @@ def ifta_texas(request, customer_id):
                 '5_ss': customer.ssn if customer.ssn else ''
                 }
         file_name = 'ap178_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IFTA/ap178.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IFTA/ap178.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -381,8 +382,8 @@ def ifta_fuel_taxes(request, customer_id):
             'COMPANY': customer.cusname
         }
         file_name = 'fuel_taxes_form_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IFTA/FUEL_TAXES_FORM.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IFTA/FUEL_TAXES_FORM.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -402,8 +403,8 @@ def ifta_cancel(request, customer_id):
                 'OWNER': customer.owner + ' ' + customer.owner_surname
                 }
         file_name = 'ifta_cancel_licenses{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IFTA/IFTACANCELATION.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IFTA/IFTACANCELATION.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -422,8 +423,8 @@ def ifta_remplace(request, customer_id):
                 'YEAR': unit.year, 'MAKE': unit.make,
                 'VIN': unit.vin, 'PLATE': unit.irp, 'OWNER': customer.owner + ' ' + customer.owner_surname}
         file_name = 'ifta_remplace{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IFTA/IFTAREMPLACE.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IFTA/IFTAREMPLACE.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -447,8 +448,8 @@ def ifta_address_change(request, customer_id):
         else:
             data['Name'] = customer.owner + " " + customer.owner_surname
         file_name = 'ifta_address{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IFTA/IFTAADDRESSCHANGE.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IFTA/IFTAADDRESSCHANGE.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 def poa_local(request, customer_id):
@@ -504,8 +505,8 @@ def poa_local(request, customer_id):
             data['ZIP-CO-OWNER'] = unit.idcustomer.codepostal
         # Generate pdf
         file_name = 'poa_local{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/POALOCAL.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/POALOCAL.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -529,8 +530,8 @@ def billsale_pdf(request, customer_id):
                 'P-ZIP': request.POST.get('zipcode_purchaser'), 'P-DATE': request.POST.get('date_seller')
                 }
         file_name = 'billsale{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/BILLSALE.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/BILLSALE.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -592,8 +593,8 @@ def transfers_pdf(request, customer_id):
         data['color'] = str(request.POST.get('color'))
         data['FL title number 1'] = str(request.POST.get('title'))
         file_name = 'transfers{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/TRANSFERS.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/TRANSFERS.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -626,8 +627,8 @@ def duplicate_title(request, customer_id):
         }
         # Generate pdf
         file_name = 'duplicate_title{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/DUPLICATE_TITLE.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/DUPLICATE_TITLE.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -654,9 +655,9 @@ def Personal_Lease_Agreement(request, customer_id):
             'YEAR': unit.year if unit.year is not None else '', 'UNIT': unit.nounit if unit.nounit is not None else ''
         }
         # Generate pdf
-        file_name = 'duplicate_title{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/LEASE_AGREEMENT.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        file_name = 'lease_agreement{0}.pdf'.format(customer_id)
+        unique_file_name = generate_pdf_fill('LOCAL/LEASE_AGREEMENT.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 @login_required(login_url='Procedure:login')
 def Surrender_License_Plate(request, customer_id):
@@ -682,9 +683,9 @@ def Surrender_License_Plate(request, customer_id):
             'Owner Name': customer.cusname if selected_owner == '1' and selected_owner != '' else owner_name
         }
         # Generate pdf
-        file_name = 'duplicate_title{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/Surrender-License-Plate-Form.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        file_name = 'surrender_license_plate{0}.pdf'.format(customer_id)
+        unique_file_name = generate_pdf_fill('LOCAL/Surrender-License-Plate-Form.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 @login_required(login_url='Procedure:login')
 def certificate_vessel_title(request, customer_id):
@@ -717,8 +718,8 @@ def certificate_vessel_title(request, customer_id):
             'DL/FEI': customer.fein if selected_owner == '1' and selected_owner != '' else customer.lic
         }
         file_name = '82040_vs_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/82040-vs.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/82040-vs.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 @login_required(login_url='Procedure:login')
 def certificate_mv_title(request, customer_id):
@@ -734,11 +735,13 @@ def certificate_mv_title(request, customer_id):
         )
     if request.method == 'POST':
         customer = Customers.objects.only('owner', 'owner_surname', 'cusname').get(idcustomer=customer_id)
-        selected_owner = request.POST.get('owner')
+        #TODO Verificar el funcionamiento cuando se selecciona compania el atributo de owners
+        #Ambiente de pruebas funciona
+        selected_owner = int(request.POST.get('owner'))
         today = date.today().strftime("%m/%d/%Y")
         unit = Units.objects.get(idunit=request.POST.get('unit'))
         data = {
-            'Owners': customer.cusname if selected_owner == '1' and selected_owner != '' else '{0} {1}'.format(
+            'Owners': customer.cusname if selected_owner == 1 and selected_owner != '' else '{0} {1}'.format(
                 customer.owner, customer.owner_surname),
             'Owners Name': '%s %s' % (customer.owner, customer.owner_surname),
             'Full Name': '{0} {1}'.format(customer.owner, customer.owner_surname),
@@ -747,13 +750,13 @@ def certificate_mv_title(request, customer_id):
             'Owners Mailing State': customer.state, 'Owners Zip Code': customer.codepostal,
             'Owners Residential Street Address': customer.address, 'Owners Residential City': customer.city,
             'Owners Residential State': customer.state, 'Owners Residential Zip Code': customer.codepostal,
-            'Owners Email': customer.email, 'DL/FEI': customer.fein if selected_owner == '1' and selected_owner != '' else customer.lic,
+            'Owners Email': customer.email, 'DL/FEI': customer.fein if selected_owner == 1 and selected_owner != '' else customer.lic,
             'VIN': unit.vin, 'TITLE': unit.title, 'PLATE': unit.irp, 'MAKE': unit.make, 'Year': unit.year,
             'Color': unit.color, 'Weight': unit.empty, 'Gross Vehicle Weight': unit.gross, 'Date': today
         }
         file_name = '82040_mv_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/82040-mv.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/82040-mv.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 @login_required(login_url='Procedure:login')
 def certificate_mh_title(request, customer_id):
@@ -785,8 +788,8 @@ def certificate_mh_title(request, customer_id):
             "VIN": unit.vin, "Title": unit.title, "Make": unit.make, "Year": unit.year,
         }
         file_name = '82040_mh_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('LOCAL/82040-mh.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('LOCAL/82040-mh.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -821,8 +824,8 @@ def separate_odometer(request, customer_id):
             }
             # Generate pdf
             file_name = 'separate_odometer{0}.pdf'.format(customer_id)
-            generate_pdf_fill('LOCAL/SEPARATE_ODOMETER.pdf', data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill('LOCAL/SEPARATE_ODOMETER.pdf', data, file_name)
+            return JsonResponse({'filename': unique_file_name})
         except Exception as e:
             return HttpResponse({}, content_type='application/json', status=500)
 
@@ -854,8 +857,8 @@ def license_plate(request, customer_id):
             }
             # Generate pdf
             file_name = 'license_plate{0}.pdf'.format(customer_id)
-            generate_pdf_fill('LOCAL/LICENSE_PLATE.pdf', data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill('LOCAL/LICENSE_PLATE.pdf', data, file_name)
+            return JsonResponse({'filename': unique_file_name})
         except Exception as e:
             print(e)
             return HttpResponse({}, content_type='application/json', status=500)
@@ -887,8 +890,8 @@ def application_transporter_license_plate(request, customer_id):
             }
             # Generate pdf
             file_name = 'application_transporter_license_plate{0}.pdf'.format(customer_id)
-            generate_pdf_fill('LOCAL/83065.pdf', data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill('LOCAL/83065.pdf', data, file_name)
+            return JsonResponse({'filename': unique_file_name})
         except Exception as e:
             print(e)
             return HttpResponse({}, content_type='application/json', status=500)
@@ -952,8 +955,8 @@ def mcs150(request, customer_id):
         for chk in cargo:
             data[chk] = 'On'
         file_name = 'MCS150{0}.pdf'.format(customer_id)
-        generate_pdf_fill('DOT/MCS-150.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('DOT/MCS-150.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 class Clearing_House_Account(View):
@@ -983,8 +986,8 @@ class Clearing_House_Account(View):
         data['USERNAME'] = username if username else ' '
         data['PASSWORD'] = password if password else ' '
         file_name = 'clearing_house_{0}.pdf'.format(certificate_name)
-        generate_pdf_fill('DOT/CLEARING_HOUSE_ACCOUNT.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('DOT/CLEARING_HOUSE_ACCOUNT.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1110,8 +1113,8 @@ def irpapp(request, customer_id):
             count += 1
         data['FLEET NUMBER'] = len(safely_list)
         file_name = 'irpapp{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IRP/IRPAPP.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IRP/IRPAPP.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1133,8 +1136,8 @@ def irp_transfers(request, customer_id):
                 'MAKE': unit.make, 'VIN': unit.vin, 'PLATE': unit.irp, 'YEAR2': unit_to.year, 'MAKE2': unit_to.make,
                 'VIN2': unit_to.vin}
         file_name = 'IRPTRANSFERS{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IRP/IRPTRANSFERS.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IRP/IRPTRANSFERS.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1155,8 +1158,8 @@ def irp_nonuse(request, customer_id):
                 'VIN': unit.vin, 'YEAR': today.strftime('%y'), 'MONTH': today.strftime('%B'), 'DAY': today.strftime('%d'),
                 'FROM': date_from, 'THRU': date_thru, 'DATE': today.strftime("%m/%d/%Y")}
         file_name = 'nonuse{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IRP/NONUSE-AFFIDAVIT.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IRP/NONUSE-AFFIDAVIT.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1216,8 +1219,8 @@ def irp_prepass(request, customer_id):
             count = count + 1
 
         file_name = 'PREPASS{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IRP/PREPASS.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IRP/PREPASS.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1232,8 +1235,8 @@ def irp_texas(request, customer_id):
             'Date': today
         }
         file_name = 'irptexas{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IRP/MCD358.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IRP/MCD358.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1253,8 +1256,8 @@ def irp_85100(request, customer_id):
                 'Title Number': unit.title if unit.title else '', 'Plate Number': unit.irp if unit.irp else '',
                 'Unit Number': unit.nounit if unit.nounit else ''}
         file_name = 'irp85100_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('IRP/85100.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('IRP/85100.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 # END IRP
 
 
@@ -1301,8 +1304,8 @@ def other_poa(request, customer_id):
             data['INDIVIDUAL'] = 'Off'
             data['COMPANY'] = 'On'
         file_name = 'POA{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/POA.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/POA.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 @login_required(login_url='Procedure:login')
 def other_keeping(request, customer_id):
@@ -1326,8 +1329,8 @@ def other_keeping(request, customer_id):
             data['IRP'] = customer.irpid
             data['IFTA'] = customer.iftaid
         file_name = 'KEEPING{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/KEEPING.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/KEEPING.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1339,8 +1342,8 @@ def other_efile(request, customer_id):
                 'EMAIL': 'INFO@DIRECTSOLUTIONSERVICES.COM',
                 'OWNER': customer.owner + ' ' + customer.owner_surname, 'TITLE': 'OWNER', 'DATE': today}
         file_name = 'EFILE{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/EFILE2021.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/EFILE2021.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1390,8 +1393,8 @@ def other_lease(request, customer_id):
             count = count + 1
 
         file_name = 'LEASE{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/LEASE.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/LEASE.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1447,8 +1450,8 @@ def other_mcd356texas(request, customer_id):
             data[dateprice] = unit.date.strftime('%m/%d/%Y')
             count = count + 1
         file_name = 'mcd-356-texas{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/mcd-356-texas-form.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/mcd-356-texas-form.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1475,8 +1478,8 @@ def other_crttitle(request, customer_id):
                 'color': str(request.POST.get('color')), 'FL title number 1': str(request.POST.get('title')), 'gvw/loc': str(request.POST.get('gross')),
                 'wgt': str(request.POST.get('empty')), 'Choose One Application Type': str(request.POST.get('Application-Type'))}
         file_name = 'crtTitle{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/82040.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/82040.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1495,8 +1498,8 @@ def other_vin_verification(request, customer_id):
             'VIN': unit.vin, 'Year': unit.year, 'Make': unit.make, 'Body Type': unit.type if unit.type else '',
         }
         file_name = 'vinverification_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/VINVerification.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/VINVerification.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1513,8 +1516,8 @@ def other_general_affidavit(request, customer_id):
             idunit=idunit)
         data = {'CUSTOMER': unit.idcustomer.cusname, 'MAKE': unit.make, 'YEAR': unit.year, 'VINHIN': unit.vin, 'TITLE': unit.title, 'DATE': today}
         file_name = 'general-affidavit{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/general-affidavit.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/general-affidavit.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1533,8 +1536,8 @@ def other_annual_vehicle_inspection(request, customer_id):
         data = {'MOTOR CARRIER OPERATOR': unit.idcustomer.cusname, 'ADDRESS': unit.idcustomer.address, 'CITY STATE ZIP CODE': cszc,
                 'VEHICLE INFORMATION': unit.vin, 'FLEET UNIT NUMBER': unit.nounit, 'DATE': today, 'VIDENTIFICATION': 'VIN'}
         file_name = 'annual_vehicle_inspection{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/ANNUAL_VEHICLE_INSPECTION_REPORT.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/ANNUAL_VEHICLE_INSPECTION_REPORT.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1555,8 +1558,8 @@ def other_florida_quit_claim_deed(request, customer_id):
             'AMOUNT': request.POST.get('amount')
         }
         file_name = 'florida_quit_claim_deed{0}.pdf'.format(customer_id)
-        generate_pdf_fill('OTHER/Quit_Claim_Deed_Form.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/Quit_Claim_Deed_Form.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 @login_required(login_url='Procedure:login')
 def other_replacementLicensePlateValidationDecalParkingPermit(request, customer_id):
@@ -1582,8 +1585,8 @@ def other_replacementLicensePlateValidationDecalParkingPermit(request, customer_
                 'Date': today.strftime('%m/%d/%Y')
             }
             file_name = 'hsmv83146{0}.pdf'.format(customer_id)
-            generate_pdf_fill('OTHER/REPLACEMENT_LICENSE_PLATE.pdf', data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill('OTHER/REPLACEMENT_LICENSE_PLATE.pdf', data, file_name)
+            return JsonResponse({'filename': unique_file_name})
         else:
             message = JsonResponse({'description': 'Please select a unit.', 'type': 'error'})
             return HttpResponse(message, content_type="application/json", status=500)
@@ -1611,8 +1614,8 @@ def permits_ny(request, customer_id):
             data['LLC'] = 'ON'
             data['TITLE'] = 'MGR'
         file_name = 'ny{0}.pdf'.format(customer_id)
-        generate_pdf_fill('PERMITS/NY.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('PERMITS/NY.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1671,8 +1674,8 @@ def permits_nj(request, customer_id):
                     position += 1
                     data[ssn_form] = ssn[i]
         file_name = 'nj{0}.pdf'.format(customer_id)
-        generate_pdf_fill('PERMITS/NJ.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('PERMITS/NJ.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1694,8 +1697,8 @@ def permits_nm(request, customer_id):
             'Starting Period': request.POST.get('start_period'), 'Ending Period': request.POST.get('end_period')
         }
         file_name = 'nmpermit_{0}.pdf'.format(customer_id)
-        generate_pdf_fill('PERMITS/NM.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('PERMITS/NM.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})
 
 
 @login_required(login_url='Procedure:login')
@@ -1743,8 +1746,8 @@ def labcorp(request, customer_id):
                 template_name = 'LAB_CORP_ALCOHOL_TEST.pdf'
             path_file = f'/DOT/LABCORP/{template_name}'
             file_name = '{0}_{1}.pdf'.format(labcorp_form, customer_id)
-            generate_pdf_fill(path_file, data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill(path_file, data, file_name)
+            return JsonResponse({'filename': unique_file_name})
         except Exception as e:
             return MessageResponse(description='Check the data', data={}).warning()
     
@@ -1765,8 +1768,8 @@ class BillSaleInterstate(View):
             data = {'Identification no': request.POST.get('vin'), 'Yr Model': request.POST.get('year'), 'Make': request.POST.get('make'),
                     'Selling Price': request.POST.get('price')}
             file_name = 'saleinterstate{0}.pdf'.format(kwargs['customer_id'])
-            generate_pdf_fill('OTHER/reg135.pdf', data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill('OTHER/reg135.pdf', data, file_name)
+            return JsonResponse({'filename': unique_file_name})
 
 
 class Certificate_Enrollment_Alcohol_Drug(View):
@@ -1785,15 +1788,19 @@ class Certificate_Enrollment_Alcohol_Drug(View):
             data = {'cusname': customer.cusname, 'effective date': effective_date.strftime('%B %d, %Y'), 'expiration date': expiration_date.strftime('%B %d, %Y')}
             file_name = '{0}_CERTIFICATE_ENROLLMENT.pdf'.format(kwargs['customer_id'])
             # file_name = '{0}_CERTIFICATE_ENROLLMENT.pdf'.format(customer.cusname.replace(" ","_"))
-            generate_pdf_fill('CERTIFICADO_ALCOHOL_DRUG.pdf', data, file_name)
-            return JsonResponse({'filename': file_name})
+            unique_file_name = generate_pdf_fill('CERTIFICADO_ALCOHOL_DRUG.pdf', data, file_name)
+            return JsonResponse({'filename': unique_file_name})
 
 
 def generate_pdf_fill(template_name, data, file_name, flatten=False):
     path_template = settings.TEMPLATES_PDF + '/' + template_name
     template = FileSystemStorage(location=path_template)
-    out_file = settings.FILES_PDF + '/' + file_name
+    # Add timestamp to filename to avoid cache issues
+    name_parts = file_name.rsplit('.', 1)
+    unique_file_name = f"{name_parts[0]}_{int(time.time())}.{name_parts[1]}"
+    out_file = settings.FILES_PDF + '/' + unique_file_name
     pypdftk.fill_form(template.location, data, out_file, flatten=flatten)
+    return unique_file_name
 
 
 @login_required(login_url='Procedure:login')
@@ -1929,5 +1936,5 @@ def small_corp(request, customer_id):
             data['TITLE'] = '?'
 
         file_name = 'small-corp%s.pdf' % customer_id
-        generate_pdf_fill('OTHER/SMALLCORPf2553.pdf', data, file_name)
-        return JsonResponse({'filename': file_name})
+        unique_file_name = generate_pdf_fill('OTHER/SMALLCORPf2553.pdf', data, file_name)
+        return JsonResponse({'filename': unique_file_name})

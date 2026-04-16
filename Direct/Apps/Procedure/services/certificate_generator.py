@@ -25,6 +25,7 @@ class CertificateGenerator:
         doc.save(directory)
         return directory
     
+    
     @staticmethod
     def generate_enrollment_pdf(cusname, effective_date, expiration_date):
         try:
@@ -34,8 +35,8 @@ class CertificateGenerator:
                 'expiration date': expiration_date
             }
             file_name = f"{cusname.replace(' ', '_').replace('&', '')}_CERTIFICATE_ENROLLMENT.pdf"
-            file_path = os.path.join(settings.FILES_PDF, file_name)
-            generate_pdf_fill('CERTIFICADO_ALCOHOL_DRUG.pdf', data, file_name, flatten=True)
+            unique_file_name = generate_pdf_fill('CERTIFICADO_ALCOHOL_DRUG.pdf', data, file_name, flatten=True)
+            file_path = os.path.join(settings.FILES_PDF, unique_file_name)
             return file_path
         except Exception as e:
             raise ValueError(f"Error generating enrollment certificate: {e}")
